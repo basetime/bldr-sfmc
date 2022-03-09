@@ -1,5 +1,7 @@
 # sfmc-builder-cli
-CLI Development Tool for Salesforce Marketing Cloud
+CLI Development Tool for Salesforce Marketing Cloud.
+
+
 ```
 Command         | Flag                           | Description                                                                     
 --------------- | ------------------------------ | --------------------------------------------------------------------------------
