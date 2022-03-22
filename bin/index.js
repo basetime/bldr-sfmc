@@ -3,7 +3,8 @@ const yargs = require("yargs");
 const yargsInteractive = require("yargs-interactive");
 
 const configSwitch = require("../lib/config/switch");
-const stateSwitch = require("../lib/state/switch");
+const addSwitch = require("../lib/add/switch");
+//const stateSwitch = require("../lib/state/switch");
 const contextSwitch = require("../lib/context/contextSwitch");
 //const cloneSwitch = require("../lib/clone/switch");
 const help = require('../lib/help/init')
@@ -14,16 +15,16 @@ const argv = yargs.argv;
 console.log('input', { req: req, argv: argv })
 
 if (!req) {
-  
+
   help.init();
-  
+
 } else {
   switch (req) {
     case "config":
       configSwitch.switch(req, argv);
       break;
-    case "state":
-      stateSwitch.switch(req, argv);
+    case "add":
+      addSwitch.switch(req, argv);
       break;
     default:
       contextSwitch.switch(req, argv);

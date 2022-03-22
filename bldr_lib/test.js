@@ -2,9 +2,9 @@ const bldr = require('./index')
 
 
 const getFolders = async () => {
-  const resp = await bldr.folder.get()
-  console.log('getfolder', resp)
+  const resp = await bldr.folder.getFoldersRecursiveDESC(69858)
+  
+  console.log(resp)
 }
 
-const folder = getFolders()
-console.log(folder)
+getFolders()

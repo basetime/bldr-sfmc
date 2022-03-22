@@ -1,36 +1,70 @@
+const DataFolder = require("./definitions/DataFolder");
+const {describeSoap} = require('./utils/index')
 
 module.exports = class Folder {
-  constructor(rest, soap) {
-    this.rest = rest;
+  constructor(soap) {
     this.soap = soap;
   }
 
-  async get() {
-      const resp = await this.soap.retrieve('DataFolder', [
-        'ID',
-        'Name',
-        'ParentFolder.ID',
-        'ContentType'
-      ], {
+  async search(contentType, searchKey, searchTerm) {
+    try {
+      const resp = await this.soap.retrieve('DataFolder', DataFolder, {
         filter: {
           leftOperand: {
             leftOperand: 'ContentType',
             operator: 'equals',
-            rightOperand: 'asset'
+            rightOperand: contentType
           },
           operator: 'AND',
           rightOperand: {
-            leftOperand: 'ID',
+            leftOperand: searchKey,
+            operator: 'like',
+            rightOperand: searchTerm
+          }
+        }
+      });
+     
+      if (resp.OverallStatus !== 'OK')
+        throw new Error('Unable to Retrieve Folders')
+
+      return resp
+
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+
+
+  async get(contentType, id, subfolders) {
+    try {
+      const resp = await this.soap.retrieve('DataFolder', DataFolder, {
+        filter: {
+          leftOperand: {
+            leftOperand: 'ContentType',
             operator: 'equals',
-            rightOperand: 69859
+            rightOperand: contentType
+          },
+          operator: 'AND',
+          rightOperand: {
+            leftOperand: subfolders ? 'ParentFolder.ID' : 'ID',
+            operator: 'equals',
+            rightOperand: id
           }
         }
       });
 
-      console.log(resp)
-      return resp.Results.length
-       
+      if (resp.OverallStatus !== 'OK')
+        throw new Error('Unable to Retrieve Folders')
+
+      return resp
+
+    } catch (err) {
+      console.log(err)
+    }
   }
+
+
 
 }
 

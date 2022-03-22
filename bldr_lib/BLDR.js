@@ -1,4 +1,6 @@
 const SDK = require('sfmc-sdk');
+const Clone = require('../lib/utils/Blueprint/Clone');
+const Asset = require('./Asset');
 const Folder = require('./Folder')
 
 module.exports = class BLDR {
@@ -10,6 +12,7 @@ module.exports = class BLDR {
     constructor(authObject) {
         this.authObject = authObject;
         this.client = new SDK(this.authObject);
-        this.folder = new Folder(this.client.rest, this.client.soap);
+        this.folder = new Folder(this.client.soap);
+        this.asset = new Asset(this.client.rest)
     }
 };
