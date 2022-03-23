@@ -1,5 +1,4 @@
 const DataFolder = require("./definitions/DataFolder");
-const {describeSoap} = require('./utils/index')
 
 module.exports = class Folder {
   constructor(soap) {
@@ -23,7 +22,7 @@ module.exports = class Folder {
           }
         }
       });
-     
+
       if (resp.OverallStatus !== 'OK')
         throw new Error('Unable to Retrieve Folders')
 

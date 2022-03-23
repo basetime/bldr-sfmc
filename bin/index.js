@@ -4,9 +4,7 @@ const yargsInteractive = require("yargs-interactive");
 
 const configSwitch = require("../lib/config/switch");
 const addSwitch = require("../lib/add/switch");
-//const stateSwitch = require("../lib/state/switch");
 const contextSwitch = require("../lib/context/contextSwitch");
-//const cloneSwitch = require("../lib/clone/switch");
 const help = require('../lib/help/init')
 
 const req = yargs.argv._[0] ? yargs.argv._[0].toLowerCase() : null;
