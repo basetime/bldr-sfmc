@@ -27,13 +27,12 @@ module.exports = class Account {
 
       return resp
     } catch (err) {
-      console.log(err)
+      throw err
     }
   }
 
 
   async getAccountDetail(mid) {
-
     try {
       const req = await this.soap.retrieve('Account', AccountDefinition, {
         QueryAllAccounts: true,
