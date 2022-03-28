@@ -75,17 +75,24 @@ module.exports = class Asset {
   }
 
 
-  async postAsset(asset) { 
+  async postAsset(asset) {
     // name, assetType, content
 
 
   }
 
 
-  async patchAsset(asset) { 
-    const assetId = asset.id;
-    const resp = await this.rest.patch(`/asset/v1/content/assets/${assetId}`, asset);
-    console.log(resp);
+  async putAsset(asset) {
+    try {
+      if (!asset.id)
+        throw new Error('Asset Id is required')
+
+      const assetId = asset.id;
+      const resp = await this.rest.put(`/asset/v1/content/assets/${assetId}`, asset);
+      return resp
+    } catch (err) {
+      console.log(err)
+    }
   }
 
 }
