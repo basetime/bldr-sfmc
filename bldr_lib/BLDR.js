@@ -1,5 +1,4 @@
 const SDK = require('sfmc-sdk');
-const Clone = require('../lib/utils/Blueprint/Clone');
 const Account = require('./Account');
 const Asset = require('./Asset');
 const Describe = require('./Describe');
