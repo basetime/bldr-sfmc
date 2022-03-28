@@ -35,7 +35,7 @@ module.exports = class Asset {
 
   async getById(id) {
     try {
-      if (!id) 
+      if (!id)
         throw new Error('id argument is required')
 
       const assetResp = await this.rest.get(`/asset/v1/content/assets/${id}`)
@@ -46,7 +46,7 @@ module.exports = class Asset {
     }
   }
 
-  
+
 
   async search(searchKey, searchTerm) {
     try {
@@ -72,6 +72,20 @@ module.exports = class Asset {
     } catch (err) {
       console.log(err);
     }
+  }
+
+
+  async postAsset(asset) { 
+    // name, assetType, content
+
+
+  }
+
+
+  async patchAsset(asset) { 
+    const assetId = asset.id;
+    const resp = await this.rest.patch(`/asset/v1/content/assets/${assetId}`, asset);
+    console.log(resp);
   }
 
 }
