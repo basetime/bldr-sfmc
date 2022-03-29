@@ -10,6 +10,7 @@ const contextSwitch = require("../lib/context/contextSwitch");
 const configSwitch = require("../lib/config/switch");
 const addSwitch = require("../lib/add/switch");
 const pushSwitch = require("../lib/push/switch");
+const stashSwitch = require("../lib/stash/switch");
 
 const req = yargs.argv._[0] ? yargs.argv._[0].toLowerCase() : null;
 const argv = yargs.argv;
@@ -30,6 +31,9 @@ const init = async (req, argv, store) => {
         break;
       case "add":
         addSwitch.switch(req, argv, blueprint, store);
+        break;
+      case "stash":
+        stashSwitch.switch(req, argv, blueprint, store);
         break;
       case "push":
         pushSwitch.switch(req, argv, blueprint, store);
