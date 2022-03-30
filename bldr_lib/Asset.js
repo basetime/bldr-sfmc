@@ -91,7 +91,10 @@ module.exports = class Asset {
       const resp = await this.rest.put(`/asset/v1/content/assets/${assetId}`, asset);
       return resp
     } catch (err) {
-      console.log(err)
+      return {
+        status: err.response.status,
+        statusText: err.response.statusText
+      }
     }
   }
 
