@@ -1,31 +1,42 @@
 #!/usr/bin/env node
-const Config = require("../lib/utils/Blueprint/Config");
-const State = require("../lib/utils/Blueprint/State");
-const yargs = require("yargs");
 const yargsInteractive = require("yargs-interactive");
+const yargs = require("yargs");
+
 const blueprintInit = require("../lib/utils/Blueprint");
 const store = require("../lib/utils/Store")
 
+const State = require("../lib/utils/Blueprint/State");
+const Config = require("../lib/utils/Blueprint/Config");
+
+
+// Initate all route switches
 const contextSwitch = require("../lib/context/contextSwitch");
 const configSwitch = require("../lib/config/switch");
 const addSwitch = require("../lib/add/switch");
 const pushSwitch = require("../lib/push/switch");
 const stashSwitch = require("../lib/stash/switch");
 
+// Parse requests and input arguments
 const req = yargs.argv._[0] ? yargs.argv._[0].toLowerCase() : null;
 const argv = yargs.argv;
 
-console.log('input', { req: req, argv: argv })
-
+/**
+ * Initiate CLI application and route requests
+ * 
+ * @param {string} req 
+ * @param {object} argv 
+ * @param {object} store 
+ */
 const init = async (req, argv, store) => {
   if (!req) {
-
+    // If no request is provided show help
     store.help.init();
 
   } else {
     
     let blueprint;
 
+    // Route all requests
     switch (req) {
       case "config":
         configSwitch.switch(req, argv, store);
