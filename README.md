@@ -1,4 +1,4 @@
-# Avagate BLDR-SFMC
+# BLDR-SFMC
 
 BLDR is a CLI application for Salesforce Marketing Cloud (SFMC). BLDR brings working with SFMC a bit closer to a GIT development workflow while also incorporating the ability to use any GIT provider for version controll.
 
@@ -36,14 +36,17 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 
 
 ### CLI Setup
-1. In your terminal, run `bldr config -n`. This will prompt a series of inputs where you will find in the Installed Package you created. You'll need: 
+1. In your terminal, run `bldr config -n`
+2. Follow the prompts and input the following from the Installed Package: 
    - Parent BU MID
    - Client Id
    - Client Secret
    - Auth URI
 
 
-# CLI Help Commands
+---
+
+## Usage
 ```
 Command         | Flag                           | Description                                                                     
 --------------- | ------------------------------ | --------------------------------------------------------------------------------
