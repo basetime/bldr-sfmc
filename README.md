@@ -71,6 +71,10 @@ Updating these assets in SFMC will be successful up until the point of `publish`
 
 Creating these assets in SFMC from new local files is currently not supported. When creating these asset types via API, you will not receive any errors, the code will be saved; however it will not create the shell for the asset, so it will not be accessible.
 
+## New Assets
+
+
+
 ## Usage
 
 ```
