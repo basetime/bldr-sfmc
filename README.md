@@ -44,7 +44,31 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
    - Auth URI
 
 
----
+
+
+# CLI Scope
+At the moment the release will be scoped to Content Builder assets. Due to some of the API limitations and data structures there are a few important callouts to keep in mind.
+Across the various types of assets within SFMC, there will be various levels of support and user experiences:
+
+## Fully Supported Assets
+Fully supported assets are asset types that when cloned from SFMC are created as fully editable `.html` files. 
+Asset types that are **fully supported** are `html emails, code snippet content blocks, and html content blocks`.
+
+
+## Partially Supported Assets
+Partially supported assets are asset types that when cloned from SFMC are created as `.json` files. These files can still be updated/edited directly in the JSON structure and updated within SFMC. Asset types that are partially supported are any not listed in the **Fully Supported Assets** section above.
+
+
+## CloudPages and Code Resource Pages
+Support for CloudPages and Code Resource Pages falls between *fully supported* and *partially supported*.
+Both of these asset types will not show up or be cloned down when running the clone command for a folder Id. Both of these assets will need to be cloned down using the `bldr clone --cb -a <assetId>` command. 
+
+They will be created win the root `Content Builder` folder as that is where they appear in the backend of SFMC.
+
+Updating these assets in SFMC will be successful up until the point of `publish`. There is currently no API support for publishing CloudPages or Code Resource pages via API, however the code in the resource will be updated.
+
+Creating these assets in SFMC from new local files is currently not supported. When creating these asset types via API, you will not receive any errors, the code will be saved; however it will not create the shell for the asset, so it will not be accessible.
+
 
 ## Usage
 ```
