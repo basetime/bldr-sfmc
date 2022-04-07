@@ -1,32 +1,41 @@
 {
-  "name": "builder",
-  "version": "1.0.0",
-  "description": "",
-  "main": "bin/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "bin": {
-    "bldr": "./bin/index.js"
-  },
-  "author": "Avagate",
-  "license": "ISC",
-  "dependencies": {
-    "@nodelib/fs.walk": "^1.2.8",
-    "axios": "^0.26.0",
-    "boxen": "^4.2.0",
-    "chalk": "^2.4.1",
-    "cli-format": "^3.0.9",
-    "conf": "^10.1.1",
-    "lodash.find": "^4.6.0",
-    "lodash.isequal": "^4.5.0",
-    "lodash.remove": "^4.7.0",
-    "lodash.uniq": "^4.5.0",
-    "node-html-parser": "^5.2.0",
-    "node-recursive-directory": "^1.2.0",
-    "sfmc-sdk": "^0.5.0",
-    "uuid": "^8.3.2",
-    "yargs": "^16.1.1",
-    "yargs-interactive": "^3.0.0"
-  }
+    "name": "builder",
+    "version": "1.0.0",
+    "description": "",
+    "main": "bin/index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format:check": "prettier --check .",
+        "format:write": "prettier --write .",
+        "lint": "eslint ./lib",
+        "lint:fix": "eslint ./lib --fix ."
+    },
+    "bin": {
+        "bldr": "./bin/index.js"
+    },
+    "author": "Avagate",
+    "license": "ISC",
+    "dependencies": {
+        "@nodelib/fs.walk": "^1.2.8",
+        "axios": "^0.26.0",
+        "boxen": "^4.2.0",
+        "chalk": "^2.4.1",
+        "cli-format": "^3.0.9",
+        "conf": "^10.1.1",
+        "lodash.find": "^4.6.0",
+        "lodash.isequal": "^4.5.0",
+        "lodash.remove": "^4.7.0",
+        "lodash.uniq": "^4.5.0",
+        "node-html-parser": "^5.2.0",
+        "node-recursive-directory": "^1.2.0",
+        "sfmc-sdk": "^0.5.0",
+        "uuid": "^8.3.2",
+        "yargs": "^16.1.1",
+        "yargs-interactive": "^3.0.0"
+    },
+    "devDependencies": {
+        "eslint": "^8.12.0",
+        "eslint-config-prettier": "^8.5.0",
+        "prettier": "^2.6.2"
+    }
 }
