@@ -46,7 +46,7 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
     - Client Secret
     - Auth URI
 
-# CLI Scope
+# CLI Scope & Support
 
 At the moment the release will be scoped to Content Builder assets. Due to some of the API limitations and data structures there are a few important callouts to keep in mind.
 Across the various types of assets within SFMC, there will be various levels of support and user experiences:
