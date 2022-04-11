@@ -14,6 +14,7 @@ const configSwitch = require('../lib/config/switch');
 const addSwitch = require('../lib/add/switch');
 const pushSwitch = require('../lib/push/switch');
 const stashSwitch = require('../lib/stash/switch');
+const statusSwitch = require('../lib/status/switch');
 
 // Parse requests and input arguments
 const req = yargs.argv._[0] ? yargs.argv._[0].toLowerCase() : null;
@@ -45,6 +46,10 @@ const init = async (req, argv, store) => {
             case 'stash':
                 blueprint = await blueprintInit.set(null, store);
                 stashSwitch.switch(req, argv, blueprint, store);
+                break;
+            case 'status':
+                blueprint = await blueprintInit.set(null, store);
+                statusSwitch.switch(req, argv, blueprint, store);
                 break;
             case 'push':
                 blueprint = await blueprintInit.set(null, store);
