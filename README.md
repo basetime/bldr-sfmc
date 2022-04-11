@@ -73,8 +73,6 @@ Creating these assets in SFMC from new local files is currently not supported. W
 
 ## New Assets
 
-
-
 ## Usage
 
 ```

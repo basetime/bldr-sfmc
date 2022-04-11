@@ -119,7 +119,7 @@ const buildSlots = (blocks, slotObj, splitContent) => {
     const blockTarget = `[data-key='${block}']`;
     const splitBlockContent = prasedBlockContent.toString().split(prasedBlockContent.querySelector(blockTarget));
   })
-  
+
 
 const parseAssetContent = async (asset, key) => {
   const content = asset.content;
@@ -131,11 +131,11 @@ const parseAssetContent = async (asset, key) => {
     const slotObj = asset['slots'][slot]
     const blocks = Object.keys(slotObj['blocks']);
     const splitContent = parsedContent.toString().split(parsedContent.querySelector(target));
-    
-  
+
+
     console.log(`blocks object`, blocks)
   })
- 
+
 
   console.log(slots)
 }
