@@ -1,7 +1,7 @@
 {
-    "name": "bldr-sfmc",
+    "name": "@basetime/bldr-sfmc",
     "version": "1.0.0",
-    "description": "",
+    "description": "CLI application for SFMC Development workflow and package deployment",
     "main": "bin/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
