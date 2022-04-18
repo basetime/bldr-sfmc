@@ -13,8 +13,8 @@
     "bin": {
         "bldr": "./bin/index.js"
     },
-    "author": "Avagate",
-    "license": "ISC",
+    "author": "Basetime.io",
+    "license": "BSD-3-Clause",
     "dependencies": {
         "@nodelib/fs.walk": "^1.2.8",
         "axios": "^0.26.0",
