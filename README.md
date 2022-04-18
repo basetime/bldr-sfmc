@@ -69,9 +69,14 @@ They will be created win the root `Content Builder` folder as that is where they
 
 Updating these assets in SFMC will be successful up until the point of `publish`. There is currently no API support for publishing CloudPages or Code Resource pages via API, however the code in the resource will be updated.
 
-Creating these assets in SFMC from new local files is currently not supported. When creating these asset types via API, you will not receive any errors, the code will be saved; however it will not create the shell for the asset, so it will not be accessible.
+Creating these assets in SFMC from new local files is currently not supported. When creating these asset types via API, you will not receive any errors, and the code will be saved within SFMC; however it will not create the shell for the asset, so it will not be accessible.
 
 ## New Assets
+
+In the current iteration of BLDR there is support for creating new folders and assets. These new assets currently need to be created within an initial cloned folder from SFMC as this feature uses the auto-generated configuration files to identify what is new.
+
+During the `bldr add` command folders and files will be checked against the `.local.manifest.json` file; folders in the path that do not currently exist there will be created. In addition, files that do not exist will prompt you to select a supported asset type `htmlblock, codesnippetblock, or htmlemail`.
+
 
 ## Usage
 
