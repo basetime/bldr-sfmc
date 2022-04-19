@@ -14,6 +14,10 @@
         "bldr": "./bin/index.js"
     },
     "author": "Basetime.io",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/basetime/bldr-sfmc.git"
+    },
     "license": "BSD-3-Clause",
     "dependencies": {
         "@nodelib/fs.walk": "^1.2.8",
