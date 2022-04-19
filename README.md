@@ -13,6 +13,10 @@ BLDR is a CLI application for Salesforce Marketing Cloud (SFMC). BLDR brings wor
     - In your termainal run `npm install -g @basetime/bldr-sfmc`
       - NOTE: You must include the `-g` flag to be able to use this across multiple projects
 
+## Updating to @latest Release
+1. Open your terminal and run `npm update -g @basetime/bldr-sfmc`
+
+
 ## Setup
 
 BLDR is configured so you can use it across as many SFMC instances as you require. The interactions with SFMC are completed using a Server-to-Server API Package set up within each SFMC Instance. It's recommended that you create an Installed Package specifically for the CLI.
