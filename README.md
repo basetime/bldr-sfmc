@@ -11,11 +11,11 @@ BLDR is a CLI application for Salesforce Marketing Cloud (SFMC). BLDR brings wor
         - If you do not have GIT installed go to [git-scm.com/downloads]() and follow the instructions for installation
     - Install BLDR-SFMC CLI
     - In your termainal run `npm install -g @basetime/bldr-sfmc`
-      - NOTE: You must include the `-g` flag to be able to use this across multiple projects
+        - NOTE: You must include the `-g` flag to be able to use this across multiple projects
 
 ## Updating to @latest Release
-1. Open your terminal and run `npm update -g @basetime/bldr-sfmc`
 
+1. Open your terminal and run `npm update -g @basetime/bldr-sfmc`
 
 ## Setup
 
@@ -80,7 +80,6 @@ Creating these assets in SFMC from new local files is currently not supported. W
 In the current iteration of BLDR there is support for creating new folders and assets. These new assets currently need to be created within an initial cloned folder from SFMC as this feature uses the auto-generated configuration files to identify what is new.
 
 During the `bldr add` command folders and files will be checked against the `.local.manifest.json` file; folders in the path that do not currently exist there will be created. In addition, files that do not exist will prompt you to select a supported asset type `htmlblock, codesnippetblock, or htmlemail`.
-
 
 ## Usage
 

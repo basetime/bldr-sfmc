@@ -15,8 +15,8 @@
     },
     "author": "Basetime.io",
     "repository": {
-      "type": "git",
-      "url": "https://github.com/basetime/bldr-sfmc.git"
+        "type": "git",
+        "url": "https://github.com/basetime/bldr-sfmc.git"
     },
     "license": "BSD-3-Clause",
     "dependencies": {
