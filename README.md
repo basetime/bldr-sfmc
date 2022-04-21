@@ -1,6 +1,6 @@
 # BLDR-SFMC
 
-BLDR is a CLI application for Salesforce Marketing Cloud (SFMC). BLDR brings working with SFMC a bit closer to a GIT development workflow while also incorporating the ability to use any GIT provider for version controll.
+BLDR is a CLI application for Salesforce Marketing Cloud (SFMC). BLDR brings working with SFMC a bit closer to a GIT development workflow while also incorporating the ability to use any GIT provider for version control.
 
 ## Installation
 
@@ -12,6 +12,10 @@ BLDR is a CLI application for Salesforce Marketing Cloud (SFMC). BLDR brings wor
     - Install BLDR-SFMC CLI
     - In your termainal run `npm install -g @basetime/bldr-sfmc`
       - NOTE: You must include the `-g` flag to be able to use this across multiple projects
+
+## Updating to @latest Release
+1. Open your terminal and run `npm update -g @basetime/bldr-sfmc`
+
 
 ## Setup
 
@@ -49,8 +53,7 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 
 # CLI Scope & Support
 
-At the moment the release will be scoped to Content Builder assets. Due to some of the API limitations and data structures there are a few important callouts to keep in mind.
-Across the various types of assets within SFMC, there will be various levels of support and user experiences:
+At the moment the release will be scoped to Content Builder assets. Due to some of the API limitations and data structures there are a few important callouts to keep in mind. Across the various types of assets within SFMC, there will be various levels of support and user experiences:
 
 ## Fully Supported Assets
 

@@ -1,6 +1,6 @@
 {
     "name": "@basetime/bldr-sfmc",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "CLI application for SFMC Development workflow and package deployment",
     "main": "bin/index.js",
     "scripts": {
@@ -14,6 +14,10 @@
         "bldr": "./bin/index.js"
     },
     "author": "Basetime.io",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/basetime/bldr-sfmc.git"
+    },
     "license": "BSD-3-Clause",
     "dependencies": {
         "@nodelib/fs.walk": "^1.2.8",
