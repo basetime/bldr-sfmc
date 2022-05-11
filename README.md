@@ -56,6 +56,7 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 BLDR is scoped to Content Builder and Automation Studio assets. Due to some of the API limitations and data structures there are a few important callouts to keep in mind. Across the various types of assets within SFMC, there will be various levels of support and user experiences:
 
 ## Content Builder
+
 ### Fully Supported Assets
 
 Fully supported assets are asset types that when cloned from SFMC are created as fully editable `.html` files.
@@ -82,8 +83,8 @@ In the current iteration of BLDR there is support for creating new folders and a
 
 During the `bldr add` command folders and files will be checked against the `.local.manifest.json` file; folders in the path that do not currently exist there will be created. In addition, files that do not exist will prompt you to select a supported asset type `htmlblock, codesnippetblock, or htmlemail`.
 
-
 ## Automation Studio
+
 ### Fully Supported Assets
 
 Fully supported assets are asset types that when cloned from SFMC are created as fully editable `.html/.sql` files.
@@ -96,7 +97,6 @@ Partially supported assets are asset types that when cloned from SFMC are create
 ### New Assets
 
 Creation of new assets within Automation Studio is currently not supported. Support for this is in current development.
-
 
 # Usage
 
@@ -150,23 +150,21 @@ clone           |                                |
                 |   --ssjs, --script <script id> | Clone a Single Asset
 ```
 
-
 # TODO/Roadmap
+
 Items listed below identify the projected roadmap for the BLDR project. Implementation of these items are not set in stone or promised.
 
-- Support for creating new sql and script activities for Automation Studio
-- Project initiation command so bldr projects do not need to start with cloned assets
-- Initial package command
-  - Gather all cloned assets into a serialized JSON object with valid API paylaods
-- Identify dependancies across all asset types and add dependancy definitions to serialized JSON
-- Deploy all dependancies and assets to SFMC
-- User Interface/Web Application
-  - Database of community packages
-    - Register packages to be searchable
-    - Add tags, description, link, author info, etc
-  - User profiles
-    - Search all registered packages
-    - SFMC connector for direct deployment of packages
-    - Create package and download zipfile
-
-
+-   Support for creating new sql and script activities for Automation Studio
+-   Project initiation command so bldr projects do not need to start with cloned assets
+-   Initial package command
+    -   Gather all cloned assets into a serialized JSON object with valid API paylaods
+-   Identify dependancies across all asset types and add dependancy definitions to serialized JSON
+-   Deploy all dependancies and assets to SFMC
+-   User Interface/Web Application
+    -   Database of community packages
+        -   Register packages to be searchable
+        -   Add tags, description, link, author info, etc
+    -   User profiles
+        -   Search all registered packages
+        -   SFMC connector for direct deployment of packages
+        -   Create package and download zipfile
