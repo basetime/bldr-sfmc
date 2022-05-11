@@ -157,8 +157,8 @@ Items listed below identify the projected roadmap for the BLDR project. Implemen
 -   Support for creating new sql and script activities for Automation Studio
 -   Project initiation command so bldr projects do not need to start with cloned assets
 -   Initial package command
-    -   Gather all cloned assets into a serialized JSON object with valid API paylaods
--   Identify dependancies across all asset types and add dependancy definitions to serialized JSON
+    -   Gather all cloned assets into a serialized JSON object with valid API payloads
+-   Identify dependancies across all asset types and add dependency definitions to serialized JSON
 -   Deploy all dependancies and assets to SFMC
 -   User Interface/Web Application
     -   Database of community packages
