@@ -71,7 +71,7 @@ Partially supported assets are asset types that when cloned from SFMC are create
 Support for CloudPages and Code Resource Pages falls between _fully supported_ and _partially supported_.
 Both of these asset types will not show up or be cloned down when running the clone command for a folder Id. Both of these assets will need to be cloned down using the `bldr clone --cb -a <assetId>` command.
 
-They will be created win the root `Content Builder` folder as that is where they appear in the backend of SFMC.
+They will be created in the root `Content Builder` folder as that is where they appear in the backend of SFMC.
 
 Updating these assets in SFMC will be successful up until the point of `publish`. There is currently no API support for publishing CloudPages or Code Resource pages via API, however the code in the resource will be updated.
 
@@ -107,7 +107,8 @@ Creation of new assets within Automation Studio is currently not supported. Supp
 
 # Security
 
-You and your clients security is important. As such, we've taken steps to ensure that the credentials you use for configurations is encrypted and stored securely. We have implemented `aes-256-ctr` encryption which will encrypt your Installed Package `ClientId` and `ClientSecrets` prior to being stored. A key specific to you as a user will be created and stored separate from the stored credentials and will be unique to you.
+You and your clients' security is important. As such, we've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely. We have implemented `aes-256-ctr` encryption which will encrypt your Installed Package `ClientId` and `ClientSecrets` prior to being stored. A key specific to you as a user will be created and stored separate from the stored credentials and will be unique to you.
+
 
 ## Updating Credentials
 
@@ -174,8 +175,8 @@ Items listed below identify the projected roadmap for the BLDR project. Implemen
 -   Project initiation command so bldr projects do not need to start with cloned assets
 -   Initial package command
     -   Gather all cloned assets into a serialized JSON object with valid API payloads
--   Identify dependancies across all asset types and add dependency definitions to serialized JSON
--   Deploy all dependancies and assets to SFMC
+-   Identify dependencies across all asset types and add dependency definitions to serialized JSON
+-   Deploy all dependencies and assets to SFMC
 -   User Interface/Web Application
     -   Database of community packages
         -   Register packages to be searchable
@@ -184,3 +185,4 @@ Items listed below identify the projected roadmap for the BLDR project. Implemen
         -   Search all registered packages
         -   SFMC connector for direct deployment of packages
         -   Create package and download zipfile
+
