@@ -83,6 +83,12 @@ In the current iteration of BLDR there is support for creating new folders and a
 
 During the `bldr add` command folders and files will be checked against the `.local.manifest.json` file; folders in the path that do not currently exist there will be created. In addition, files that do not exist will prompt you to select a supported asset type `htmlblock, codesnippetblock, or htmlemail`.
 
+### Project Initiation
+
+Content Builder projects can be initiated outside of SFMC by running the `bldr init` command. This command will create the required BLDR folders and files to scaffold your Content Builder folders and assets so you can create them in bulk within SFMC. The `init` command will prompt you to enter a `project name` that will be used as your root folder.
+
+Once you have your initial project set up, simply run `bldr add .` and `bldr push` to create your files in SFMC.
+
 ## Automation Studio
 
 ### Fully Supported Assets
@@ -97,6 +103,16 @@ Partially supported assets are asset types that when cloned from SFMC are create
 ### New Assets
 
 Creation of new assets within Automation Studio is currently not supported. Support for this is in current development.
+
+
+# Security
+
+You and your clients security is important. As such, we've taken steps to ensure that the credentials you use for configurations is encrypted and stored securely. We have implemented `aes-256-ctr` encryption which will encrypt your Installed Package `ClientId` and `ClientSecrets` prior to being stored. A key specific to you as a user will be created and stored separate from the stored credentials and will be unique to you.
+
+## Updating Credentials
+
+All credentials being created after `v1.1.3` will automatically. To update your existing credentials, run `bldr config --encrypt` and all environments will be checked and encrypted.
+
 
 # Usage
 
