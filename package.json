@@ -1,6 +1,6 @@
 {
     "name": "@basetime/bldr-sfmc",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "description": "CLI application for SFMC Development workflow and package deployment",
     "main": "bin/index.js",
     "scripts": {
@@ -18,6 +18,13 @@
         "type": "git",
         "url": "https://github.com/basetime/bldr-sfmc.git"
     },
+    "keywords": [
+        "Salesforce Marketing Cloud",
+        "SFMC",
+        "Workflow",
+        "Content Builder",
+        "Automation Studio"
+    ],
     "license": "BSD-3-Clause",
     "dependencies": {
         "@nodelib/fs.walk": "^1.2.8",
