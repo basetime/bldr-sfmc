@@ -6,9 +6,9 @@ BLDR is a CLI application for Salesforce Marketing Cloud (SFMC). BLDR brings wor
 
 1. Opening the terminal and check if you have the following:
     - Ensure you have Node.js installed by typing `node --version`
-        - If you do not have Node.js installed visit [nodejs.org]() and follow the instructions for installation
+        - If you do not have Node.js installed visit [nodejs.org](nodejs.org) and follow the instructions for installation
     - Ensure you have GIT installed by typing `git version`
-        - If you do not have GIT installed go to [git-scm.com/downloads]() and follow the instructions for installation
+        - If you do not have GIT installed go to [git-scm.com/downloads](git-scm.com/downloads) and follow the instructions for installation
     - Install BLDR-SFMC CLI
     - In your terminal run `npm install -g @basetime/bldr-sfmc`
         - NOTE: You must include the `-g` flag to be able to use this across multiple projects
