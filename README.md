@@ -104,16 +104,13 @@ Partially supported assets are asset types that when cloned from SFMC are create
 
 Creation of new assets within Automation Studio is currently not supported. Support for this is in current development.
 
-
 # Security
 
 You and your clients' security is important. As such, we've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely. We have implemented `aes-256-ctr` encryption which will encrypt your Installed Package `ClientId` and `ClientSecrets` prior to being stored. A key specific to you as a user will be created and stored separate from the stored credentials and will be unique to you.
 
-
 ## Updating Credentials
 
 All credentials being created after `v1.1.3` will automatically. To update your existing credentials, run `bldr config --encrypt` and all environments will be checked and encrypted.
-
 
 # Usage
 
@@ -185,4 +182,3 @@ Items listed below identify the projected roadmap for the BLDR project. Implemen
         -   Search all registered packages
         -   SFMC connector for direct deployment of packages
         -   Create package and download zipfile
-
