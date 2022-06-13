@@ -104,16 +104,13 @@ Partially supported assets are asset types that when cloned from SFMC are create
 
 Creation of new assets within Automation Studio is currently not supported. Support for this is in current development.
 
-
 # Security
 
 You and your clients' security is important. As such, we've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely. We have implemented `aes-256-ctr` encryption which will encrypt your Installed Package `ClientId` and `ClientSecrets` prior to being stored. A key specific to you as a user will be created and stored separate from the stored credentials and will be unique to you.
 
-
 ## Updating Credentials
 
 All credentials being created after `v1.1.3` will automatically. To update your existing credentials, run `bldr config --encrypt` and all environments will be checked and encrypted.
-
 
 # Usage
 
@@ -170,9 +167,9 @@ clone           |                                |
 # Bugs/Fixes
 
 ## 2022-06-12
-- Fixed a bug where correct configurations were throwing errors despite them being copied correctly. We were able to reproduce this issue and it seems to be something that gets caught while capturing an Instance Business Unit details. We've added a `--ignoreError` flag to the new config command - `bldr config -n --ignoreError`. If you run into this error when configuring a new instance, try again with this flag and test your configuration.
-- Fixed a bug where the encryption key was resetting for each newly added SFMC configuration, making previously configured/encrypted configurations invalid/unable to be decrypted/used.
 
+-   Fixed a bug where correct configurations were throwing errors despite them being copied correctly. We were able to reproduce this issue and it seems to be something that gets caught while capturing an Instance Business Unit details. We've added a `--ignoreError` flag to the new config command - `bldr config -n --ignoreError`. If you run into this error when configuring a new instance, try again with this flag and test your configuration.
+-   Fixed a bug where the encryption key was resetting for each newly added SFMC configuration, making previously configured/encrypted configurations invalid/unable to be decrypted/used.
 
 # TODO/Roadmap
 
@@ -192,4 +189,3 @@ Items listed below identify the projected roadmap for the BLDR project. Implemen
         -   Search all registered packages
         -   SFMC connector for direct deployment of packages
         -   Create package and download zipfile
-

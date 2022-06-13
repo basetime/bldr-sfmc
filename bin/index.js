@@ -15,7 +15,7 @@ const addSwitch = require('../lib/add/switch');
 const pushSwitch = require('../lib/push/switch');
 const stashSwitch = require('../lib/stash/switch');
 const statusSwitch = require('../lib/status/switch');
-const initSwitch = require('../lib/init/switch')
+const initSwitch = require('../lib/init/switch');
 
 // Parse requests and input arguments
 const req = yargs.argv._[0] ? yargs.argv._[0].toLowerCase() : null;
@@ -38,8 +38,7 @@ const init = async (req, argv, store) => {
         switch (req) {
             case 'init':
                 blueprint = await blueprintInit.set(null, store);
-                if(blueprint)
-                    initSwitch.switch(req, argv, blueprint, store)
+                if (blueprint) initSwitch.switch(req, argv, blueprint, store);
                 break;
             /**
              * Config route handles all CLI configuration of SFMC Instance\
@@ -54,8 +53,7 @@ const init = async (req, argv, store) => {
              */
             case 'add':
                 blueprint = await blueprintInit.set(null, store);
-                if(blueprint)
-                    addSwitch.switch(req, argv, blueprint, store);
+                if (blueprint) addSwitch.switch(req, argv, blueprint, store);
                 break;
 
             /**
@@ -63,8 +61,7 @@ const init = async (req, argv, store) => {
              */
             case 'stash':
                 blueprint = await blueprintInit.set(null, store);
-                if(blueprint)
-                    stashSwitch.switch(req, argv, blueprint, store);
+                if (blueprint) stashSwitch.switch(req, argv, blueprint, store);
                 break;
 
             /**
@@ -72,8 +69,7 @@ const init = async (req, argv, store) => {
              */
             case 'status':
                 blueprint = await blueprintInit.set(null, store);
-                if(blueprint)
-                    statusSwitch.switch(req, argv, blueprint, store);
+                if (blueprint) statusSwitch.switch(req, argv, blueprint, store);
                 break;
 
             /**
@@ -81,8 +77,7 @@ const init = async (req, argv, store) => {
              */
             case 'push':
                 blueprint = await blueprintInit.set(null, store);
-                if(blueprint)
-                    pushSwitch.switch(req, argv, blueprint, store);
+                if (blueprint) pushSwitch.switch(req, argv, blueprint, store);
                 break;
 
             /**
@@ -91,7 +86,7 @@ const init = async (req, argv, store) => {
              */
             default:
                 blueprint = await blueprintInit.set(null, store);
-                if(blueprint)
+                if (blueprint)
                     contextSwitch.switch(req, argv, blueprint, store);
         }
     }
