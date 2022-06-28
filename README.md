@@ -91,11 +91,6 @@ In the current iteration of BLDR there is support for creating new folders and a
 
 During the `bldr add` command folders and files will be checked against the `.local.manifest.json` file; folders in the path that do not currently exist there will be created. In addition, files that do not exist will prompt you to select a supported asset type `htmlblock, codesnippetblock, or htmlemail`.
 
-### Project Initiation
-
-Content Builder projects can be initiated outside of SFMC by running the `bldr init` command. This command will create the required BLDR folders and files to scaffold your Content Builder folders and assets so you can create them in bulk within SFMC. The `init` command will prompt you to enter a `project name` that will be used as your root folder.
-
-Once you have your initial project set up, simply run `bldr add .` and `bldr push` to create your files in SFMC.
 
 ## Automation Studio
 
@@ -112,13 +107,47 @@ Partially supported assets are asset types that when cloned from SFMC are create
 
 Creation of new assets within Automation Studio is currently not supported. Support for this is in current development.
 
+# Project Initiation
+
+**At the moment, project initiation is only available for Content Builder projects.**
+
+Projects can be initiated outside of SFMC by running the `bldr init --cb` command. This command will create the required BLDR folders and files to scaffold your Content Builder folders and assets so you can create them in bulk within SFMC. The `init` command will prompt you to enter a *Project Name* that will be used as your root folder and ask if you need to create a configuration file.
+
+Once you have your initial project set up, simply run `bldr add .` and `bldr push` to create your files in SFMC.
+
+## Project API Keys/Secrets
+
+If your project requires the use of API Keys or Secrets, you can run `bldr init --configOnly` or select `Y` during the `bldr init` process. Two configuration files will be created `.sfmc.config.json` and `template.sfmc.config.json`. These JSON files can be used for any values you do not want committed to version control or a BLDR package.
+
+All found keys in content will be replaced with the JSON keys in `.sfmc.config.json`. When files are created/updated within SFMC the values will be set so the assets within SFMC will be valid and working as expected.
+
+If you wish to update these keys outside of the `bldr add .` / `bldr push` process, run `bldr init --update-api-keys`.
+
+# Project Distribution
+## Packaging
+
+**At the moment, packaging is only available for Content Builder projects.**
+
+Once you have your project tested and ready to share; run `bldr package`. This action will gather all of the required data from your projects files that is needed to create the assets in a new SFMC instance. If your assets have ampscript dependencies, bldr will identify the assets that are referenced and include them in your package. Currently, Data Extension and ContentBlockBy functions are supported; additional support will be implemented as needed.
+
+After your project is packaged, you can commit it to a **public GitHub repository**. Support for additional GIT providers will be implemented soon.
+
+## Installing and Deploying
+
+Projects that are stored in public repositories can be shared by providing the GitHub URL `https://github.com/{{owner}}/{{repository}}` with the community member or team member. Once they have the URL, they can run `bldr install https://github.com/{{owner}}/{{repository}}` which will download the `.package.manifest.json` file and create the sfmc configuration files if needed.
+
+The `.package.manifest.json` file that is downloaded can be updated by the user if required. It's recommended to update names of folders/assets using a find/replace all functionality in your text editor to ensure that all references are updated and nothing breaks. Names may need to be updated as trying to create folders/assets with existing names will cause errors.
+
+After everything is updated you can run `bldr deploy` to create the assets locally as well as within the currently targeted/set SFMC instance.
+
+
 # Security
 
 You and your clients' security is important. As such, we've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely. We have implemented `aes-256-ctr` encryption which will encrypt your Installed Package `ClientId` and `ClientSecrets` prior to being stored. A key specific to you as a user will be created and stored separate from the stored credentials and will be unique to you.
 
 ## Updating Credentials
 
-All credentials being created after `v1.1.3` will automatically. To update your existing credentials, run `bldr config --encrypt` and all environments will be checked and encrypted.
+All credentials being created after `v1.1.3` will automatically be encrypted. To update your existing credentials, run `bldr config --encrypt` and all environments will be checked and encrypted.
 
 # Usage
 
@@ -129,7 +158,7 @@ config          |                                |
                 | -n, --new                      | Create New Configuration
                 | <instance name>                | Get Configuration for an instance
                 | -l, --list                     | List All Configurations
-                |   >>  -d, --details            | Show Configuration Details optional
+                | -d, --details                  | Show Configuration Details optional
                 | -s, --set <instance name>      | Set a Configuration to Use
                 |   >>  -m, --mid <mid id>       | Set Target MID optional
                 | -r, --remove <instance name>   | Remove a Stored Configuration
@@ -140,6 +169,11 @@ status          |                                |
 stash           |                                |
                 | -c, --clear                    | Clear Staged Files
 --------------- | ------------------------------ | --------------------------------------------------------------------------------
+init            |                                |
+                | --cb                           | Initiate project folder for Content Builder
+                | --configOnly                   | Setup configuration file for project
+                | --update-api-keys              | Update .sfmc.config.json keys found in content
+--------------- | ------------------------------ | --------------------------------------------------------------------------------
 add             |                                |
                 | .                              | Add All Assets to the Stash to be Pushed into SFMC
                 | <folder path>                  | Add One or Multiple Assets to the Stash to be Pushed into SFMC
@@ -148,6 +182,12 @@ push            |                                |
                 |                                | Update or Create files in SFMC
                 |                                |  >> Files that are created locally will prompt the selection of Asset Type
                 |                                | before being created in SFMC
+--------------- | ------------------------------ | --------------------------------------------------------------------------------
+package         |                                |
+                |                                | Package project assets
+--------------- | ------------------------------ | --------------------------------------------------------------------------------
+deploy          |                                |
+                |                                | Deploy assets to current/set target instance
 --------------- | ------------------------------ | --------------------------------------------------------------------------------
                 |
                 | The following commands require one of the following context flags.
@@ -177,11 +217,6 @@ clone           |                                |
 Items listed below identify the projected roadmap for the BLDR project. Implementation of these items are not set in stone or promised.
 
 -   Support for creating new sql and script activities for Automation Studio
--   Project initiation command so bldr projects do not need to start with cloned assets
--   Initial package command
-    -   Gather all cloned assets into a serialized JSON object with valid API payloads
--   Identify dependencies across all asset types and add dependency definitions to serialized JSON
--   Deploy all dependencies and assets to SFMC
 -   User Interface/Web Application
     -   Database of community packages
         -   Register packages to be searchable
