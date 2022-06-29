@@ -1,7 +1,5 @@
 # BLDR-SFMC
 
-BLDR is a CLI application for Salesforce Marketing Cloud (SFMC). BLDR brings working with SFMC a bit closer to a GIT development workflow while also incorporating the ability to use any GIT provider for version control.
-
 ```
 *** Important update required after v1.2.0 ***
 
@@ -10,32 +8,49 @@ See details below in the Bugs/Fixes section.
 
 ```
 
+BLDR is a CLI application for Salesforce Marketing Cloud (SFMC). BLDR brings working with SFMC a bit closer to a GIT development workflow, while also incorporating the ability to use any GIT provider for version control.
+
+<br>
+
+In addition to a workflow tool, BLDR allows users to package assets to be stored in a single JSON file. This JSON file can be stored directly in your GIT repository, shared with a teammate or community member, who can then install/download your package. For more details on packaging/deploying BLDR packages [see the documentation](#project-distribution).
+
+<br>
+
+# Getting Started
 ## Installation
 
 1. Opening the terminal and check if you have the following:
     - Ensure you have Node.js installed by typing `node --version`
-        - If you do not have Node.js installed visit [nodejs.org](nodejs.org) and follow the instructions for installation
+        - If you do not have Node.js installed visit [nodejs.org](https://www.nodejs.org) and follow the instructions for installation
     - Ensure you have GIT installed by typing `git version`
-        - If you do not have GIT installed go to [git-scm.com/downloads](git-scm.com/downloads) and follow the instructions for installation
+        - If you do not have GIT installed go to [git-scm.com/downloads](https://www.git-scm.com/downloads) and follow the instructions for installation
     - Install BLDR-SFMC CLI
     - In your terminal run `npm install -g @basetime/bldr-sfmc`
         - NOTE: You must include the `-g` flag to be able to use this across multiple projects
 
-## Updating to @latest Release
+<br>
+
+## Updating BLDR
 
 1. Open your terminal and run `npm update -g @basetime/bldr-sfmc`
 
+<br>
+
 ## Setup
 
-BLDR is configured so you can use it across as many SFMC instances as you require. The interactions with SFMC are completed using a Server-to-Server API Package set up within each SFMC Instance. It's recommended that you create an Installed Package specifically for the CLI.
+BLDR is configured so you can use it across as many SFMC instances as you require. The interactions with SFMC are completed using a Server-to-Server API Package set up within each SFMC Instance. It's recommended that you create an Installed Package specifically for the CLI that can be shared between you and your team members.
 
-### SFMC Setup
+<br>
+
+### SFMC Installed Package
 
 1. In SFMC, navigate to `Settings > Setup > Platform Tools > Apps > Installed Packages`
 2. Click on `New` to create a new Package and name it `bldr-cli`
 3. Click on `Add Component` to add a new API Component and select `API Integration` and then `Server-to-Server`
 4. Navigate to `Access` and ensure that the Installed Package is provisioned for all Business Units.
 5. Update the scope of the Installed Package to match the following:
+
+<br>
 
 | Scope                | Access      |
 | -------------------- | ----------- |
@@ -50,7 +65,9 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 | File Locations       | Read, Write |
 | Accounts             | Read        |
 
-### CLI Setup
+<br>
+
+### BLDR Configuration
 
 1. In your terminal, run `bldr config -n`
 2. Follow the prompts and input the following from the Installed Package:
@@ -59,95 +76,9 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
     - Client Secret
     - Auth URI
 
-# CLI Scope & Support
 
-BLDR is scoped to Content Builder and Automation Studio assets. Due to some of the API limitations and data structures there are a few important callouts to keep in mind. Across the various types of assets within SFMC, there will be various levels of support and user experiences:
+<br>
 
-## Content Builder
-
-### Fully Supported Assets
-
-Fully supported assets are asset types that when cloned from SFMC are created as fully editable `.html` files.
-Asset types that are **fully supported** are `html emails, code snippet content blocks, and html content blocks`.
-
-### Partially Supported Assets
-
-Partially supported assets are asset types that when cloned from SFMC are created as `.json` files. These files can still be updated/edited directly in the JSON structure and updated within SFMC. Asset types that are partially supported are any not listed in the **Fully Supported Assets** section above.
-
-### CloudPages and Code Resource Pages
-
-Support for CloudPages and Code Resource Pages falls between _fully supported_ and _partially supported_.
-Both of these asset types will not show up or be cloned down when running the clone command for a folder Id. Both of these assets will need to be cloned down using the `bldr clone --cb -a <assetId>` command.
-
-They will be created in the root `Content Builder` folder as that is where they appear in the backend of SFMC.
-
-Updating these assets in SFMC will be successful up until the point of `publish`. There is currently no API support for publishing CloudPages or Code Resource pages via API, however the code in the resource will be updated.
-
-Creating these assets in SFMC from new local files is currently not supported. When creating these asset types via API, you will not receive any errors, and the code will be saved within SFMC; however it will not create the shell for the asset, so it will not be accessible.
-
-### New Assets
-
-In the current iteration of BLDR there is support for creating new folders and assets. These new assets currently need to be created within an initial cloned folder from SFMC as this feature uses the auto-generated configuration files to identify what is new.
-
-During the `bldr add` command folders and files will be checked against the `.local.manifest.json` file; folders in the path that do not currently exist there will be created. In addition, files that do not exist will prompt you to select a supported asset type `htmlblock, codesnippetblock, or htmlemail`.
-
-
-## Automation Studio
-
-### Fully Supported Assets
-
-Fully supported assets are asset types that when cloned from SFMC are created as fully editable `.html/.sql` files.
-Asset types that are **fully supported** are `query activities, script activities`.
-
-### Partially Supported Assets
-
-Partially supported assets are asset types that when cloned from SFMC are created as `.json` files. These files can still be updated/edited directly in the JSON structure and updated within SFMC. Asset types that are partially supported are any not listed in the **Fully Supported Assets** section above.
-
-### New Assets
-
-Creation of new assets within Automation Studio is currently not supported. Support for this is in current development.
-
-# Project Initiation
-
-**At the moment, project initiation is only available for Content Builder projects.**
-
-Projects can be initiated outside of SFMC by running the `bldr init --cb` command. This command will create the required BLDR folders and files to scaffold your Content Builder folders and assets so you can create them in bulk within SFMC. The `init` command will prompt you to enter a *Project Name* that will be used as your root folder and ask if you need to create a configuration file.
-
-Once you have your initial project set up, simply run `bldr add .` and `bldr push` to create your files in SFMC.
-
-## Project API Keys/Secrets
-
-If your project requires the use of API Keys or Secrets, you can run `bldr init --configOnly` or select `Y` during the `bldr init` process. Two configuration files will be created `.sfmc.config.json` and `template.sfmc.config.json`. These JSON files can be used for any values you do not want committed to version control or a BLDR package.
-
-All found keys in content will be replaced with the JSON keys in `.sfmc.config.json`. When files are created/updated within SFMC the values will be set so the assets within SFMC will be valid and working as expected.
-
-If you wish to update these keys outside of the `bldr add .` / `bldr push` process, run `bldr init --update-api-keys`.
-
-# Project Distribution
-## Packaging
-
-**At the moment, packaging is only available for Content Builder projects.**
-
-Once you have your project tested and ready to share; run `bldr package`. This action will gather all of the required data from your projects files that is needed to create the assets in a new SFMC instance. If your assets have ampscript dependencies, bldr will identify the assets that are referenced and include them in your package. Currently, Data Extension and ContentBlockBy functions are supported; additional support will be implemented as needed.
-
-After your project is packaged, you can commit it to a **public GitHub repository**. Support for additional GIT providers will be implemented soon.
-
-## Installing and Deploying
-
-Projects that are stored in public repositories can be shared by providing the GitHub URL `https://github.com/{{owner}}/{{repository}}` with the community member or team member. Once they have the URL, they can run `bldr install https://github.com/{{owner}}/{{repository}}` which will download the `.package.manifest.json` file and create the sfmc configuration files if needed.
-
-The `.package.manifest.json` file that is downloaded can be updated by the user if required. It's recommended to update names of folders/assets using a find/replace all functionality in your text editor to ensure that all references are updated and nothing breaks. Names may need to be updated as trying to create folders/assets with existing names will cause errors.
-
-After everything is updated you can run `bldr deploy` to create the assets locally as well as within the currently targeted/set SFMC instance.
-
-
-# Security
-
-You and your clients' security is important. As such, we've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely. We have implemented `aes-256-ctr` encryption which will encrypt your Installed Package `ClientId` and `ClientSecrets` prior to being stored. A key specific to you as a user will be created and stored separate from the stored credentials and will be unique to you.
-
-## Updating Credentials
-
-All credentials being created after `v1.1.3` will automatically be encrypted. To update your existing credentials, run `bldr config --encrypt` and all environments will be checked and encrypted.
 
 # Usage
 
@@ -211,6 +142,192 @@ clone           |                                |
                 |   --sql, --query <query id>    | Clone a Single Asset
                 |   --ssjs, --script <script id> | Clone a Single Asset
 ```
+
+<br>
+
+# Security
+
+You and your organizations security are important. We've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely.
+
+We have implemented `aes-256-ctr` encryption, which will encrypt your Installed Package `ClientId` and `ClientSecret` prior to being stored. A key specific to you will be created and stored separate from the stored credentials.
+
+<br>
+
+_All credentials being created after `v1.1.3` will automatically be encrypted. To update your existing credentials, run `bldr config --encrypt` and all environments will be checked and encrypted if need._
+
+<br>
+
+# BLDR Scope & Support
+
+BLDR is currently scoped to Content Builder and Automation Studio assets.
+
+Due to some of the API limitations and data structures there are a few important call-outs to keep in mind. Across the various types of assets within SFMC, there will be different levels of support and user experiences:
+
+<br>
+
+## Content Builder
+### Fully Supported Assets
+
+**Fully supported** assets are asset types that when cloned from SFMC are created as fully editable `.html` files.
+- html emails
+- code snippet content blocks
+- html content blocks
+
+<br>
+
+### Partially Supported Assets
+
+**Partially supported** assets are asset types that when cloned from SFMC are created as `.json` files. These files can still be updated/edited directly in the JSON structure and updated within SFMC. Asset types that are partially supported are any not listed in the **Fully Supported Assets** section above.
+
+<br>
+
+### CloudPages and Code Resource Pages
+
+Support for CloudPages and Code Resource Pages falls somewhere in-between _fully supported_ and _partially supported_.
+
+<br>
+
+Both of these asset types will not show up or be cloned down when running the clone command for a folder Id as these assets are stored under the root *Content Builder* folder. Both of these assets do appear in `bldr search --cb` results and will need to be cloned down using the `bldr clone --cb -a <assetId>` command.
+
+<br>
+
+Once cloned, they will be created in the root `Content Builder` folder.
+
+<br>
+
+Updating these assets in SFMC will be successful up until the point of `publish`. There is currently no API support for publishing CloudPages or Code Resource pages via API, however the code in the resource will be updated.
+
+<br>
+
+## Automation Studio
+### Fully Supported Assets
+
+Fully supported assets are asset types that when cloned from SFMC are created as fully editable `.html/.sql` files.
+- query activities
+- script activities
+
+<br>
+
+### Partially Supported Assets
+
+Partially supported assets are asset types that when cloned from SFMC are created as `.json` files. These files can still be updated/edited directly in the JSON structure and updated within SFMC. Asset types that are partially supported are any not listed in the **Fully Supported Assets** section above.
+
+<br>
+
+# Initiating a BLDR Project
+
+When initiating a BLDR project there are currently two paths available for Content Builder and one path available for Automation Studio.
+
+<br>
+
+## Existing SFMC Assets
+Content Builder and Automation Studio projects can both be initiated based on existing SFMC assets by using the `bldr clone` commands.
+
+<br>
+
+## Non-Existing SFMC Assets
+**At the moment, locally scaffolded project initiation is only available for Content Builder projects.**
+
+Projects can be initiated locally by running the `bldr init --cb` command.
+
+The `init` command will prompt you to enter a *Project Name* that will be used as your root folder and ask if you need to create a configuration file.
+
+Required BLDR folders and files will be created, and you will be able to scaffold your Content Builder folders and assets so you can create them in bulk within SFMC.
+
+Once you have your initial project set up, simply run `bldr add .` and `bldr push` to create your files in SFMC.
+
+
+<br>
+
+# Project API Keys/Secrets
+
+If your project requires the use of API Keys, Secrets, or any value you might need to keep from version control, there is a configuration system built into BLDR.
+
+<br>
+
+If you are initiating a project via the BLDR CLI, select `Y` during the `bldr init` process.
+
+<br>
+
+If you have an existing project and need to leverage the configuration system, you can run `bldr init --configOnly`.
+
+<br>
+
+Two configuration files will be created `.sfmc.config.json` and `template.sfmc.config.json`. These JSON files can be used for any values you do not want committed to version control or a BLDR package.
+
+<br>
+
+Keys found in content will be replaced with the JSON keys in `.sfmc.config.json`. When files are created/updated within SFMC the values will be set so the assets within SFMC will be valid and working as expected.
+
+<br>
+
+If you wish to update these keys outside of the `bldr add .` / `bldr push` flow, you can run `bldr init --update-api-keys` and update them on-demand.
+
+<br>
+
+All found values will be replaced with the keys found in the `.sfmc.config.json` file.
+
+```javascript
+// .sfmc.config.json
+{
+    "client_id": "abc12345"
+}
+
+// Updated Asset Content
+var apiConfig = {
+    clientId: "client_id"
+}
+```
+
+<br>
+
+# Project Distribution
+BLDR is not only a powerful SFMC workflow but a tool that is being developed to support a larger initiative - Blueprint. The strategy behind Blueprint will be an open-source platform that allow SFMC users/developers/admins/etc to create Blueprint Packages, make them searchable, make them accessible.
+
+<br>
+
+Blueprint users will be able to _Search, Install, and Deploy_ recipes and packages that others in the community have shared.
+
+<br>
+
+The Blueprint project will be starting development soon, so check back for updates. If you are interested in contributing please reach out!
+
+<br>
+
+## Packaging
+**At the moment, packaging is only available for Content Builder projects.**
+
+Once you have your project tested and ready to share; run `bldr package`. This action will gather all of the required data from your project files that is needed to create the assets in a new SFMC instance.
+
+<br>
+
+If your assets have AMPscript or Sever-Side Javascript dependencies, bldr will identify the assets that are referenced and include them in your package.
+
+<br>
+
+Dependency support is growing and will continue to expand. Currently, most Data Extension based and ContentBlock functions are supported.
+
+
+## Installing and Deploying
+Packaged projects can then be committed to a _public_ repository.
+
+<br>
+
+BLDR projects can be shared by providing the repository URL `https://github.com/{{owner}}/{{repository}}` with the community member or team member.
+
+<br>
+
+Once they have the URL, they can run `bldr install https://github.com/{{owner}}/{{repository}}` which will download the `.package.manifest.json` file and create the sfmc configuration files if needed.
+
+<br>
+
+The `.package.manifest.json` file that is downloaded can be updated by the user if required. **It's recommended to only update names of folders** by using a **find/replace all** functionality in your text editor to ensure that all references are updated and nothing breaks. Names may need to be updated as trying to create folders/assets with existing names will cause errors.
+
+<br>
+
+Once ready, you can run `bldr deploy` to create the assets locally as well as within the currently targeted/set SFMC instance.
+
+
 
 # TODO/Roadmap
 
