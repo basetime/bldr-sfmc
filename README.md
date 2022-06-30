@@ -101,8 +101,8 @@ stash           |                                |
 --------------- | ------------------------------ | --------------------------------------------------------------------------------
 init            |                                |
                 | --cb                           | Initiate project folder for Content Builder
-                | --config-only                   | Setup configuration file for project
-                | --update-api-keys              | Update .sfmc.config.json keys found in content
+                | --config-only                  | Setup configuration file for project
+                | --update-config-keys           | Update .sfmc.config.json keys found in content
 --------------- | ------------------------------ | --------------------------------------------------------------------------------
 add             |                                |
                 | .                              | Add All Assets to the Stash to be Pushed into SFMC
@@ -253,7 +253,7 @@ If you are initiating a project via the BLDR CLI, select `Y` during the `bldr in
 
 <br>
 
-If you have an existing project and need to leverage the configuration system, you can run `bldr init --configOnly`.
+If you have an existing project and need to leverage the configuration system, you can run `bldr init --config-only`.
 
 <br>
 
@@ -265,7 +265,7 @@ Keys found in content will be replaced with the JSON keys in `.sfmc.config.json`
 
 <br>
 
-If you wish to update these keys outside of the `bldr add .` / `bldr push` flow, you can run `bldr init --update-api-keys` and update them on-demand.
+If you wish to update these keys outside of the `bldr add .` / `bldr push` flow, you can run `bldr init --update-config-keys` and update them on-demand.
 
 <br>
 
@@ -287,7 +287,7 @@ var apiConfig = {
 
 # Project Distribution
 
-BLDR is not only a powerful SFMC workflow but a tool that is being developed with a larger initiative in sight. BLDR will be an open-source platform that allow users/developers/admins/etc to create BLDR Packages, make them searchable, make them accessible.
+BLDR is not only a powerful SFMC workflow but a tool that is being developed with a larger initiative in sight. BLDR will be a full open-source platform that allow users/developers/admins/etc to create BLDR Packages, make them searchable, make them accessible.
 
 <br>
 
@@ -333,11 +333,13 @@ The `.package.manifest.json` file that is downloaded can be updated by the user 
 
 Once ready, you can run `bldr deploy` to create the assets locally as well as within the currently targeted/set SFMC instance.
 
+<br>
 # TODO/Roadmap
 
 Items listed below identify the projected roadmap for the BLDR project. Implementation of these items are not set in stone or promised.
 
 -   Support for creating new sql and script activities for Automation Studio
+-   Expanding dependency support
 -   User Interface/Web Application
     -   Database of community packages
         -   Register packages to be searchable
