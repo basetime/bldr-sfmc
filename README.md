@@ -17,6 +17,7 @@ In addition to a workflow tool, BLDR allows users to package assets to be stored
 <br>
 
 # Getting Started
+
 ## Installation
 
 1. Opening the terminal and check if you have the following:
@@ -76,9 +77,7 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
     - Client Secret
     - Auth URI
 
-
 <br>
-
 
 # Usage
 
@@ -102,7 +101,7 @@ stash           |                                |
 --------------- | ------------------------------ | --------------------------------------------------------------------------------
 init            |                                |
                 | --cb                           | Initiate project folder for Content Builder
-                | --configOnly                   | Setup configuration file for project
+                | --config-only                   | Setup configuration file for project
                 | --update-api-keys              | Update .sfmc.config.json keys found in content
 --------------- | ------------------------------ | --------------------------------------------------------------------------------
 add             |                                |
@@ -166,12 +165,14 @@ Due to some of the API limitations and data structures there are a few important
 <br>
 
 ## Content Builder
+
 ### Fully Supported Assets
 
 **Fully supported** assets are asset types that when cloned from SFMC are created as fully editable `.html` files.
-- html emails
-- code snippet content blocks
-- html content blocks
+
+-   html emails
+-   code snippet content blocks
+-   html content blocks
 
 <br>
 
@@ -187,7 +188,7 @@ Support for CloudPages and Code Resource Pages falls somewhere in-between _fully
 
 <br>
 
-Both of these asset types will not show up or be cloned down when running the clone command for a folder Id as these assets are stored under the root *Content Builder* folder. Both of these assets do appear in `bldr search --cb` results and will need to be cloned down using the `bldr clone --cb -a <assetId>` command.
+Both of these asset types will not show up or be cloned down when running the clone command for a folder Id as these assets are stored under the root _Content Builder_ folder. Both of these assets do appear in `bldr search --cb` results and will need to be cloned down using the `bldr clone --cb -a <assetId>` command.
 
 <br>
 
@@ -200,11 +201,13 @@ Updating these assets in SFMC will be successful up until the point of `publish`
 <br>
 
 ## Automation Studio
+
 ### Fully Supported Assets
 
 Fully supported assets are asset types that when cloned from SFMC are created as fully editable `.html/.sql` files.
-- query activities
-- script activities
+
+-   query activities
+-   script activities
 
 <br>
 
@@ -221,21 +224,22 @@ When initiating a BLDR project there are currently two paths available for Conte
 <br>
 
 ## Existing SFMC Assets
+
 Content Builder and Automation Studio projects can both be initiated based on existing SFMC assets by using the `bldr clone` commands.
 
 <br>
 
 ## Non-Existing SFMC Assets
+
 **At the moment, locally scaffolded project initiation is only available for Content Builder projects.**
 
 Projects can be initiated locally by running the `bldr init --cb` command.
 
-The `init` command will prompt you to enter a *Project Name* that will be used as your root folder and ask if you need to create a configuration file.
+The `init` command will prompt you to enter a _Project Name_ that will be used as your root folder and ask if you need to create a configuration file.
 
 Required BLDR folders and files will be created, and you will be able to scaffold your Content Builder folders and assets so you can create them in bulk within SFMC.
 
 Once you have your initial project set up, simply run `bldr add .` and `bldr push` to create your files in SFMC.
-
 
 <br>
 
@@ -282,19 +286,21 @@ var apiConfig = {
 <br>
 
 # Project Distribution
-BLDR is not only a powerful SFMC workflow but a tool that is being developed to support a larger initiative - Blueprint. The strategy behind Blueprint will be an open-source platform that allow SFMC users/developers/admins/etc to create Blueprint Packages, make them searchable, make them accessible.
+
+BLDR is not only a powerful SFMC workflow but a tool that is being developed with a larger initiative in sight. BLDR will be an open-source platform that allow users/developers/admins/etc to create BLDR Packages, make them searchable, make them accessible.
 
 <br>
 
-Blueprint users will be able to _Search, Install, and Deploy_ recipes and packages that others in the community have shared.
+Users will be able to _Search, Install, and Deploy_ recipes and packages that others in the community have shared.
 
 <br>
 
-The Blueprint project will be starting development soon, so check back for updates. If you are interested in contributing please reach out!
+The distribution scope of the project will be starting development soon, so check back for updates. If you are interested in contributing please reach out!
 
 <br>
 
 ## Packaging
+
 **At the moment, packaging is only available for Content Builder projects.**
 
 Once you have your project tested and ready to share; run `bldr package`. This action will gather all of the required data from your project files that is needed to create the assets in a new SFMC instance.
@@ -307,8 +313,8 @@ If your assets have AMPscript or Sever-Side Javascript dependencies, bldr will i
 
 Dependency support is growing and will continue to expand. Currently, most Data Extension based and ContentBlock functions are supported.
 
-
 ## Installing and Deploying
+
 Packaged projects can then be committed to a _public_ repository.
 
 <br>
@@ -326,8 +332,6 @@ The `.package.manifest.json` file that is downloaded can be updated by the user 
 <br>
 
 Once ready, you can run `bldr deploy` to create the assets locally as well as within the currently targeted/set SFMC instance.
-
-
 
 # TODO/Roadmap
 

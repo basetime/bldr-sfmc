@@ -41,7 +41,7 @@ const init = async (req, argv, store) => {
         switch (req) {
             case 'init':
                 blueprint = await blueprintInit.set(null, store);
-                if (blueprint) initSwitch.switch(req, argv, blueprint, store);
+                if (blueprint) initSwitch.switch(req, argv, blueprint);
                 break;
             /**
              * Config route handles all CLI configuration of SFMC Instance\
@@ -93,8 +93,7 @@ const init = async (req, argv, store) => {
 
             case 'install':
                 blueprint = await blueprintInit.set(null, store);
-                if (blueprint)
-                    installSwitch.switch(req, argv, blueprint, store);
+                if (blueprint) installSwitch.switch(req, argv, blueprint);
                 break;
 
             case 'deploy':
