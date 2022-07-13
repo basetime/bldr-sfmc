@@ -5,6 +5,7 @@
     -   Update: Run `--update-config-keys` on package command
     -   BugFix/Update: Credentials are now scrubbed when editable files created from `bldr deploy`
     -   BugFix/Update: ManifestJSON is now scrubbed when created from `bldr deploy`
+    -   Update: Prevent Deployment if `.sfmc.config.json` exists but has not been updated
 
 
 **2022-06-21**
