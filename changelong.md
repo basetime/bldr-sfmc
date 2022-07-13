@@ -2,6 +2,9 @@
 
 -   Added/Updated Features:
     -   BugFix: Fixed issue with new files breaking `bldr add` command (filepath issue)
+    -   Update: Run `--update-config-keys` on package command
+    -   BugFix/Update: Credentials are now scrubbed when editable files created from `bldr deploy`
+    -   BugFix/Update: ManifestJSON is now scrubbed when created from `bldr deploy`
 
 
 **2022-06-21**
