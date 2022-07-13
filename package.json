@@ -1,6 +1,6 @@
 {
     "name": "@basetime/bldr-sfmc",
-    "version": "1.2.2",
+    "version": "1.2.3-beta.2",
     "description": "CLI application for SFMC Development workflow and package deployment",
     "main": "bin/index.js",
     "scripts": {
@@ -41,6 +41,7 @@
         "node-html-parser": "^5.2.0",
         "node-recursive-directory": "^1.2.0",
         "sfmc-sdk": "^0.5.0",
+        "sfmc-soap-object-reference": "1.0.0",
         "uuid": "^8.3.2",
         "yargs": "^16.1.1",
         "yargs-interactive": "^3.0.0"

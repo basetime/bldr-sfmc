@@ -38,6 +38,7 @@ Dependency List for SFMC
 ## Ampscript
 
 -   Data Extensions
+
     -   ClaimRow
         -   [https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/claimrow.html](Row)
             -   Name
@@ -81,6 +82,7 @@ Dependency List for SFMC
     -   LookupRowsCS
         -   [https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/lookuprowscs.html]()
             -   Name
+
 -   Filters
     -   [https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/executefilter.html](ExecuteFilter)
         -   External Key
