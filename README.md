@@ -71,7 +71,6 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 
 <br>
 
-
 # Security
 
 You and your organizations security are important. We've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely.
@@ -80,10 +79,8 @@ Credentials are stored using your machines default password storage (OSX Keychai
 
 We have implemented `aes-256-ctr` encryption, which will encrypt your Installed Package `ClientId` and `ClientSecret` prior to being stored.
 
-
 <!-- TODO migration notes -->
 <br>
-
 
 # Usage
 
@@ -152,7 +149,6 @@ clone           |                                |
 ```
 
 <br>
-
 
 # BLDR Scope & Support
 
@@ -264,10 +260,12 @@ Keys found in content will be replaced with the JSON keys in `.sfmc.config.json`
 <br>
 
 ## When do keys get updated
+
 Your files will be updated when:
-- you run `bldr init --update-config-keys`
-- you run `bldr add ....` and `bldr push`
-- you run `bldr package`
+
+-   you run `bldr init --update-config-keys`
+-   you run `bldr add ....` and `bldr push`
+-   you run `bldr package`
 
 <br>
 
@@ -288,6 +286,7 @@ var apiConfig = {
 <br>
 
 # Project Distribution
+
 BLDR is not only a powerful SFMC workflow, but a tool that is being developed with a larger initiative in sight. BLDR will be a full platform that allow users/developers/admins/etc to create BLDR Packages, make them searchable, and make them accessible.
 
 Users will be able to _Search, Install, and Deploy_ recipes and packages that others in the community have shared.

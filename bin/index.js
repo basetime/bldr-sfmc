@@ -19,7 +19,7 @@ const installSwitch = require('../lib/install/switch');
 const stashSwitch = require('../lib/stash/switch');
 const statusSwitch = require('../lib/status/switch');
 const initSwitch = require('../lib/init/switch');
-const patchSwitch = require('../lib/patch/switch')
+const patchSwitch = require('../lib/patch/switch');
 
 // Parse requests and input arguments
 const req = yargs.argv._[0] ? yargs.argv._[0].toLowerCase() : null;
