@@ -76,9 +76,9 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 
 You and your organizations security are important. We've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely.
 
-Credentials are stored using your machines default password storage (OSX Keychain or Windows Credential Manager).
+Credentials are stored using your machines default password storage (OSX Keychain Access or Windows Credential Manager).
 
-We have implemented `aes-256-ctr` encryption, which will encrypt your Installed Package `ClientId` and `ClientSecret` prior to being stored. A key specific to you will be created and stored separate from the stored credentials.
+We have implemented `aes-256-ctr` encryption, which will encrypt your Installed Package `ClientId` and `ClientSecret` prior to being stored.
 
 
 <!-- TODO migration notes -->
@@ -288,17 +288,13 @@ var apiConfig = {
 <br>
 
 # Project Distribution
-
-BLDR is not only a powerful SFMC workflow but a tool that is being developed with a larger initiative in sight. BLDR will be a full open-source platform that allow users/developers/admins/etc to create BLDR Packages, make them searchable, make them accessible.
-
-<br>
+BLDR is not only a powerful SFMC workflow, but a tool that is being developed with a larger initiative in sight. BLDR will be a full platform that allow users/developers/admins/etc to create BLDR Packages, make them searchable, and make them accessible.
 
 Users will be able to _Search, Install, and Deploy_ recipes and packages that others in the community have shared.
 
-<br>
-
 The distribution scope of the project will be starting development soon, so check back for updates. If you are interested in contributing please reach out!
 
+It's very important to note that BLDR assumes absolutely no ownership of your projects, packages, and code.
 <br>
 
 ## Packaging
