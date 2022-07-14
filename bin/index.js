@@ -13,9 +13,13 @@ const contextSwitch = require('../lib/context/contextSwitch');
 const configSwitch = require('../lib/config/switch');
 const addSwitch = require('../lib/add/switch');
 const pushSwitch = require('../lib/push/switch');
+const packageSwitch = require('../lib/package/switch');
+const deploySwitch = require('../lib/deploy/switch');
+const installSwitch = require('../lib/install/switch');
 const stashSwitch = require('../lib/stash/switch');
 const statusSwitch = require('../lib/status/switch');
 const initSwitch = require('../lib/init/switch');
+const patchSwitch = require('../lib/patch/switch')
 
 // Parse requests and input arguments
 const req = yargs.argv._[0] ? yargs.argv._[0].toLowerCase() : null;
@@ -38,7 +42,7 @@ const init = async (req, argv, store) => {
         switch (req) {
             case 'init':
                 blueprint = await blueprintInit.set(null, store);
-                if (blueprint) initSwitch.switch(req, argv, blueprint, store);
+                if (blueprint) initSwitch.switch(req, argv, blueprint);
                 break;
             /**
              * Config route handles all CLI configuration of SFMC Instance\
@@ -79,7 +83,28 @@ const init = async (req, argv, store) => {
                 blueprint = await blueprintInit.set(null, store);
                 if (blueprint) pushSwitch.switch(req, argv, blueprint, store);
                 break;
+            /**
+             * Package Files
+             */
+            case 'package':
+                blueprint = await blueprintInit.set(null, store);
+                if (blueprint)
+                    packageSwitch.switch(req, argv, blueprint, store);
+                break;
 
+            case 'install':
+                blueprint = await blueprintInit.set(null, store);
+                if (blueprint) installSwitch.switch(req, argv, blueprint);
+                break;
+
+            case 'deploy':
+                blueprint = await blueprintInit.set(null, store);
+                if (blueprint) deploySwitch.switch(req, argv, blueprint, store);
+                break;
+
+            case 'patch':
+                patchSwitch.switch(argv);
+                break;
             /**
              * Default handles all context specific routes
              * Context specific routes are located in utils/Blueprint/context/:context
