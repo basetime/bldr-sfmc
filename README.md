@@ -73,13 +73,11 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 
 # Security
 
-You and your organizations security are important. We've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely.
-
-Credentials are stored using your machines default password storage (OSX Keychain Access or Windows Credential Manager).
+You and your organizations security are important. We've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely. Credentials are stored using your machines default password storage (OSX Keychain Access or Windows Credential Manager).
 
 We have implemented `aes-256-ctr` encryption, which will encrypt your Installed Package `ClientId` and `ClientSecret` prior to being stored.
 
-<!-- TODO migration notes -->
+If you have existing credentials configured, please run `bldr patch --migrate-configs` which will move all configurations into the default password storage and delete the existing configuration files.
 <br>
 
 # Usage
