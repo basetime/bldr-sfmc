@@ -1,3 +1,8 @@
+**2022-07-14**
+
+-   Added/Updated Features:
+    -   Security Update: All credentials will now be stored in your systems default password manager. See README for details and required actions.
+
 **2022-07-13**
 
 -   Added/Updated Features:
