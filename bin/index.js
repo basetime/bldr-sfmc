@@ -19,6 +19,7 @@ const installSwitch = require('../lib/install/switch');
 const stashSwitch = require('../lib/stash/switch');
 const statusSwitch = require('../lib/status/switch');
 const initSwitch = require('../lib/init/switch');
+const patchSwitch = require('../lib/patch/switch');
 
 // Parse requests and input arguments
 const req = yargs.argv._[0] ? yargs.argv._[0].toLowerCase() : null;
@@ -101,6 +102,9 @@ const init = async (req, argv, store) => {
                 if (blueprint) deploySwitch.switch(req, argv, blueprint, store);
                 break;
 
+            case 'patch':
+                patchSwitch.switch(argv);
+                break;
             /**
              * Default handles all context specific routes
              * Context specific routes are located in utils/Blueprint/context/:context

@@ -1,13 +1,5 @@
 # BLDR-SFMC
 
-```
-*** Important update required after v1.2.0 ***
-
-Configurations will need to be manually reconfigured as updates to the encryption of API credentials had to be updated.
-See details below in the Bugs/Fixes section.
-
-```
-
 BLDR is a CLI application for Salesforce Marketing Cloud (SFMC). BLDR brings working with SFMC a bit closer to a GIT development workflow, while also incorporating the ability to use any GIT provider for version control.
 
 <br>
@@ -72,11 +64,20 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 
 1. In your terminal, run `bldr config -n`
 2. Follow the prompts and input the following from the Installed Package:
-    - Parent BU MID
-    - Client Id
+    - Parent MID
+    - Client ID
     - Client Secret
     - Auth URI
 
+<br>
+
+# Security
+
+You and your organizations security are important. We've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely. Credentials are stored using your machines default password storage (OSX Keychain Access or Windows Credential Manager).
+
+We have implemented `aes-256-ctr` encryption, which will encrypt your Installed Package `ClientId` and `ClientSecret` prior to being stored.
+
+If you have existing credentials configured, please run `bldr patch --migrate-configs` which will move all configurations into the default password storage and delete the existing configuration files.
 <br>
 
 # Usage
@@ -144,18 +145,6 @@ clone           |                                |
                 |   --sql, --query <query id>    | Clone a Single Asset
                 |   --ssjs, --script <script id> | Clone a Single Asset
 ```
-
-<br>
-
-# Security
-
-You and your organizations security are important. We've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely.
-
-We have implemented `aes-256-ctr` encryption, which will encrypt your Installed Package `ClientId` and `ClientSecret` prior to being stored. A key specific to you will be created and stored separate from the stored credentials.
-
-<br>
-
-_All credentials being created after `v1.1.3` will automatically be encrypted. To update your existing credentials, run `bldr config --encrypt` and all environments will be checked and encrypted if need._
 
 <br>
 
@@ -248,11 +237,11 @@ Once you have your initial project set up, simply run `bldr add .` and `bldr pus
 
 # Project API Keys/Secrets
 
-If your project requires the use of API Keys, Secrets, or any value you might need to keep from version control, there is a configuration system built into BLDR.
+If your project requires the use of API Keys, Secrets, or any value you might need to keep from version control, there is a configuration/credential system built into BLDR.
 
 <br>
 
-If you are initiating a project via the BLDR CLI, select `Y` during the `bldr init` process.
+During initiation of a project via the BLDR CLI, select `Y` during the `bldr init` process.
 
 <br>
 
@@ -260,7 +249,7 @@ If you have an existing project and need to leverage the configuration system, y
 
 <br>
 
-Two configuration files will be created `.sfmc.config.json` and `template.sfmc.config.json`. These JSON files can be used for any values you do not want committed to version control or a BLDR package.
+Two configuration files will be created `.sfmc.config.json` and `template.sfmc.config.json`. These JSON files can be used for any values you do not want committed to your version control system and/or BLDR package.
 
 <br>
 
@@ -268,7 +257,13 @@ Keys found in content will be replaced with the JSON keys in `.sfmc.config.json`
 
 <br>
 
-If you wish to update these keys outside of the `bldr add .` / `bldr push` flow, you can run `bldr init --update-config-keys` and update them on-demand.
+## When do keys get updated
+
+Your files will be updated when:
+
+-   you run `bldr init --update-config-keys`
+-   you run `bldr add ....` and `bldr push`
+-   you run `bldr package`
 
 <br>
 
@@ -282,7 +277,7 @@ All found values will be replaced with the keys found in the `.sfmc.config.json`
 
 // Updated Asset Content
 var apiConfig = {
-    clientId: "client_id"
+    clientId: "{{client_id}}"
 }
 ```
 
@@ -290,16 +285,13 @@ var apiConfig = {
 
 # Project Distribution
 
-BLDR is not only a powerful SFMC workflow but a tool that is being developed with a larger initiative in sight. BLDR will be a full open-source platform that allow users/developers/admins/etc to create BLDR Packages, make them searchable, make them accessible.
-
-<br>
+BLDR is not only a powerful SFMC workflow, but a tool that is being developed with a larger initiative in sight. BLDR will be a full platform that allow users/developers/admins/etc to create BLDR Packages, make them searchable, and make them accessible.
 
 Users will be able to _Search, Install, and Deploy_ recipes and packages that others in the community have shared.
 
-<br>
-
 The distribution scope of the project will be starting development soon, so check back for updates. If you are interested in contributing please reach out!
 
+It's very important to note that BLDR assumes absolutely no ownership of your projects, packages, and code.
 <br>
 
 ## Packaging
@@ -337,7 +329,7 @@ The `.package.manifest.json` file that is downloaded can be updated by the user 
 Once ready, you can run `bldr deploy` to create the assets locally as well as within the currently targeted/set SFMC instance.
 
 <br>
-# TODO/Roadmap
+# ToDo/Roadmap
 
 Items listed below identify the projected roadmap for the BLDR project. Implementation of these items are not set in stone or promised.
 
