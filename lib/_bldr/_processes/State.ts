@@ -10,7 +10,9 @@ import { assignObject } from "../_utils";
 
 // const configInit = new Config();
 
-
+/**
+ * @param {function get(params:type) {}}
+ */
 export class State {
     constructor() {}
     /**
@@ -20,8 +22,8 @@ export class State {
      * @returns
      */
     get(
-        key: string,
-        show: Boolean
+        key?: string,
+        show?: Boolean
     ) {
         try {
             if (!key) {

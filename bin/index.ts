@@ -1,14 +1,13 @@
 #!/usr/bin/env node
-import  yargs  from 'yargs'
-
-// const blueprintInit = require('../lib/utils/Blueprint');
-// const store = require('../lib/utils/Store');
-
-// const State = require('../lib/utils/Blueprint/State');
-// const Config = require('../lib/utils/Blueprint/Config');
+import yargs from 'yargs'
+import {
+    stashInit,
+    stateInit
+} from '../lib/_bldr_sdk/store'
 
 // Initiate all route switches
-import  {InitSwitch}  from '../lib/_controllers/init/switch'
+const InitSwitch = require('../lib/_controllers/init')
+import { ConfigSwitch } from '../lib/_controllers/config'
 
 // const contextSwitch = require('../lib/context/contextSwitch');
 // const configSwitch = require('../lib/config/switch');
@@ -39,28 +38,23 @@ const argv = userInput.argv;
 const initCLI = async (
     req: string,
     argv: any,
-    store: {
-        help: {
-            init: Function
-        }
-    }) => {
+) => {
     if (!req) {
         // If no request is provided show help
-        store.help.init();
+        // store.help.init();
     } else {
 
-
         switch (req) {
-            // case 'init':
-            //     InitSwitch(req, argv, bldrSDK);
-            //     break;
+            case 'init':
+                // InitSwitch(req, argv, bldrSDK);
+                break;
             // /**
             //  * Config route handles all CLI configuration of SFMC Instance\
             //  * See README for config details
             //  */
-            // case 'config':
-            //     configSwitch.switch(req, argv, store);
-            //     break;
+            case 'config':
+                ConfigSwitch(req, argv);
+                break;
 
             // /**
             //  * Add files in bulk or by filepath to the stash.json file
@@ -127,4 +121,4 @@ const initCLI = async (
     }
 };
 
-initCLI(req, argv, store);
+initCLI(req, argv);
