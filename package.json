@@ -5,6 +5,7 @@
     "main": "bin/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsc",
         "format:check": "prettier --check .",
         "format:write": "prettier --write .",
         "lint": "eslint ./lib",
@@ -28,6 +29,7 @@
     "license": "BSD-3-Clause",
     "dependencies": {
         "@nodelib/fs.walk": "^1.2.8",
+        "@types/node": "18.6.1",
         "axios": "^0.26.0",
         "boxen": "^4.2.0",
         "chalk": "^2.4.1",
@@ -42,14 +44,17 @@
         "node-html-parser": "^5.2.0",
         "node-recursive-directory": "^1.2.0",
         "sfmc-sdk": "^0.5.0",
-        "sfmc-soap-object-reference": "1.0.0",
+        "sfmc-soap-object-reference": "1.0.1",
         "uuid": "^8.3.2",
         "yargs": "^16.1.1",
         "yargs-interactive": "^3.0.0"
     },
     "devDependencies": {
+        "@tsconfig/recommended": "1.0.1",
+        "@types/yargs": "17.0.10",
         "eslint": "^8.12.0",
         "eslint-config-prettier": "^8.5.0",
-        "prettier": "^2.6.2"
+        "prettier": "^2.6.2",
+        "typescript": "4.7.4"
     }
 }
