@@ -1,13 +1,13 @@
-import { Initiate } from "../_bldr/_processes/Initiate";
+// import { Initiate } from "../_bldr/_processes/Initiate";
 
-export class bldrSDK {
-    initiate: {
+// export class bldrSDK {
+//     initiate: {
 
-    };
+//     };
 
 
 
-    constructor() {
-        this.initiate = new Initiate()
-    }
-}
+//     constructor() {
+//         this.initiate = new Initiate()
+//     }
+// }

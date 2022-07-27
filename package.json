@@ -2,7 +2,7 @@
     "name": "@basetime/bldr-sfmc",
     "version": "1.4.3",
     "description": "CLI application for SFMC Development workflow and package deployment",
-    "main": "bin/index.js",
+    "main": "./dist/bin/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "tsc",
@@ -12,7 +12,7 @@
         "lint:fix": "eslint ./lib --fix ."
     },
     "bin": {
-        "bldr": "./bin/index.js"
+        "bldr": "./dist/bin/index.js"
     },
     "author": "Basetime.io",
     "repository": {

@@ -6,7 +6,7 @@ import {
 } from '../lib/_bldr_sdk/store'
 
 // Initiate all route switches
-const InitSwitch = require('../lib/_controllers/init')
+// const InitSwitch = require('../lib/_controllers/init')
 import { ConfigSwitch } from '../lib/_controllers/config'
 
 // const contextSwitch = require('../lib/context/contextSwitch');
@@ -39,6 +39,7 @@ const initCLI = async (
     req: string,
     argv: any,
 ) => {
+    console.log('in new')
     if (!req) {
         // If no request is provided show help
         // store.help.init();
