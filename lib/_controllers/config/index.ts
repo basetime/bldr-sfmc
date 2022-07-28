@@ -6,8 +6,8 @@ const {
   getInstanceConfiguration,
   listInstanceConfiguration,
   removeConfiguration,
-  setConfiguration
-} = new Config()
+  setConfiguration,
+} = new Config();
 /**
  * Flag routing for Config command
  *
@@ -16,7 +16,6 @@ const {
  * @param {object} store
  */
 const ConfigSwitch = async (req: any, argv: Argv, store?: any) => {
-
   /**
    * Configure New Instance
    */
@@ -29,8 +28,8 @@ const ConfigSwitch = async (req: any, argv: Argv, store?: any) => {
    * argv._[0] is the command
    */
   if (argv._ && argv._[1]) {
-    return getInstanceConfiguration(argv._[1], true)
-  };
+    return getInstanceConfiguration(argv._[1], true);
+  }
 
   /**
    * List all Configurations
@@ -52,9 +51,7 @@ const ConfigSwitch = async (req: any, argv: Argv, store?: any) => {
     return setConfiguration(argv);
   }
 
-  return 
+  return;
 };
 
-export {
-  ConfigSwitch
-}
+export { ConfigSwitch };

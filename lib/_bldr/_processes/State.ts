@@ -14,7 +14,7 @@ import { assignObject } from "../_utils";
  * @param {function get(params:type) {}}
  */
 export class State {
-  constructor() { }
+  constructor() {}
   /**
    *
    * @param key
@@ -22,16 +22,10 @@ export class State {
    * @returns
    */
 
-  getState = (
-    key?: string,
-    show?: Boolean
-  ) => {
+  getState = (key?: string, show?: Boolean) => {
     try {
       if (!key) {
-        if (show)
-          console.log(
-            assignObject(state_conf.get())
-          );
+        if (show) console.log(assignObject(state_conf.get()));
 
         return assignObject(state_conf.get());
       } else {
@@ -45,7 +39,7 @@ export class State {
     } catch (err) {
       console.log(err);
     }
-  }
+  };
 
   // /**
   //  *
@@ -123,4 +117,4 @@ export class State {
   // clear() {
   //     return this.stateConfiguration.clear();
   // }
-};
+}

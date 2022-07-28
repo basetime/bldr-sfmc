@@ -1,13 +1,10 @@
 #!/usr/bin/env node
-import yargs from 'yargs'
-import {
-  stash_conf,
-  state_conf
-} from '../lib/_bldr_sdk/store'
+import yargs from "yargs";
+import { stash_conf, state_conf } from "../lib/_bldr_sdk/store";
 
 // Initiate all route switches
 // const InitSwitch = require('../lib/_controllers/init')
-import { ConfigSwitch } from '../lib/_controllers/config'
+import { ConfigSwitch } from "../lib/_controllers/config";
 
 // const contextSwitch = require('../lib/context/contextSwitch');
 // const configSwitch = require('../lib/config/switch');
@@ -23,7 +20,6 @@ import { ConfigSwitch } from '../lib/_controllers/config'
 
 // Parse requests and input arguments
 
-
 const userInput: any = yargs;
 const req = userInput.argv._[0] ? userInput.argv._[0].toLowerCase() : null;
 const argv = userInput.argv;
@@ -35,24 +31,20 @@ const argv = userInput.argv;
  * @param {object} argv
  * @param {object} store
  */
-const initCLI = async (
-  req: string,
-  argv: any,
-) => {
+const initCLI = async (req: string, argv: any) => {
   if (!req) {
     // If no request is provided show help
     // store.help.init();
   } else {
-
     switch (req) {
-      case 'init':
+      case "init":
         // InitSwitch(req, argv, bldrSDK);
         break;
       // /**
       //  * Config route handles all CLI configuration of SFMC Instance\
       //  * See README for config details
       //  */
-      case 'config':
+      case "config":
         ConfigSwitch(req, argv);
         break;
 
