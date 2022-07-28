@@ -2,7 +2,7 @@ import { string } from "yargs";
 
 export interface Argv {
   _?: string[];
-  // config
+  // Config
   n?: string;
   new?: string;
   l?: string | null;
@@ -13,4 +13,14 @@ export interface Argv {
   set?: string;
   m?: string;
   mid?: string;
+  // Context
+  cb?: Boolean;
+  'content-builder'?: Boolean;
+  as?: Boolean;
+  'automation-studio'?: Boolean;
+  // Context Types
+  f?: Boolean;
+  a?: Boolean;
+  sql?: Boolean;
+  ssjs?: Boolean
 }

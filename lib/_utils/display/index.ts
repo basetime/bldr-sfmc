@@ -31,7 +31,7 @@ const displayLine = (message: string, status?: string) => {
 const displayObject = (object: any, status?: string) => {
   displayLine("---");
   for (const o in object) {
-    if (typeof object[o] === "string") {
+    if (typeof object[o] !== "object") {
       displayLine(`${o}: ${object[o]}`, status);
     }
   }

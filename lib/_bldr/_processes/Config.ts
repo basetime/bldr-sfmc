@@ -6,7 +6,7 @@ import { Crypto } from '../_utils/crypto'
 import { initiateBldrSDK } from '../../_bldr_sdk'
 import { handleError } from '../../_utils/handleError'
 import { displayLine, displayObject, displayArrayOfStrings } from '../../_utils/display'
-
+import {BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client'
 import { InstanceConfiguration } from '../../_types/InstanceConfiguration'
 import { Argv } from '../../_types/Argv'
 
@@ -28,18 +28,6 @@ const {
 const {
   getState
 } = new State()
-
-// const Encryption = require('../Encryption');
-// const yargsInteractive = require('yargs-interactive');
-// const Column = require('../help/Column');
-// const utils = require('../utils');
-// const display = require('../displayStyles');
-// const { styles, width } = display.init();
-// const keytar = require('keytar-sync');
-
-// const coreConfigurationOptions = require('../options');
-// const blueprintInit = require('../Blueprint');
-// const crypto = new Encryption();
 
 /**
  * Handles all Configuration commands
@@ -83,7 +71,7 @@ export class Config {
             authURI: configResults.authURI,
           };
 
-          const sdk = await initiateBldrSDK({
+          const sdk:BLDR_Client = await initiateBldrSDK({
             client_id: configured.apiClientId,
             client_secret: configured.apiClientSecret,
             account_id: configured.parentMID,
@@ -97,6 +85,7 @@ export class Config {
           }
 
           // Get All Business Unit Details from provided credentials
+          //@ts-ignore //TODO figure out why getAllBusinessUnitDetails is throwing TS error
           const getAllBusinessUnitDetails = await sdk.sfmc.account.getAllBusinessUnitDetails();
 
           // Throw Error if there are issues with getting Business Unit Details
@@ -182,13 +171,13 @@ export class Config {
     // Transform string into parse-able JSON
     let configJSON: InstanceConfiguration = JSON.parse(config);
 
-    if (configJSON && show) {
-      // Decrypt Client_Id and Secret   
-      configJSON.apiClientId = await decrypt(configJSON.apiClientId);
-      configJSON.apiClientSecret = await decrypt(
-        configJSON.apiClientSecret
-      );
+    // Decrypt Client_Id and Secret   
+    configJSON.apiClientId = await decrypt(configJSON.apiClientId);
+    configJSON.apiClientSecret = await decrypt(
+      configJSON.apiClientSecret
+    );
 
+    if (configJSON && show) {
       // Cut string off to only show first 5 characters
       configJSON.apiClientId = configJSON.apiClientId.substring(0, 5);
       configJSON.apiClientSecret = configJSON.apiClientSecret.substring(0, 5);
@@ -290,11 +279,11 @@ export class Config {
       const instanceToSet = argv.s || argv.set;
       const midToSet = argv.m || argv.mid || null;
 
-      if (typeof instanceToSet !== 'string'){
+      if (typeof instanceToSet !== 'string') {
         displayLine('Please provide an Instance Name to Set.', 'error')
         return
       }
-       
+
       const clientConfig: InstanceConfiguration = await this.getInstanceConfiguration(instanceToSet);
 
       if (!clientConfig) {
@@ -318,7 +307,7 @@ export class Config {
 
       displayLine(`${instanceToSet} has been set to target instance`, 'success')
       displayObject(initState)
-      
+
     } catch (err: any) {
       displayLine(`There was an error setting your target instance`, 'error')
       displayLine(err.message, 'error')

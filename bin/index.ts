@@ -4,6 +4,7 @@ import { stash_conf, state_conf } from "../lib/_bldr_sdk/store";
 
 // Initiate all route switches
 // const InitSwitch = require('../lib/_controllers/init')
+import { ContextSwitch } from "../lib/_controllers/_context";
 import { ConfigSwitch } from "../lib/_controllers/config";
 
 // const contextSwitch = require('../lib/context/contextSwitch');
@@ -40,10 +41,10 @@ const initCLI = async (req: string, argv: any) => {
       case "init":
         // InitSwitch(req, argv, bldrSDK);
         break;
-      // /**
-      //  * Config route handles all CLI configuration of SFMC Instance\
-      //  * See README for config details
-      //  */
+      /**
+       * Config route handles all CLI configuration of SFMC Instance
+       * See README for config details
+       */
       case "config":
         ConfigSwitch(req, argv);
         break;
@@ -105,10 +106,8 @@ const initCLI = async (req: string, argv: any) => {
       //  * Default handles all context specific routes
       //  * Context specific routes are located in utils/Blueprint/context/:context
       //  */
-      // default:
-      //     blueprint = await blueprintInit.set(null, store);
-      //     if (blueprint)
-      //         contextSwitch.switch(req, argv, blueprint, store);
+      default:
+        ContextSwitch(req, argv);
     }
   }
 };
