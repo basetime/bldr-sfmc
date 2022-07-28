@@ -10,12 +10,13 @@ const {
 } = new Config();
 /**
  * Flag routing for Config command
- *
+ * 
  * @param {string} req
  * @param {object} argv
  * @param {object} store
+ * 
  */
-const ConfigSwitch = async (req: any, argv: Argv, store?: any) => {
+const ConfigSwitch = async (req: any, argv: Argv) => {
   /**
    * Configure New Instance
    */
