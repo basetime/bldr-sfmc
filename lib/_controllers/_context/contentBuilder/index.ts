@@ -3,6 +3,8 @@ import { initiateBldrSDK } from '../../../_bldr_sdk'
 import { displayLine, displayObject } from "../../../_utils/display";
 import flatten from 'flat';
 
+import { createEditableFiles } from "../../../_bldr/_processes/contentBuilder/CreateLocalFiles";
+
 /**
  * Flag routing for Config command
  * 
@@ -61,12 +63,12 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
          * Search for Content Builder Folders
          */
           if (argv.f) {
-            const searchRequest = await contentBuilder.gatherAssetsByCategoryId({
+            const cloneRequest = await contentBuilder.gatherAssetsByCategoryId({
               contentType: 'asset',
               categoryId: argv.f
             })
             
-            console.log(searchRequest)
+            cloneRequest && cloneRequest.length && await createEditableFiles(cloneRequest)
             // displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info')
             // searchRequest.forEach((obj: any) => {
             //   displayObject(flatten(obj))
