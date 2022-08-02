@@ -69,11 +69,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
             contentType: 'asset',
             categoryId: argv.f
           })
-
           const isolatedFolders = cloneRequest.map((cloneItem) => cloneItem && cloneItem.category)
           const isolatedFoldersUnique = await uniqueArrayByKey(isolatedFolders, 'id')
 
-          // console.log(isolatedFolders)
           cloneRequest && cloneRequest.length && await createEditableFiles(cloneRequest)
           await updateManifest('contentBuilder', {
             assets: cloneRequest,
@@ -85,15 +83,10 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
          * Search for Content Builder Assets
          */
         if (argv.a) {
-          const cloneRequest: SFMC_Content_Builder_Asset[] = await contentBuilder.gatherAssetsByCategoryId({
-            contentType: 'asset',
-            categoryId: argv.f
-          })
-
+          const cloneRequest: SFMC_Content_Builder_Asset[] = await contentBuilder.gatherAssetById(argv.a)
           const isolatedFolders = cloneRequest.map((cloneItem) => cloneItem && cloneItem.category)
           const isolatedFoldersUnique = await uniqueArrayByKey(isolatedFolders, 'id')
 
-          // console.log(isolatedFolders)
           cloneRequest && cloneRequest.length && await createEditableFiles(cloneRequest)
           await updateManifest('contentBuilder', {
             assets: cloneRequest,
