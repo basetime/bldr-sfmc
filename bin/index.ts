@@ -6,6 +6,7 @@ import { stash_conf, state_conf } from "../lib/_bldr_sdk/store";
 // const InitSwitch = require('../lib/_controllers/init')
 import { ContextSwitch } from "../lib/_controllers/_context";
 import { ConfigSwitch } from "../lib/_controllers/config";
+import { AddSwitch } from "../lib/_controllers/add";
 
 // const contextSwitch = require('../lib/context/contextSwitch');
 // const configSwitch = require('../lib/config/switch');
@@ -49,13 +50,12 @@ const initCLI = async (req: string, argv: any) => {
         ConfigSwitch(req, argv);
         break;
 
-      // /**
-      //  * Add files in bulk or by filepath to the stash.json file
-      //  */
-      // case 'add':
-      //     blueprint = await blueprintInit.set(null, store);
-      //     if (blueprint) addSwitch.switch(req, argv, blueprint, store);
-      //     break;
+      /**
+       * Add files in bulk or by filepath to the stash.json file
+       */
+      case 'add':
+        AddSwitch(req, argv)
+        break;
 
       // /**
       //  * Works with Stash operations

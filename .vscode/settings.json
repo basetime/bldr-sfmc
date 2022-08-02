@@ -3,6 +3,7 @@
     "BLDR",
     "isequal",
     "Keychain",
-    "keytar"
+    "keytar",
+    "nodelib"
   ]
 }
