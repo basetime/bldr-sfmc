@@ -1,10 +1,12 @@
+import { SFMC_Content_Builder_Asset } from "@basetime/bldr-sfmc-sdk/lib/sfmc/types/objects/sfmc_content_builder_assets";
 import { Argv } from "../../../_types/Argv";
 import { initiateBldrSDK } from '../../../_bldr_sdk'
 import { displayLine, displayObject } from "../../../_utils/display";
+import { uniqueArrayByKey } from "../../../_bldr/_utils";
 import flatten from 'flat';
 
 import { createEditableFiles } from "../../../_bldr/_processes/contentBuilder/CreateLocalFiles";
-
+import { updateManifest } from "../../../_utils/bldrFileSystem/manifestJSON";
 /**
  * Flag routing for Config command
  * 
@@ -59,36 +61,45 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
 
       case 'clone':
-         /**
-         * Search for Content Builder Folders
+        /**
+        * Search for Content Builder Folders
+        */
+        if (argv.f) {
+          const cloneRequest: SFMC_Content_Builder_Asset[] = await contentBuilder.gatherAssetsByCategoryId({
+            contentType: 'asset',
+            categoryId: argv.f
+          })
+
+          const isolatedFolders = cloneRequest.map((cloneItem) => cloneItem && cloneItem.category)
+          const isolatedFoldersUnique = await uniqueArrayByKey(isolatedFolders, 'id')
+
+          // console.log(isolatedFolders)
+          cloneRequest && cloneRequest.length && await createEditableFiles(cloneRequest)
+          await updateManifest('contentBuilder', {
+            assets: cloneRequest,
+            folders: isolatedFoldersUnique
+          })
+        }
+
+        /**
+         * Search for Content Builder Assets
          */
-          if (argv.f) {
-            const cloneRequest = await contentBuilder.gatherAssetsByCategoryId({
-              contentType: 'asset',
-              categoryId: argv.f
-            })
-            
-            cloneRequest && cloneRequest.length && await createEditableFiles(cloneRequest)
-            // displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info')
-            // searchRequest.forEach((obj: any) => {
-            //   displayObject(flatten(obj))
-            // })
-          }
-  
-          /**
-           * Search for Content Builder Assets
-           */
-          if (argv.a) {
-            const searchRequest = await contentBuilder.searchAssets({
-              searchKey: 'Name',
-              searchTerm: argv.a
-            })
-  
-            displayLine(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info')
-            searchRequest.forEach((obj: any) => {
-              displayObject(flatten(obj))
-            })
-          }
+        if (argv.a) {
+          const cloneRequest: SFMC_Content_Builder_Asset[] = await contentBuilder.gatherAssetsByCategoryId({
+            contentType: 'asset',
+            categoryId: argv.f
+          })
+
+          const isolatedFolders = cloneRequest.map((cloneItem) => cloneItem && cloneItem.category)
+          const isolatedFoldersUnique = await uniqueArrayByKey(isolatedFolders, 'id')
+
+          // console.log(isolatedFolders)
+          cloneRequest && cloneRequest.length && await createEditableFiles(cloneRequest)
+          await updateManifest('contentBuilder', {
+            assets: cloneRequest,
+            folders: isolatedFoldersUnique
+          })
+        }
         break
     }
 

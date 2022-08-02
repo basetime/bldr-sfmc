@@ -16,7 +16,6 @@ const fileExists = (filePath: string) => fs.existsSync(filePath)
  * @returns 
  */
 const getRootPath = () => {
-
   const rootArr = sfmcContext.sfmc_context_mapping.map(({ name }) => {
     const dirPath = path.resolve('./');
     if (dirPath.includes(name)) {
