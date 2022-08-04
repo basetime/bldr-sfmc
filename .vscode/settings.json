@@ -4,6 +4,7 @@
     "isequal",
     "Keychain",
     "keytar",
-    "nodelib"
+    "nodelib",
+    "uuidv"
   ]
 }

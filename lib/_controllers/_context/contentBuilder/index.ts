@@ -5,7 +5,7 @@ import { displayLine, displayObject } from "../../../_utils/display";
 import { uniqueArrayByKey } from "../../../_bldr/_utils";
 import flatten from 'flat';
 
-import { createEditableFiles } from "../../../_bldr/_processes/contentBuilder/CreateLocalFiles";
+import { createEditableFiles } from "../../../_utils/bldrFileSystem/CreateLocalFiles";
 import { updateManifest } from "../../../_utils/bldrFileSystem/manifestJSON";
 /**
  * Flag routing for Config command

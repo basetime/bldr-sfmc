@@ -7,6 +7,7 @@ import { stash_conf, state_conf } from "../lib/_bldr_sdk/store";
 import { ContextSwitch } from "../lib/_controllers/_context";
 import { ConfigSwitch } from "../lib/_controllers/config";
 import { AddSwitch } from "../lib/_controllers/add";
+import { StashSwitch } from "../lib/_controllers/stash";
 
 // const contextSwitch = require('../lib/context/contextSwitch');
 // const configSwitch = require('../lib/config/switch');
@@ -57,13 +58,12 @@ const initCLI = async (req: string, argv: any) => {
         AddSwitch(req, argv)
         break;
 
-      // /**
-      //  * Works with Stash operations
-      //  */
-      // case 'stash':
-      //     blueprint = await blueprintInit.set(null, store);
-      //     if (blueprint) stashSwitch.switch(req, argv, blueprint, store);
-      //     break;
+      /**
+       * Works with Stash operations
+       */
+      case 'stash':
+        StashSwitch(argv)
+        break;
 
       // /**
       //  * Displays current State and Staged Files

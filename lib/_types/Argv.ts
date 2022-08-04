@@ -13,6 +13,9 @@ export interface Argv {
   set?: string;
   m?: string;
   mid?: string;
+  // Stash
+  c?: Boolean;
+  clear?: Boolean;
   // Context
   cb?: Boolean;
   'content-builder'?: Boolean;

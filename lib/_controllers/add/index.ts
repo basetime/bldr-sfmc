@@ -2,6 +2,7 @@ import { Add } from "../../_bldr/_processes/Add";
 import { Argv } from "../../_types/Argv";
 
 const {
+  addFiles,
   addAllFiles
 } = new Add();
 /**
@@ -20,7 +21,13 @@ const AddSwitch = async (req: any, argv: Argv) => {
     return addAllFiles();
   }
 
-  
+   /**
+     * Add specific list of files based on folder paths
+     */
+    if (argv && argv._ && argv._[1] && argv._[1] !== '.') {
+      return addFiles(argv)
+    };
+
 
   return;
 };
