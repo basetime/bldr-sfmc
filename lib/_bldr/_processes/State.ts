@@ -17,11 +17,18 @@ export class State {
   constructor() {}
   /**
    *
+   * @returns
+   */
+  getCurrentInstance = async () => {
+    const currentState = await state_conf.get();
+    return currentState.instance;
+  };
+  /**
+   *
    * @param key
    * @param show
    * @returns
    */
-
   getState = (key?: string, show?: Boolean) => {
     try {
       if (!key) {

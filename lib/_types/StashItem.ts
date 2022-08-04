@@ -5,10 +5,9 @@ interface StashItemPut {
     context: string;
     bldrId: string;
     folderPath: string;
-  },
+  };
   fileContent: any;
 }
-
 
 interface StashItemPost {
   path: string;
@@ -24,18 +23,15 @@ interface StashItemPost {
     assetType?: {
       id: number;
       name: string;
-    },
+    };
     category: {
       id?: number;
       name?: string;
       parentId?: number;
-      folderPath: string
-    },
+      folderPath: string;
+    };
     fileContent: any;
-  }
+  };
 }
 
-export {
-  StashItemPut,
-  StashItemPost
-}
+export { StashItemPut, StashItemPost };

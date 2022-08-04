@@ -1,69 +1,60 @@
-import fs from 'fs'
-import { StashItemPut, StashItemPost } from '../../_types/StashItem';
+import { StashItemPut, StashItemPost } from "../../_types/StashItem";
+import { State } from "./State";
+import fs from "fs";
 
-import {
-  state_conf,
-  stash_conf
-} from '../../_bldr_sdk/store'
+import { stash_conf } from "../../_bldr_sdk/store";
 
-import {
-  displayLine
-} from '../../_utils/display'
+import { displayLine } from "../../_utils/display";
 
-import {
-  getFilePathDetails
-} from '../_utils/index'
+import { getFilePathDetails } from "../_utils/index";
+
+const { getCurrentInstance } = new State();
 
 export class Stash {
-  constructor() { }
-
-  #getCurrentInstance = async () => {
-    const currentState = await state_conf.get();
-    return currentState.instance;
-  }
-
+  constructor() {}
+  /**
+   *
+   */
   displayStashStatus = async () => {
     const stashArr = await this.getStashArray();
-    displayLine('Staged Files', 'info')
+    displayLine("Staged Files", "info");
 
     if (stashArr && stashArr.length) {
       stashArr.forEach((stashObject: StashItemPost | StashItemPut) => {
-
-        const {
-          folderPath,
-          fileName
-        } = getFilePathDetails(stashObject.path)
+        const { folderPath, fileName } = getFilePathDetails(stashObject.path);
 
         displayLine(`${folderPath}/${fileName}`);
       });
-
     } else {
-      displayLine('No Files Staged')
+      displayLine("No Files Staged");
     }
-  }
+  };
 
   clearStash = async () => {
-    const instance = await this.#getCurrentInstance();
+    const instance = await getCurrentInstance();
     await stash_conf.set({ [instance]: { stash: [] } });
     await this.displayStashStatus();
-  }
+  };
 
   /**
-   * 
-   * @param stashUpdate 
-   * @returns 
+   *
+   * @param stashUpdate
+   * @returns
    */
-  saveStash = async (stashUpdate: StashItemPut[] | StashItemPost[] | StashItemPut | StashItemPost) => {
-    const instance = await this.#getCurrentInstance();
+  saveStash = async (
+    stashUpdate: StashItemPut[] | StashItemPost[] | StashItemPut | StashItemPost
+  ) => {
+    const instance = await getCurrentInstance();
     const instanceStash = stash_conf.get(instance);
     const stashArr = (instanceStash && instanceStash.stash) || [];
 
     if (Array.isArray(stashUpdate)) {
-      stashUpdate.forEach(update => {
+      stashUpdate.forEach((update) => {
         const bldrId: string = update.bldr.bldrId;
 
         const stashIndex = stashArr.findIndex(
-          (stashItem: StashItemPut | StashItemPost) => stashItem.bldr.bldrId === bldrId
+          (stashItem: StashItemPut | StashItemPost) =>
+            stashItem.bldr.bldrId === bldrId
         );
 
         if (stashIndex === -1) {
@@ -71,14 +62,13 @@ export class Stash {
         } else {
           stashArr[stashIndex] = update;
         }
-      })
-
+      });
     } else {
-
       const bldrId: string = stashUpdate.bldr.bldrId;
 
       const stashIndex = stashArr.findIndex(
-        (stashItem: StashItemPut | StashItemPost) => stashItem.bldr.bldrId === bldrId
+        (stashItem: StashItemPut | StashItemPost) =>
+          stashItem.bldr.bldrId === bldrId
       );
 
       if (stashIndex === -1) {
@@ -89,13 +79,13 @@ export class Stash {
     }
 
     await stash_conf.set({ [instance]: { stash: stashArr } });
-  }
+  };
 
   getStashArray = async () => {
-    const instance = await this.#getCurrentInstance();
+    const instance = await getCurrentInstance();
     const stash = stash_conf.get(instance);
     return stash && stash.stash;
-  }
+  };
 
   // async _setStashObj(dirPath, obj, newAsset) {
   //   let assetType;
@@ -199,4 +189,4 @@ export class Stash {
   //   const manifestJSON = await this.localFile._getManifest(dirPath);
   //   return manifestJSON;
   // }
-};
+}

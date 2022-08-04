@@ -1,9 +1,7 @@
 import { Stash } from "../../_bldr/_processes/Stash";
 import { Argv } from "../../_types/Argv";
 
-const {
-  clearStash
-} = new Stash()
+const { clearStash } = new Stash();
 
 /**
  * Flag routing for init command
@@ -12,9 +10,8 @@ const {
  * @param {object} argv
  * @param {object} blueprint
  */
- export async function StashSwitch(argv: Argv) {
+export async function StashSwitch(argv: Argv) {
   if (argv.c || argv.clear) {
     return clearStash();
   }
-
 }

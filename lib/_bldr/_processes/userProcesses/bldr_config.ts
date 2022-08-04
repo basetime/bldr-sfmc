@@ -1,10 +1,8 @@
-
 import { fileExists, getRootPath } from "../../../_utils/fileSystem";
 import { readBldrSfmcConfig } from "../../../_utils/bldrFileSystem";
 
 export class User_BLDR_Config {
-  constructor() { }
-
+  constructor() {}
 
   // createAPIConfig = async (config, template = true) => {
   //   const configTemplate = config || {
@@ -33,10 +31,9 @@ export class User_BLDR_Config {
   //   );
   // };
 
-
   updateFilesFromConfiguration = async (content: string) => {
-    const dirPath = await getRootPath();
-    if (fileExists(`${dirPath}.sfmc.config.json`)) {
+    const rootPath = await getRootPath();
+    if (fileExists(`${rootPath}.sfmc.config.json`)) {
       const config = await readBldrSfmcConfig();
       for (const c in config) {
         const key = c;
@@ -68,7 +65,6 @@ export class User_BLDR_Config {
   //   return content;
   // };
 
-
   // deployCheckConfig = () => {
   //   let preventDeployment = false;
 
@@ -88,5 +84,4 @@ export class User_BLDR_Config {
 
   //   return preventDeployment;
   // };
-
 }

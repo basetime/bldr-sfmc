@@ -18,12 +18,12 @@ export interface Argv {
   clear?: Boolean;
   // Context
   cb?: Boolean;
-  'content-builder'?: Boolean;
+  "content-builder"?: Boolean;
   as?: Boolean;
-  'automation-studio'?: Boolean;
+  "automation-studio"?: Boolean;
   // Context Types
   f?: Boolean;
   a?: Boolean;
   sql?: Boolean;
-  ssjs?: Boolean
+  ssjs?: Boolean;
 }

@@ -7,5 +7,5 @@ export interface FilePathDetails {
     name: string;
     context: string;
     contentType: string;
-  }
+  };
 }

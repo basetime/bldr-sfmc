@@ -2,28 +2,27 @@ import { Argv } from "../../_types/Argv";
 import { ContentBuilderSwitch } from "./contentBuilder";
 /*
  * Flag routing for Config command
- * 
+ *
  * @param {string} req
  * @param {object} argv
  * @param {object} store
- * 
+ *
  */
 const ContextSwitch = async (req: any, argv: Argv) => {
   /**
    * Configure New Instance
    */
-   if (
-    !argv['content-builder'] &&
+  if (
+    !argv["content-builder"] &&
     !argv.cb &&
-    !argv['automation-studio'] &&
+    !argv["automation-studio"] &&
     !argv.as
-) {
-    throw new Error('Please include a context flag');
-}
+  ) {
+    throw new Error("Please include a context flag");
+  }
 
-
-  if(argv.cb || argv['content-builder']){
-    ContentBuilderSwitch(req, argv)
+  if (argv.cb || argv["content-builder"]) {
+    ContentBuilderSwitch(req, argv);
   }
 
   // /**

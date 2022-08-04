@@ -8,6 +8,7 @@ import { ContextSwitch } from "../lib/_controllers/_context";
 import { ConfigSwitch } from "../lib/_controllers/config";
 import { AddSwitch } from "../lib/_controllers/add";
 import { StashSwitch } from "../lib/_controllers/stash";
+import { PushSwitch } from "../lib/_controllers/push";
 
 // const contextSwitch = require('../lib/context/contextSwitch');
 // const configSwitch = require('../lib/config/switch');
@@ -54,15 +55,15 @@ const initCLI = async (req: string, argv: any) => {
       /**
        * Add files in bulk or by filepath to the stash.json file
        */
-      case 'add':
-        AddSwitch(req, argv)
+      case "add":
+        AddSwitch(req, argv);
         break;
 
       /**
        * Works with Stash operations
        */
-      case 'stash':
-        StashSwitch(argv)
+      case "stash":
+        StashSwitch(argv);
         break;
 
       // /**
@@ -73,13 +74,12 @@ const initCLI = async (req: string, argv: any) => {
       //     if (blueprint) statusSwitch.switch(req, argv, blueprint, store);
       //     break;
 
-      // /**
-      //  * Format and push Staged files into current State SFMC Instance
-      //  */
-      // case 'push':
-      //     blueprint = await blueprintInit.set(null, store);
-      //     if (blueprint) pushSwitch.switch(req, argv, blueprint, store);
-      //     break;
+      /**
+       * Format and push Staged files into current State SFMC Instance
+       */
+      case "push":
+        PushSwitch();
+        break;
       // /**
       //  * Package Files
       //  */
