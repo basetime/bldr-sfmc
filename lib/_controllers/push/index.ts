@@ -1,7 +1,7 @@
 import { Push } from "../../_bldr/_processes/Push";
 import { Argv } from "../../_types/Argv";
 
-const { pushStash, addNewFolders } = new Push();
+const { pushStash } = new Push();
 
 /**
  * Flag routing for init command

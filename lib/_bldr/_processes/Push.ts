@@ -2,11 +2,14 @@ import remove from 'lodash.remove';
 import { Stash } from './Stash';
 import { State } from './State';
 import { readManifest } from '../../_utils/bldrFileSystem'
-import { StashItemPost, StashItemPut } from '../../_types/StashItem';
+import { StashItem } from '../../_types/StashItem';
 import { initiateBldrSDK } from '../../_bldr_sdk';
 import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
-import { displayLine } from '../../_utils/display';
-import { getFilePathDetails } from '../_utils';
+import { displayLine, displayObject } from '../../_utils/display';
+import { getFilePathDetails, uniqueArrayByKey } from '../_utils';
+import { ManifestAsset, ManifestFolder } from '../../_types/ManifestAsset';
+import { updateManifest } from '../../_utils/bldrFileSystem/manifestJSON';
+import { setContentBuilderDefinition, updateContentBuilderAssetContent } from './contentBuilder/definitions';
 
 const {
   getState,
@@ -14,7 +17,8 @@ const {
 } = new State();
 
 const {
-  getStashArray
+  getStashArray,
+  saveStash
 } = new Stash()
 
 
@@ -23,36 +27,55 @@ export class Push {
 
   pushStash = async () => {
     const instance = await getCurrentInstance();
+    displayLine(`Updating or Creating assets for ${instance}`, 'info')
+
     // get stash for instance for state instance
-    const instanceStash: {
-      bldr: {
-        bldrId: string;
-      }
-    }[] = await getStashArray();
+    const instanceStash: StashItem[] = await getStashArray();
 
-    const bldrIds = instanceStash.map(({ bldr }) => bldr.bldrId);
     const manifestJSON = await readManifest()
-
-    const postStashFiles = instanceStash.map((stashItem => Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)).filter(Boolean)
-    const putStashFiles = instanceStash.map((stashItem => !Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)).filter(Boolean)
-
-
+    const postStashFiles: StashItem[] | any[] = instanceStash.map((stashItem => Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)).filter(Boolean) || []
+    const putStashFiles: StashItem[] | any[] = instanceStash.map((stashItem => !Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)).filter(Boolean) || []
+    console.log(putStashFiles)
     const availableContexts = Object.keys(manifestJSON)
+    // Removes the instanceDetails Key from array
+    availableContexts.shift()
 
-    console.log('postStashFiles', postStashFiles)
-    console.log('putStashFiles', putStashFiles)
+    // console.log('postStashFiles', postStashFiles)
+    // console.log('putStashFiles', putStashFiles)
 
     for (const context in availableContexts) {
+      displayLine(`Working on ${availableContexts[context]}`, 'info')
       // Retrieve Manifest JSON file and get the assets for the specific context
-      const manifestContextAssets: {
-        id: number;
-        name: string;
-        bldrId: string;
-        category: {
-          folderPath: string;
-        }
-      }[] = manifestJSON[availableContexts[context]] && manifestJSON[availableContexts[context]]['assets']
+      const manifestContextAssets: ManifestAsset[] = manifestJSON[availableContexts[context]] && manifestJSON[availableContexts[context]]['assets']
+      const manifestContextFolders: ManifestFolder[] = manifestJSON[availableContexts[context]] && manifestJSON[availableContexts[context]]['folders']
+      const putResults = manifestContextAssets && postStashFiles && postStashFiles.length && await this.pushToSFMC(postStashFiles, manifestContextAssets, manifestContextFolders)
+      const postResults = manifestContextAssets && putStashFiles && putStashFiles.length && await this.pushToSFMC(putStashFiles, manifestContextAssets, manifestContextFolders)
 
+      !postStashFiles.length && displayLine('No assets to update', 'info')
+      !putStashFiles.length && displayLine('No assets to create', 'info')
+ 
+      //TODO Wrong message displaying: created when it should be updated
+      const updatedStashArray: StashItem[] = []
+      putResults && putResults.stashFiles && updatedStashArray.push(...putResults.stashFiles)
+      postResults && postResults.stashFiles && updatedStashArray.push(...postResults.stashFiles)
+      await saveStash(updatedStashArray)
+
+      putResults && putResults.success && putResults.success.length && displayLine(`Successfully Updated Assets`, 'info')
+      putResults && putResults.success && putResults.success.length && putResults.success.forEach((result) => {
+        displayLine(result.name, 'success')
+      })
+      postResults && postResults.success && postResults.success.length && displayLine(`Successfully Created Assets`, 'info')
+      postResults && postResults.success && postResults.success.length && postResults.success.forEach((result) => {
+        displayLine(result.name, 'success')
+      })
+      putResults && putResults.errors && putResults.errors.length && displayLine(`Unsuccessfully Updated Assets`, 'info')
+      putResults && putResults.errors && putResults.errors.length && putResults.errors.forEach((result) => {
+        displayLine(result.name, 'error')
+      })
+      postResults && postResults.errors && postResults.errors.length && displayLine(`Unsuccessfully Created Assets`, 'info')
+      postResults && postResults.errors && postResults.errors.length && postResults.errors.forEach((result) => {
+        displayLine(result.name, 'error')
+      })
 
     }
     // // get local manifest file
@@ -158,148 +181,90 @@ export class Push {
   //     }
   // }
 
-  // pushToSFMC = async (stashFiles: StashItemPost[] | StashItemPut[]) => {
-  //   const success = [];
-  //   const errors = [];
-  //   const sdk: BLDR_Client = await initiateBldrSDK()
+  pushToSFMC = async (
+    stashFiles: StashItem[],
+    manifestContextAssets: ManifestAsset[],
+    manifestContextFolders: ManifestFolder[]
+  ) => {
+    try {
+      const sdk: BLDR_Client = await initiateBldrSDK();
+      const success = [];
+      const errors = [];
 
-  //   // Throw Error if SDK Fails to Load
-  //   if (!sdk) {
-  //     displayLine('Unable to test configuration. Please review and retry.', 'error')
-  //     return
-  //   }
+      // Throw Error if SDK Fails to Load
+      if (!sdk) {
+        displayLine('Unable to test configuration. Please review and retry.', 'error')
+        return
+      }
 
-  //   for (const stashFile in stashFiles) {
-  //     let stashFileObject = stashFiles[stashFile];
-  //     const bldrId = stashFileObject.bldr.bldrId;
-  //     const folderPath = stashFileObject.bldr && stashFileObject.bldr.folderPath;
-  //     const stashFileContext = stashFileObject.bldr && stashFileObject.bldr.context;
-  //     const method = Object.prototype.hasOwnProperty.call(stashFileObject, 'post') ? 'post' : 'put';
+      for (const stashFile in stashFiles) {
+        let stashFileObject = stashFiles[stashFile];
+        const bldrId = stashFileObject.bldr.bldrId;
+        const folderPath = stashFileObject.bldr && stashFileObject.bldr.folderPath;
+        const stashFileContext = stashFileObject.bldr && stashFileObject.bldr.context;
+        const method = Object.prototype.hasOwnProperty.call(stashFileObject, 'post') ? 'post' : 'put';
+        let sfmcUpdateObject: any;
+        let assetResponse: any;
 
-  //     switch (stashFileContext) {
-  //       case 'automationStudio':
+        if (method === 'put') {
+          sfmcUpdateObject = manifestContextAssets.find((manifestItem: ManifestAsset) => manifestItem.bldrId === bldrId)
+          sfmcUpdateObject.id = stashFileObject.bldr.id;
+          sfmcUpdateObject = await updateContentBuilderAssetContent(sfmcUpdateObject, stashFileObject.fileContent)
+        } else {
+          sfmcUpdateObject = stashFileObject && stashFileObject.post
+        }
 
-  //         break;
-  //       case 'contentBuilder':
+        let sfmcAPIObject: any;
+        if (sfmcUpdateObject) {
+          switch (stashFileContext) {
+            case 'automationStudio':
 
-  //         method === 'post' ?
-  //           //post function
-  //           await sdk.sfmc.asset.postAsset() :
-  //           //put function
-  //           await sdk.sfmc.asset.putAsset();
-  //         break;
-  //     }
+              break;
+            case 'contentBuilder':
+              const createdFolders = await this.addNewFolders(folderPath)
+              sfmcUpdateObject.category = createdFolders && createdFolders.length && createdFolders[createdFolders.length - 1] ||
+                manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath)
 
-  //     if (ctx === 'automationStudio') {
-  //       if (
-  //         Object.prototype.hasOwnProperty.call(asset, 'create') &&
-  //         asset.create
-  //       ) {
-  //         // method = 'POST';
-  //         // delete asset.create;
-  //         // resp = await this.bldr.automation.postAsset(asset);
+              sfmcAPIObject = await setContentBuilderDefinition(sfmcUpdateObject)
 
-  //         const errorsDisplayContent = [
-  //           [
-  //             new Column(
-  //               `Creation of Automation Studio assets are not supported yet. Coming Soon!`,
-  //               width.c4
-  //             ),
-  //           ],
-  //         ];
+              if (method === 'put') {
+                console.log('def', sfmcAPIObject)
+                await displayLine(`Updating ${sfmcUpdateObject.name}`, 'info')
+                //put function
+                assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject)
+              } else {
+                await displayLine(`Creating ${sfmcUpdateObject.name}`, 'info')
+                //post function
+                assetResponse = await sdk.sfmc.asset.postAsset(sfmcAPIObject);
+              }
+              break;
+          }
 
-  //         display.render([], errorsDisplayContent);
-  //       } else {
-  //         method = 'PATCH';
-  //         resp = await this.bldr.automation.patchAsset(asset);
-  //       }
-  //     } else if (ctx === 'contentBuilder') {
-  //       //Update asset content with configurations before posting
-  //       content = await utils.getAssetContent(asset);
-  //       let buildContent = await utils.replaceConfig(content);
-  //       asset = await utils.updateAssetContent(asset, buildContent);
+          if (
+            Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')
+          ) {
+            sfmcAPIObject.customerKey =
+              assetResponse.customerKey || assetResponse.key || assetResponse.CustomerKey;
 
-  //       if (
-  //         Object.prototype.hasOwnProperty.call(asset, 'create') &&
-  //         asset.create
-  //       ) {
-  //         method = 'POST';
-  //         delete asset.create;
-  //         resp = await this.bldr.asset.postAsset(asset);
-  //       } else {
-  //         method = 'PUT';
-  //         resp = await this.bldr.asset.putAsset(asset);
-  //       }
-  //     } else if (ctx === 'dataExtension') {
-  //       if (
-  //         Object.prototype.hasOwnProperty.call(asset, 'create') &&
-  //         asset.create
-  //       ) {
-  //         let assetContent = JSON.parse(asset.content);
-  //         delete assetContent.bldrId;
-  //         delete asset.create;
+            success.push(sfmcAPIObject);
+            await remove(stashFiles, (item) => item.bldr.bldrId === bldrId);
+            await saveStash(stashFiles)
+          } else {
+            errors.push(assetResponse)
+          }
+        }
+      }
 
-  //         const payload = await utils.capitalizeKeys(assetContent);
-  //         payload.Fields = payload.Fields.map((field) => {
-  //           return {
-  //             Field: field,
-  //           };
-  //         });
-
-  //         method = 'POST';
-  //         resp = await this.bldr.dataExtension.postAsset(payload);
-  //       } else {
-  //         method = 'PUT';
-  //         resp = await this.bldr.asset.putAsset(asset);
-  //       }
-  //     }
-
-  //     //Update asset content with configurations before posting
-  //     content = await utils.getAssetContent(asset);
-  //     let manifestContent = await utils.scrubConfig(content);
-  //     asset = await utils.updateAssetContent(asset, manifestContent);
-
-  //     if (!resp && resp.status && resp.status !== 200) {
-  //       errors.push({
-  //         name: asset.name || asset.Name,
-  //         error:
-  //           (resp && resp.statusText) ||
-  //           'Unable to provide error response',
-  //       });
-  //     } else {
-  //       let objectIdKey =
-  //         asset && asset.assetType && asset.assetType.objectIdKey;
-
-  //       if (!Object.prototype.hasOwnProperty.call(asset, 'id'))
-  //         asset.id = resp.id || asset[objectIdKey];
-
-  //       if (!Object.prototype.hasOwnProperty.call(asset, 'customerKey'))
-  //         asset.customerKey =
-  //           resp.customerKey || resp.key || asset.CustomerKey;
-
-  //       success.push(asset);
-
-  //       this.localFile.appendBLDR(
-  //         {
-  //           folderPath: `${folderPath}/${asset.name}.html`,
-  //           bldrId,
-  //           id: asset.id,
-  //           context: ctx,
-  //         },
-  //         rootPath
-  //       );
-
-  //       remove(stashArr, (item) => item.bldr.bldrId === bldrId);
-  //     }
-  //   }
-
-  //   return {
-  //     method,
-  //     stashArr,
-  //     success,
-  //     errors,
-  //   };
-  // }
+      return {
+        stashFiles,
+        success,
+        errors
+      }
+    } catch (err: any) {
+      console.log(err)
+      displayObject(err)
+    }
+  }
 
   /**
      * Method to create new folders in SFMC when the do not exist
@@ -309,6 +274,10 @@ export class Push {
      */
   addNewFolders = async (stashItemFolderPath: string) => {
     try {
+      displayLine('Checking for new folders', 'info')
+
+      let createdFolderCount = 0;
+
       const sdk = await initiateBldrSDK();
       const { context } = await getFilePathDetails(stashItemFolderPath)
       // Split path into array to check each individually
@@ -318,8 +287,9 @@ export class Push {
 
       // Get .local.manifest.json file
       const manifestJSON = await readManifest();
-      const manifestFolders = manifestJSON[context.context]['assets'].map((manifestAsset: { category: { folderPath: string; }; }) => manifestAsset && manifestAsset.category);
-
+      const manifestAssetCategories = manifestJSON[context.context]['assets'].map((manifestAsset: { category: { folderPath: string; }; }) => manifestAsset && manifestAsset.category);
+      const manifestFolderCategories = manifestJSON[context.context]['folders'].map((manifestFolder: { folderPath: string; }) => manifestFolder);
+      const manifestFolders = await uniqueArrayByKey([...manifestAssetCategories, ...manifestFolderCategories], 'folderPath')
       const createdFoldersOutput: any[] = []
 
       let checkPath = rootContextFolder;
@@ -343,9 +313,6 @@ export class Push {
         // If folder does not exist
         if (folderIndex === -1) {
           if (typeof parentId === 'undefined') {
-
-            console.log('get parent')
-
             const parentFolderResponse = await sdk.sfmc.folder.search({
               contentType: context.contentType,
               searchKey: 'Name',
@@ -383,8 +350,26 @@ export class Push {
             // Folder permissions my not allow child folders, so when exception is thrown create will retry
             // do/while will check until retry is done and folder is created
             do {
-              parentId = createFolder && createFolder.Results && createFolder.Results[0].NewID;
-              createdFoldersOutput.push(createFolder)
+              const newFolderId = createFolder && createFolder.Results && createFolder.Results[0].NewID || null;
+
+              if (newFolderId) {
+                displayLine(`${folder} has been created; CategoryId: ${newFolderId}`, 'success')
+
+                const createdFolderObject = {
+                  id: newFolderId,
+                  name: folder,
+                  parentId,
+                  folderPath: checkPath
+                }
+
+                await updateManifest(context.context, { folders: [createdFolderObject] })
+
+                parentId = createFolder && createFolder.Results && createFolder.Results[0].NewID;
+                createdFoldersOutput.push(createdFolderObject)
+                createdFolderCount++;
+              }
+
+
               updatedFolder++;
             } while (
               typeof createFolder !== 'undefined' &&
@@ -396,13 +381,13 @@ export class Push {
         }
       }
 
+      displayLine(`>> ${createdFolderCount} folders created`)
       return createdFoldersOutput
     } catch (err: any) {
       console.log(err)
       console.log(err.message)
     }
   }
-
   // async _updateManifestAssets(postAssets, stashJSON) {
   //     const updates = postAssets.map((asset) => {
   //         const assetBldrId = asset.bldrId;
@@ -467,6 +452,5 @@ export class Push {
 
   //     return postAssets.filter(Boolean);
   // }
-};
 
-
+}

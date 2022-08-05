@@ -86,6 +86,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
           cloneRequest &&
             cloneRequest.length &&
             (await createEditableFiles(cloneRequest));
+            
           await updateManifest("contentBuilder", {
             assets: cloneRequest,
             folders: isolatedFoldersUnique,

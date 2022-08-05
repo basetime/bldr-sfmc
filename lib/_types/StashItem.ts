@@ -1,23 +1,14 @@
-interface StashItemPut {
-  path: string;
-  bldr: {
-    id: number;
-    context: string;
-    bldrId: string;
-    folderPath: string;
-  };
-  fileContent: any;
-}
 
-interface StashItemPost {
+interface StashItem {
+  name?: string;
   path: string;
-  create?: Boolean;
   bldr: {
+    id?: number;
     context: string;
     bldrId: string;
     folderPath: string;
   };
-  post: {
+  post?: {
     bldrId: string;
     name: string;
     assetType?: {
@@ -32,6 +23,7 @@ interface StashItemPost {
     };
     fileContent: any;
   };
+  fileContent?: any
 }
 
-export { StashItemPut, StashItemPost };
+export { StashItem };

@@ -1,3 +1,14 @@
 {
-  "cSpell.words": ["BLDR", "isequal", "Keychain", "keytar", "nodelib", "uuidv"]
+  "cSpell.words": [
+    "BLDR",
+    "codesnippetblock",
+    "htmlemail",
+    "isequal",
+    "Keychain",
+    "keytar",
+    "nodelib",
+    "queryactivity",
+    "ssjsactivity",
+    "uuidv"
+  ]
 }

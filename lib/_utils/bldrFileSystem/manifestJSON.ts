@@ -7,6 +7,7 @@ import isEqual from "lodash.isequal";
 import fs from "fs";
 
 import { fileExists, getRootPath } from "../fileSystem";
+import { displayLine } from "../display";
 
 const { updateFilesFromConfiguration } = new User_BLDR_Config();
 
@@ -66,9 +67,7 @@ const updateManifest = async (
     !Object.prototype.hasOwnProperty.call(manifestJSON, context)
   ) {
     manifestJSON[context] = content;
-
     fs.writeFileSync(manifestPath, JSON.stringify(manifestJSON, null, 2));
-
     return;
   }
 
@@ -112,7 +111,7 @@ const updateManifest = async (
         }
 
         if (!itemId) {
-          throw new Error("Cannot find asset in Manifest File");
+          displayLine("Cannot find asset in Manifest File", 'error');
         }
 
         let manifestContextItems: {
@@ -135,6 +134,7 @@ const updateManifest = async (
             manifestContextItems[updateIndex] = updateItem;
           }
         }
+        manifestJSON[context][assetType] = manifestContextItems;
       }
     } else {
       if (!manifestJSON[context]) {
@@ -152,7 +152,8 @@ const updateManifest = async (
     await updateFilesFromConfiguration(manifestStr)
   );
 
-  await createFile(manifestPath, JSON.stringify(updatedManifest, null, 2));
+  await fs.writeFileSync(manifestPath, JSON.stringify(updatedManifest, null, 2));
+
 };
 
 export { updateManifest };
