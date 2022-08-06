@@ -311,7 +311,6 @@ export class Push {
                                 await displayLine(`Updating ${sfmcUpdateObject.name}`, 'progress');
                                 assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
                             } else {
-                                console.log('api request', sfmcAPIObject)
                                 await displayLine(`Creating ${sfmcUpdateObject.name}`, 'progress');
                                 assetResponse = await sdk.sfmc.asset.postAsset(sfmcAPIObject);
                             }

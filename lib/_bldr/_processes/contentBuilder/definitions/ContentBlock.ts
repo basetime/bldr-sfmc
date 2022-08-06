@@ -15,7 +15,7 @@ const SetContentBlock = (sfmcUpdateObject: {
     };
     content: string;
 }) => {
-    console.log('in fn', sfmcUpdateObject)
+
     let returnObject: {
         id?: number;
         customerKey?: string;
@@ -52,8 +52,6 @@ const SetContentBlock = (sfmcUpdateObject: {
     if (sfmcUpdateObject.customerKey) {
         returnObject.customerKey = sfmcUpdateObject.customerKey;
     }
-
-    console.log('in fn return', returnObject)
 
     return returnObject;
 };
