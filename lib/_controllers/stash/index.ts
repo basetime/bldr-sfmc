@@ -1,4 +1,4 @@
-import { Stash } from '../../_bldr/_processes/Stash';
+import { Stash } from '../../_bldr/_processes/stash';
 import { Argv } from '../../_types/Argv';
 
 const { clearStash } = new Stash();

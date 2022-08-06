@@ -1,4 +1,4 @@
-import { Push } from '../../_bldr/_processes/Push';
+import { Push } from '../../_bldr/_processes/push';
 import { Argv } from '../../_types/Argv';
 
 const { pushStash } = new Push();

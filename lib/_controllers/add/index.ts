@@ -1,4 +1,4 @@
-import { Add } from '../../_bldr/_processes/Add';
+import { Add } from '../../_bldr/_processes/add';
 import { Argv } from '../../_types/Argv';
 
 const { addFiles, addAllFiles } = new Add();

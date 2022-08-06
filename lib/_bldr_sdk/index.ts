@@ -2,8 +2,8 @@
 const BLDR = require('@basetime/bldr-sfmc-sdk');
 import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
 import { handleError } from '../_utils/handleError';
-import { State } from '../_bldr/_processes/State';
-import { Config } from '../_bldr/_processes/Config';
+import { State } from '../_bldr/_processes/state';
+import { Config } from '../_bldr/_processes/config';
 
 const { getState } = new State();
 const { getInstanceConfiguration } = new Config();

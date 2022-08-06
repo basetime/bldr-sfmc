@@ -1,6 +1,6 @@
-import { Stash } from '../../_bldr/_processes/Stash';
+import { Stash } from '../../_bldr/_processes/stash';
 import { Argv } from '../../_types/Argv';
-import { Status } from '../../_bldr/_processes/Status';
+import { Status } from '../../_bldr/_processes/status';
 const { displayStatus } = new Status();
 const { getStashArray } = new Stash();
 

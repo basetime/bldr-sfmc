@@ -1,4 +1,4 @@
-import { User_BLDR_Config } from '../../_bldr/_processes/userProcesses/bldr_config';
+import { User_BLDR_Config } from '../../_bldr/_processes/_userProcesses/bldr_config';
 import { readFile } from 'fs/promises';
 import { assignObject } from '../../_bldr/_utils';
 import { state_conf } from '../../_bldr_sdk/store';

@@ -1,6 +1,6 @@
-import { state_conf } from '../../_bldr_sdk/store';
-import { displayObject } from '../../_utils/display';
-import { assignObject } from '../_utils';
+import { state_conf } from '../../../_bldr_sdk/store';
+import { displayObject } from '../../../_utils/display';
+import { assignObject } from '../../_utils';
 
 // const Config = require('./Config');
 // const Column = require('../help/Column');

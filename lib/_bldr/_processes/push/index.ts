@@ -1,15 +1,15 @@
 import remove from 'lodash.remove';
-import { Stash } from './Stash';
-import { State } from './State';
-import { readManifest } from '../../_utils/bldrFileSystem';
-import { StashItem } from '../../_types/StashItem';
-import { initiateBldrSDK } from '../../_bldr_sdk';
+import { Stash } from '../stash';
+import { State } from '../state';
+import { readManifest } from '../../../_utils/bldrFileSystem';
+import { StashItem } from '../../../_types/StashItem';
+import { initiateBldrSDK } from '../../../_bldr_sdk';
 import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
-import { displayLine, displayObject } from '../../_utils/display';
-import { getFilePathDetails, uniqueArrayByKey } from '../_utils';
-import { ManifestAsset, ManifestFolder } from '../../_types/ManifestAsset';
-import { updateManifest } from '../../_utils/bldrFileSystem/manifestJSON';
-import { setContentBuilderDefinition, updateContentBuilderAssetContent } from './contentBuilder/definitions';
+import { displayLine, displayObject } from '../../../_utils/display';
+import { getFilePathDetails, uniqueArrayByKey } from '../../_utils';
+import { ManifestAsset, ManifestFolder } from '../../../_types/ManifestAsset';
+import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
+import { setContentBuilderDefinition } from '../_contexts/contentBuilder/definitions';
 
 const { getState, getCurrentInstance } = new State();
 

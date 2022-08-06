@@ -1,4 +1,4 @@
-import { Config } from '../../_bldr/_processes/Config';
+import { Config } from '../../_bldr/_processes/config';
 import { Argv } from '../../_types/Argv';
 
 const {

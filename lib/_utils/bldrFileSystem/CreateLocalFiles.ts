@@ -1,5 +1,5 @@
-import { User_BLDR_Config } from '../../_bldr/_processes/userProcesses/bldr_config';
-import { createFile } from '../fileSystem';
+import { User_BLDR_Config } from '../../_bldr/_processes/_userProcesses/bldr_config';
+import { createFile } from '../fileSystem/';
 import { displayLine } from '../display';
 import { SFMC_Content_Builder_Asset } from '@basetime/bldr-sfmc-sdk/lib/sfmc/types/objects/sfmc_content_builder_assets';
 

@@ -1,5 +1,5 @@
-import { State } from '../State';
-import { Stash } from '../Stash';
+import { State } from '../state';
+import { Stash } from '../stash';
 import { displayObject, displayLine } from '../../../_utils/display';
 const { getState } = new State();
 const { displayStashStatus } = new Stash();

@@ -1,14 +1,14 @@
 import yargsInteractive from 'yargs-interactive';
-import { state_conf } from '../../_bldr_sdk/store';
-import { State } from '../_processes/State';
-import { config_new, config_remove } from '../../_utils/options';
-import { Crypto } from '../_utils/crypto';
-import { initiateBldrSDK } from '../../_bldr_sdk';
-import { handleError } from '../../_utils/handleError';
-import { displayLine, displayObject, displayArrayOfStrings } from '../../_utils/display';
+import { state_conf } from '../../../_bldr_sdk/store';
+import { State } from '../state';
+import { config_new, config_remove } from '../../../_utils/options';
+import { Crypto } from '../../_utils/crypto';
+import { initiateBldrSDK } from '../../../_bldr_sdk';
+import { handleError } from '../../../_utils/handleError';
+import { displayLine, displayObject, displayArrayOfStrings } from '../../../_utils/display';
 import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
-import { InstanceConfiguration } from '../../_types/InstanceConfiguration';
-import { Argv } from '../../_types/Argv';
+import { InstanceConfiguration } from '../../../_types/InstanceConfiguration';
+import { Argv } from '../../../_types/Argv';
 
 import { getPassword, setPassword, findCredentials, deletePasswordSync, getPasswordSync } from 'keytar-sync';
 
