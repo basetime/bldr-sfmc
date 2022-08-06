@@ -16,7 +16,7 @@ const { getState, getCurrentInstance } = new State();
 const { getStashArray, saveStash } = new Stash();
 
 export class Push {
-    constructor() { }
+    constructor() {}
 
     pushStash = async () => {
         const instance = await getCurrentInstance();
@@ -43,8 +43,8 @@ export class Push {
             postStashFiles.length && putStashFiles.length
                 ? `Updating and Creating assets for ${instance}`
                 : postStashFiles.length && !putStashFiles.length
-                    ? `Creating assets for ${instance}`
-                    : `Updating assets for ${instance}`;
+                ? `Creating assets for ${instance}`
+                : `Updating assets for ${instance}`;
 
         displayLine(pushInitMessage, 'info');
 
@@ -279,7 +279,7 @@ export class Push {
                     sfmcUpdateObject.id = stashFileObject.bldr.id;
                 } else {
                     sfmcUpdateObject = stashFileObject && stashFileObject.post;
-                    console.log('post sfmcUpdateObject', sfmcUpdateObject)
+                    console.log('post sfmcUpdateObject', sfmcUpdateObject);
                 }
 
                 let sfmcAPIObject: any;
@@ -308,18 +308,23 @@ export class Push {
                                 await displayLine(`Creating ${sfmcUpdateObject.name}`, 'progress');
                                 assetResponse = await sdk.sfmc.asset.postAsset(sfmcAPIObject);
                             }
+
+                            if (Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')) {
+                                sfmcAPIObject.customerKey = assetResponse.customerKey;
+                                sfmcAPIObject.id = assetResponse.id;
+                                success.push(sfmcAPIObject);
+                            } else {
+                                errors.push(assetResponse);
+                            }
                             break;
                     }
 
-                    if (Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')) {
-                        sfmcAPIObject.customerKey =
-                            assetResponse.customerKey || assetResponse.key || assetResponse.CustomerKey;
-
-                        success.push(sfmcAPIObject);
+                    if (
+                        Object.prototype.hasOwnProperty.call(assetResponse, 'objectId') ||
+                        Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')
+                    ) {
                         await remove(stashFiles, (item) => item.bldr.bldrId === bldrId);
                         await saveStash(stashFiles);
-                    } else {
-                        errors.push(assetResponse);
                     }
                 }
             }

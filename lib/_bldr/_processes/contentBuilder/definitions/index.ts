@@ -17,7 +17,7 @@ const setContentBuilderDefinition = (sfmcUpdateObject: {
         id: number;
     };
     content: string;
-    fileContent:string
+    fileContent: string;
 }) => {
     const assetType = sfmcUpdateObject.assetType.name;
 

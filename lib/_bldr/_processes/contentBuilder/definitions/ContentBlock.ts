@@ -1,4 +1,4 @@
-import { updateContentBuilderAssetContent } from ".";
+import { updateContentBuilderAssetContent } from '.';
 
 const SetContentBlock = async (sfmcUpdateObject: {
     bldrId: string;
@@ -17,13 +17,9 @@ const SetContentBlock = async (sfmcUpdateObject: {
     };
     fileContent: string;
     content: string;
-
 }) => {
     // Update Content
-    sfmcUpdateObject = await updateContentBuilderAssetContent(
-        sfmcUpdateObject,
-        sfmcUpdateObject.fileContent
-    );
+    sfmcUpdateObject = await updateContentBuilderAssetContent(sfmcUpdateObject, sfmcUpdateObject.fileContent);
 
     let returnObject: {
         id?: number;
@@ -54,6 +50,7 @@ const SetContentBlock = async (sfmcUpdateObject: {
         content: sfmcUpdateObject.content,
     };
 
+    //Append keys for update flow
     if (sfmcUpdateObject.id) {
         returnObject.id = sfmcUpdateObject.id;
     }

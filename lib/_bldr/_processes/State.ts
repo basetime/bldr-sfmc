@@ -32,17 +32,17 @@ export class State {
      */
     getState = (key?: string, show?: Boolean) => {
         try {
-            const state = assignObject(state_conf.get())
+            const state = assignObject(state_conf.get());
 
             if (!key) {
                 if (show) {
-                    displayObject(state)
+                    displayObject(state);
                 }
                 return state;
             } else {
                 if (key && state_conf.has(key))
                     if (show) {
-                        displayObject(state)
+                        displayObject(state);
                     }
 
                 return state[key];

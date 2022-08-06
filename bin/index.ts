@@ -71,7 +71,7 @@ const initCLI = async (req: string, argv: any) => {
              * Displays current State and Staged Files
              */
             case 'status':
-                StatusSwitch()
+                StatusSwitch();
                 break;
 
             /**

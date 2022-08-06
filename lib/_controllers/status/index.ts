@@ -1,6 +1,6 @@
 import { Stash } from '../../_bldr/_processes/Stash';
 import { Argv } from '../../_types/Argv';
-import { Status } from '../../_bldr/_processes/Status'
+import { Status } from '../../_bldr/_processes/Status';
 const { displayStatus } = new Status();
 const { getStashArray } = new Stash();
 
@@ -12,7 +12,5 @@ const { getStashArray } = new Stash();
  * @param {object} blueprint
  */
 export async function StatusSwitch() {
-
-        return displayStatus();
-
+    return displayStatus();
 }
