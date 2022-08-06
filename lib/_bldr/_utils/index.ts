@@ -1,7 +1,5 @@
-const {
-  sfmc_context_mapping,
-} = require("@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping");
-const { v4: uuidv4 } = require("uuid");
+const { sfmc_context_mapping } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping');
+const { v4: uuidv4 } = require('uuid');
 
 /**
  *
@@ -20,9 +18,7 @@ const assignObject = (obj: any) => Object.assign({}, obj);
  * @param key
  * @returns
  */
-const uniqueArrayByKey = (array: any[], key: string) => [
-  ...new Map(array.map((item) => [item[key], item])).values(),
-];
+const uniqueArrayByKey = (array: any[], key: string) => [...new Map(array.map((item) => [item[key], item])).values()];
 /**
  *
  * @param systemFilePath
@@ -38,9 +34,7 @@ const uniqueArrayByKey = (array: any[], key: string) => [
  *
  */
 const sfmc_context = (systemFilePath: string) =>
-  sfmc_context_mapping.find((context: { name: string }) =>
-    systemFilePath.includes(context.name)
-  );
+    sfmc_context_mapping.find((context: { name: string }) => systemFilePath.includes(context.name));
 /**
  *
  * @param systemFilePath
@@ -61,33 +55,24 @@ const sfmc_context = (systemFilePath: string) =>
  * ```
  */
 const getFilePathDetails = (systemFilePath: string) => {
-  const contextDetails = sfmc_context(systemFilePath);
-  const systemFilePathArray: string[] = systemFilePath.split("/");
-  let fileName = systemFilePathArray && systemFilePathArray.pop();
-  const fileExtension =
-    fileName && fileName.substring(fileName.indexOf(".") + 1);
-  fileName = fileName && fileName.substring(0, fileName.indexOf("."));
-  const folderName = systemFilePathArray && systemFilePathArray.slice(-1).pop();
-  const projectPath = systemFilePath.substring(
-    systemFilePath.indexOf(contextDetails.name)
-  );
-  const projectPathArray = projectPath.split("/");
-  projectPathArray.pop();
-  const folderPath = projectPathArray.join("/");
+    const contextDetails = sfmc_context(systemFilePath);
+    const systemFilePathArray: string[] = systemFilePath.split('/');
+    let fileName = systemFilePathArray && systemFilePathArray.pop();
+    const fileExtension = fileName && fileName.substring(fileName.indexOf('.') + 1);
+    fileName = fileName && fileName.substring(0, fileName.indexOf('.'));
+    const folderName = systemFilePathArray && systemFilePathArray.slice(-1).pop();
+    const projectPath = systemFilePath.substring(systemFilePath.indexOf(contextDetails.name));
+    const projectPathArray = projectPath.split('/');
+    projectPathArray.pop();
+    const folderPath = projectPathArray.join('/');
 
-  return {
-    fileName,
-    fileExtension,
-    folderPath,
-    folderName,
-    context: contextDetails,
-  };
+    return {
+        fileName,
+        fileExtension,
+        folderPath,
+        folderName,
+        context: contextDetails,
+    };
 };
 
-export {
-  guid,
-  assignObject,
-  uniqueArrayByKey,
-  sfmc_context,
-  getFilePathDetails,
-};
+export { guid, assignObject, uniqueArrayByKey, sfmc_context, getFilePathDetails };

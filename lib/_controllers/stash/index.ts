@@ -1,5 +1,5 @@
-import { Stash } from "../../_bldr/_processes/Stash";
-import { Argv } from "../../_types/Argv";
+import { Stash } from '../../_bldr/_processes/Stash';
+import { Argv } from '../../_types/Argv';
 
 const { clearStash } = new Stash();
 
@@ -11,7 +11,7 @@ const { clearStash } = new Stash();
  * @param {object} blueprint
  */
 export async function StashSwitch(argv: Argv) {
-  if (argv.c || argv.clear) {
-    return clearStash();
-  }
+    if (argv.c || argv.clear) {
+        return clearStash();
+    }
 }

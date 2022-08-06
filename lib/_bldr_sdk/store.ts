@@ -1,17 +1,17 @@
-import Conf from "conf/dist/source";
+import Conf from 'conf/dist/source';
 
 interface ConfTypes {
-  has: Function;
-  get: Function;
-  set: Function;
+    has: Function;
+    get: Function;
+    set: Function;
 }
 
 const stash_conf: ConfTypes = new Conf({
-  configName: "stash",
+    configName: 'stash',
 });
 
 const state_conf: ConfTypes = new Conf({
-  configName: `sfmc__stateManagement`,
+    configName: `sfmc__stateManagement`,
 });
 
 export { stash_conf, state_conf };

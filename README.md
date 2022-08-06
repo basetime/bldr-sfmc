@@ -2,16 +2,16 @@
 
 \_bldr
 
-- Processes
-- Functions and classes to facilitate CLI specific code
-- utils
-  - Utility functions for CLI specific helpers
+-   Processes
+-   Functions and classes to facilitate CLI specific code
+-   utils
+    -   Utility functions for CLI specific helpers
 
 \_bldr_sdk
 
-- bldr-sfmc-sdk initiation
-- bldr store {state and stash}
+-   bldr-sfmc-sdk initiation
+-   bldr store {state and stash}
 
 \_controllers
 
-- Switches and command logic
+-   Switches and command logic

@@ -1,5 +1,5 @@
-import { Argv } from "../../_types/Argv";
-import { ContentBuilderSwitch } from "./contentBuilder";
+import { Argv } from '../../_types/Argv';
+import { ContentBuilderSwitch } from './contentBuilder';
 /*
  * Flag routing for Config command
  *
@@ -9,51 +9,46 @@ import { ContentBuilderSwitch } from "./contentBuilder";
  *
  */
 const ContextSwitch = async (req: any, argv: Argv) => {
-  /**
-   * Configure New Instance
-   */
-  if (
-    !argv["content-builder"] &&
-    !argv.cb &&
-    !argv["automation-studio"] &&
-    !argv.as
-  ) {
-    throw new Error("Please include a context flag");
-  }
+    /**
+     * Configure New Instance
+     */
+    if (!argv['content-builder'] && !argv.cb && !argv['automation-studio'] && !argv.as) {
+        throw new Error('Please include a context flag');
+    }
 
-  if (argv.cb || argv["content-builder"]) {
-    ContentBuilderSwitch(req, argv);
-  }
+    if (argv.cb || argv['content-builder']) {
+        ContentBuilderSwitch(req, argv);
+    }
 
-  // /**
-  //  * Get Configuration by Instance key
-  //  * argv._[0] is the command
-  //  */
-  // if (argv._ && argv._[1]) {
-  //   return getInstanceConfiguration(argv._[1], true);
-  // }
+    // /**
+    //  * Get Configuration by Instance key
+    //  * argv._[0] is the command
+    //  */
+    // if (argv._ && argv._[1]) {
+    //   return getInstanceConfiguration(argv._[1], true);
+    // }
 
-  // /**
-  //  * List all Configurations
-  //  */
-  // if (argv.l || argv.list) {
-  //   return listInstanceConfiguration(argv);
-  // }
+    // /**
+    //  * List all Configurations
+    //  */
+    // if (argv.l || argv.list) {
+    //   return listInstanceConfiguration(argv);
+    // }
 
-  // /**
-  //  * Remove Configuration by Instance Key
-  //  */
-  // if (argv.r || argv.remove) {
-  //   return removeConfiguration(argv);
-  // }
-  // /**
-  //  * Set State Instance
-  //  */
-  // if (argv.s || argv.set) {
-  //   return setConfiguration(argv);
-  // }
+    // /**
+    //  * Remove Configuration by Instance Key
+    //  */
+    // if (argv.r || argv.remove) {
+    //   return removeConfiguration(argv);
+    // }
+    // /**
+    //  * Set State Instance
+    //  */
+    // if (argv.s || argv.set) {
+    //   return setConfiguration(argv);
+    // }
 
-  return;
+    return;
 };
 
 export { ContextSwitch };

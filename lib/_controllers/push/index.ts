@@ -1,5 +1,5 @@
-import { Push } from "../../_bldr/_processes/Push";
-import { Argv } from "../../_types/Argv";
+import { Push } from '../../_bldr/_processes/Push';
+import { Argv } from '../../_types/Argv';
 
 const { pushStash } = new Push();
 
@@ -11,5 +11,5 @@ const { pushStash } = new Push();
  * @param {object} blueprint
  */
 export async function PushSwitch() {
-  return pushStash();
+    return pushStash();
 }

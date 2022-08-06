@@ -1,62 +1,62 @@
 {
-  "name": "@basetime/bldr-sfmc-ts",
-  "version": "1.4.3",
-  "description": "CLI application for SFMC Development workflow and package deployment",
-  "main": "bin/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "format:check": "prettier --check .",
-    "format:write": "prettier --write .",
-    "lint": "eslint ./lib",
-    "lint:fix": "eslint ./lib --fix .",
-    "build": "tsc"
-  },
-  "bin": {
-    "ts": "./dist/bin/index.js"
-  },
-  "author": "Basetime.io",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/basetime/bldr-sfmc.git"
-  },
-  "keywords": [
-    "Salesforce Marketing Cloud",
-    "SFMC",
-    "Workflow",
-    "Content Builder",
-    "Automation Studio"
-  ],
-  "license": "BSD-3-Clause",
-  "dependencies": {
-    "@nodelib/fs.walk": "^1.2.8",
-    "axios": "^0.26.0",
-    "boxen": "^4.2.0",
-    "chalk": "^2.4.1",
-    "cli-format": "^3.0.9",
-    "conf": "^10.1.1",
-    "dotenv": "16.0.1",
-    "flat": "^5.0.2",
-    "keytar-sync": "7.7.1",
-    "lodash.find": "^4.6.0",
-    "lodash.isequal": "^4.5.0",
-    "lodash.remove": "^4.7.0",
-    "lodash.uniq": "^4.5.0",
-    "node-html-parser": "^5.2.0",
-    "node-recursive-directory": "^1.2.0",
-    "sfmc-sdk": "^0.5.0",
-    "sfmc-soap-object-reference": "1.0.0",
-    "uuid": "^8.3.2",
-    "yargs": "^16.1.1",
-    "yargs-interactive": "^3.0.0"
-  },
-  "devDependencies": {
-    "@types/flat": "^5.0.2",
-    "@types/lodash.isequal": "^4.5.6",
-    "@types/lodash.remove": "^4.7.7",
-    "@types/yargs": "^17.0.10",
-    "@types/yargs-interactive": "^2.1.3",
-    "eslint": "^8.12.0",
-    "eslint-config-prettier": "^8.5.0",
-    "prettier": "^2.6.2"
-  }
+    "name": "@basetime/bldr-sfmc-ts",
+    "version": "1.4.3",
+    "description": "CLI application for SFMC Development workflow and package deployment",
+    "main": "bin/index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format:check": "prettier --check .",
+        "format:write": "prettier --write .",
+        "lint": "eslint ./lib",
+        "lint:fix": "eslint ./lib --fix .",
+        "build": "tsc"
+    },
+    "bin": {
+        "ts": "./dist/bin/index.js"
+    },
+    "author": "Basetime.io",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/basetime/bldr-sfmc.git"
+    },
+    "keywords": [
+        "Salesforce Marketing Cloud",
+        "SFMC",
+        "Workflow",
+        "Content Builder",
+        "Automation Studio"
+    ],
+    "license": "BSD-3-Clause",
+    "dependencies": {
+        "@nodelib/fs.walk": "^1.2.8",
+        "axios": "^0.26.0",
+        "boxen": "^4.2.0",
+        "chalk": "^2.4.1",
+        "cli-format": "^3.0.9",
+        "conf": "^10.1.1",
+        "dotenv": "16.0.1",
+        "flat": "^5.0.2",
+        "keytar-sync": "7.7.1",
+        "lodash.find": "^4.6.0",
+        "lodash.isequal": "^4.5.0",
+        "lodash.remove": "^4.7.0",
+        "lodash.uniq": "^4.5.0",
+        "node-html-parser": "^5.2.0",
+        "node-recursive-directory": "^1.2.0",
+        "sfmc-sdk": "^0.5.0",
+        "sfmc-soap-object-reference": "1.0.0",
+        "uuid": "^8.3.2",
+        "yargs": "^16.1.1",
+        "yargs-interactive": "^3.0.0"
+    },
+    "devDependencies": {
+        "@types/flat": "^5.0.2",
+        "@types/lodash.isequal": "^4.5.6",
+        "@types/lodash.remove": "^4.7.7",
+        "@types/yargs": "^17.0.10",
+        "@types/yargs-interactive": "^2.1.3",
+        "eslint": "^8.12.0",
+        "eslint-config-prettier": "^8.5.0",
+        "prettier": "^2.6.2"
+    }
 }

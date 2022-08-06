@@ -1,7 +1,7 @@
 export interface InstanceConfiguration {
-  apiClientId: string;
-  apiClientSecret: string;
-  parentMID: number;
-  mids: any[];
-  authURI: string;
+    apiClientId: string;
+    apiClientSecret: string;
+    parentMID: number;
+    mids: any[];
+    authURI: string;
 }
