@@ -257,7 +257,7 @@ export class Add {
      *
      * @param {object} postFileOptions configuration options for all file prompts
      * @param {object} postFiles array of new files objects to post
-     * @param {string} instance current instance to stave to staash
+     * @param {string} instance current instance to stave to stash
      * @param {string} dirPath project directory path
      * @returns user prompts for configuration
      */

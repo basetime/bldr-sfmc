@@ -9,6 +9,7 @@ import { ConfigSwitch } from '../lib/_controllers/config';
 import { AddSwitch } from '../lib/_controllers/add';
 import { StashSwitch } from '../lib/_controllers/stash';
 import { PushSwitch } from '../lib/_controllers/push';
+import { StatusSwitch } from '../lib/_controllers/status';
 
 // const contextSwitch = require('../lib/context/contextSwitch');
 // const configSwitch = require('../lib/config/switch');
@@ -66,13 +67,12 @@ const initCLI = async (req: string, argv: any) => {
                 StashSwitch(argv);
                 break;
 
-            // /**
-            //  * Displays current State and Staged Files
-            //  */
-            // case 'status':
-            //     blueprint = await blueprintInit.set(null, store);
-            //     if (blueprint) statusSwitch.switch(req, argv, blueprint, store);
-            //     break;
+            /**
+             * Displays current State and Staged Files
+             */
+            case 'status':
+                StatusSwitch()
+                break;
 
             /**
              * Format and push Staged files into current State SFMC Instance

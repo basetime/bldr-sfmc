@@ -1,4 +1,5 @@
 import { state_conf } from '../../_bldr_sdk/store';
+import { displayObject } from '../../_utils/display';
 import { assignObject } from '../_utils';
 
 // const Config = require('./Config');
@@ -31,17 +32,20 @@ export class State {
      */
     getState = (key?: string, show?: Boolean) => {
         try {
-            if (!key) {
-                if (show) console.log(assignObject(state_conf.get()));
+            const state = assignObject(state_conf.get())
 
-                return assignObject(state_conf.get());
+            if (!key) {
+                if (show) {
+                    displayObject(state)
+                }
+                return state;
             } else {
                 if (key && state_conf.has(key))
                     if (show) {
-                        console.log(state_conf.get(key));
+                        displayObject(state)
                     }
 
-                return state_conf.get(key);
+                return state[key];
             }
         } catch (err) {
             console.log(err);

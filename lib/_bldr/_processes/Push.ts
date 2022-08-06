@@ -298,12 +298,6 @@ export class Push {
                                     (manifestFolder) => manifestFolder.folderPath === folderPath
                                 );
 
-                            // Update Content
-                            sfmcUpdateObject = await updateContentBuilderAssetContent(
-                                sfmcUpdateObject,
-                                sfmcUpdateObject.fileContent
-                            );
-
                             // Set Asset Definition Schema
                             sfmcAPIObject = await setContentBuilderDefinition(sfmcUpdateObject);
 

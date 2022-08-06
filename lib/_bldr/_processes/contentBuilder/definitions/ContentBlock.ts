@@ -1,4 +1,6 @@
-const SetContentBlock = (sfmcUpdateObject: {
+import { updateContentBuilderAssetContent } from ".";
+
+const SetContentBlock = async (sfmcUpdateObject: {
     bldrId: string;
     id?: number;
     customerKey?: string;
@@ -13,8 +15,15 @@ const SetContentBlock = (sfmcUpdateObject: {
         name: string;
         id: number;
     };
+    fileContent: string;
     content: string;
+
 }) => {
+    // Update Content
+    sfmcUpdateObject = await updateContentBuilderAssetContent(
+        sfmcUpdateObject,
+        sfmcUpdateObject.fileContent
+    );
 
     let returnObject: {
         id?: number;
