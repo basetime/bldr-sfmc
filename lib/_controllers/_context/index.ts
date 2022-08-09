@@ -1,5 +1,6 @@
 import { Argv } from '../../_types/Argv';
 import { ContentBuilderSwitch } from './contentBuilder';
+import { AutomationStudioSwitch } from './automationStudio';
 /*
  * Flag routing for Config command
  *
@@ -18,6 +19,10 @@ const ContextSwitch = async (req: any, argv: Argv) => {
 
     if (argv.cb || argv['content-builder']) {
         ContentBuilderSwitch(req, argv);
+    }
+
+    if (argv.as || argv['automation-studio']) {
+        AutomationStudioSwitch(req, argv);
     }
 
     // /**

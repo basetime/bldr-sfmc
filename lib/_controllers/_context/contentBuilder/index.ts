@@ -4,8 +4,7 @@ import { initiateBldrSDK } from '../../../_bldr_sdk';
 import { displayLine, displayObject } from '../../../_utils/display';
 import { uniqueArrayByKey } from '../../../_bldr/_utils';
 import flatten from 'flat';
-
-import { createEditableFiles } from '../../../_utils/bldrFileSystem/CreateLocalFiles';
+import { createContentBuilderEditableFiles } from '../../../_utils/bldrFileSystem/_context/contentBuilder/CreateLocalFiles';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 /**
  * Flag routing for Config command
@@ -71,7 +70,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     const isolatedFolders = cloneRequest.map((cloneItem) => cloneItem && cloneItem.category);
                     const isolatedFoldersUnique = await uniqueArrayByKey(isolatedFolders, 'id');
 
-                    cloneRequest && cloneRequest.length && (await createEditableFiles(cloneRequest));
+                    cloneRequest && cloneRequest.length && (await createContentBuilderEditableFiles(cloneRequest));
 
                     await updateManifest('contentBuilder', {
                         assets: cloneRequest,
@@ -87,7 +86,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     const isolatedFolders = cloneRequest.map((cloneItem) => cloneItem && cloneItem.category);
                     const isolatedFoldersUnique = await uniqueArrayByKey(isolatedFolders, 'id');
 
-                    cloneRequest && cloneRequest.length && (await createEditableFiles(cloneRequest));
+                    cloneRequest && cloneRequest.length && (await createContentBuilderEditableFiles(cloneRequest));
                     await updateManifest('contentBuilder', {
                         assets: cloneRequest,
                         folders: isolatedFoldersUnique,

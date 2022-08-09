@@ -1,6 +1,6 @@
-import { User_BLDR_Config } from '../../_bldr/_processes/_userProcesses/bldr_config';
-import { createFile } from '../fileSystem/';
-import { displayLine } from '../display';
+import { User_BLDR_Config } from '../../../../_bldr/_processes/_userProcesses/bldr_config';
+import { createFile } from '../../../fileSystem';
+import { displayLine } from '../../../display';
 import { SFMC_Content_Builder_Asset } from '@basetime/bldr-sfmc-sdk/lib/sfmc/types/objects/sfmc_content_builder_assets';
 
 const { updateFilesFromConfiguration } = new User_BLDR_Config();
@@ -9,7 +9,7 @@ const { updateFilesFromConfiguration } = new User_BLDR_Config();
  *
  * @param assets
  */
-const createEditableFiles = async (assets: SFMC_Content_Builder_Asset[]) => {
+const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_Asset[]) => {
     try {
         for (const a in assets) {
             const asset = assets[a];
@@ -62,4 +62,4 @@ const createEditableFiles = async (assets: SFMC_Content_Builder_Asset[]) => {
     }
 };
 
-export { createEditableFiles };
+export { createContentBuilderEditableFiles };
