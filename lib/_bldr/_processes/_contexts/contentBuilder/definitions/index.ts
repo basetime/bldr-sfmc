@@ -20,7 +20,6 @@ const setContentBuilderDefinition = (sfmcUpdateObject: {
     fileContent: string;
 }) => {
     const assetType = sfmcUpdateObject.assetType.name;
-
     switch (assetType) {
         case 'htmlemail':
             return setHTMLEmail(sfmcUpdateObject);
@@ -35,7 +34,6 @@ const setContentBuilderDefinition = (sfmcUpdateObject: {
  */
 const updateContentBuilderAssetContent = (asset: any, content: string) => {
     const assetType = (asset.assetType && asset.assetType.name) || null;
-
     switch (assetType) {
         case 'webpage':
         case 'htmlemail':

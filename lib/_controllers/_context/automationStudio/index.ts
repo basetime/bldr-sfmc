@@ -4,8 +4,9 @@ import { initiateBldrSDK } from '../../../_bldr_sdk';
 import { displayLine, displayObject } from '../../../_utils/display';
 import { uniqueArrayByKey } from '../../../_bldr/_utils';
 import flatten from 'flat';
-import {SFMC_Automation} from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_assets/sfmc_automation';
+import { SFMC_Automation } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_assets/sfmc_automation';
 import { createAutomationStudioEditableFiles } from '../../../_utils/bldrFileSystem/_context/automationStudio/CreateLocalFiles';
+import { createContentBuilderEditableFiles } from '../../../_utils/bldrFileSystem/_context/contentBuilder/CreateLocalFiles';
 
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 /**
@@ -87,12 +88,14 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                 if (argv.a) {
                     const cloneAutomationRequest: {
                         formattedAssetResponse: SFMC_Automation[],
-                        formattedAutomationDefinitions: any[]
+                        formattedAutomationDefinitions: any[],
+                        formattedAutomationDependencies: any[]
                     } = await automationStudio.gatherAssetById(argv.a);
 
                     cloneAutomationRequest && cloneAutomationRequest.formattedAssetResponse && cloneAutomationRequest.formattedAssetResponse.length && (await createAutomationStudioEditableFiles(cloneAutomationRequest.formattedAssetResponse));
-
                     cloneAutomationRequest && cloneAutomationRequest.formattedAutomationDefinitions && cloneAutomationRequest.formattedAutomationDefinitions.length && (await createAutomationStudioEditableFiles(cloneAutomationRequest.formattedAutomationDefinitions));
+
+                    // console.log(JSON.stringify(cloneAutomationRequest, null, 2))
 
                     await updateManifest('automationStudio', {
                         assets: cloneAutomationRequest.formattedAssetResponse
@@ -104,6 +107,29 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
 
                     displayLine(`>> Cloned ${cloneAutomationRequest.formattedAssetResponse.length} Automations`)
                     displayLine(`>> Cloned ${cloneAutomationRequest.formattedAutomationDefinitions.length} Definitions`)
+
+
+                    Object.keys(cloneAutomationRequest.formattedAutomationDependencies) &&
+                        Object.keys(cloneAutomationRequest.formattedAutomationDependencies).forEach(async (context: any) => {
+                            displayLine(`Cloning Dependencies: ${context}`, 'info')
+                            const contextDependencies = cloneAutomationRequest.formattedAutomationDependencies[context];
+                            let manifestUpdates: {
+                                folders?: any[];
+                                assets: any[];
+                            } = {
+                                assets: contextDependencies
+                            };
+
+                            switch (context) {
+                                case 'contentBuilder':
+                                    manifestUpdates.folders = contextDependencies.map((dep: any) => dep.category)
+                                    await createContentBuilderEditableFiles(contextDependencies)
+                                    break;
+                            }
+
+                            await updateManifest(context, manifestUpdates);
+                            displayLine(`>> Cloned ${contextDependencies.length} ${context} Dependencies`)
+                        })
                 }
                 break;
         }
