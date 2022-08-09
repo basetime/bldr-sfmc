@@ -92,10 +92,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         formattedAutomationDependencies: any[]
                     } = await automationStudio.gatherAssetById(argv.a);
 
+                    // Create Automation Assets
                     cloneAutomationRequest && cloneAutomationRequest.formattedAssetResponse && cloneAutomationRequest.formattedAssetResponse.length && (await createAutomationStudioEditableFiles(cloneAutomationRequest.formattedAssetResponse));
-                    cloneAutomationRequest && cloneAutomationRequest.formattedAutomationDefinitions && cloneAutomationRequest.formattedAutomationDefinitions.length && (await createAutomationStudioEditableFiles(cloneAutomationRequest.formattedAutomationDefinitions));
 
-                    // console.log(JSON.stringify(cloneAutomationRequest, null, 2))
+                    // Create Automation Definitions
+                    cloneAutomationRequest && cloneAutomationRequest.formattedAutomationDefinitions && cloneAutomationRequest.formattedAutomationDefinitions.length && (await createAutomationStudioEditableFiles(cloneAutomationRequest.formattedAutomationDefinitions));
 
                     await updateManifest('automationStudio', {
                         assets: cloneAutomationRequest.formattedAssetResponse
@@ -108,7 +109,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     displayLine(`>> Cloned ${cloneAutomationRequest.formattedAssetResponse.length} Automations`)
                     displayLine(`>> Cloned ${cloneAutomationRequest.formattedAutomationDefinitions.length} Definitions`)
 
-
+                    // Create Automation Dependencies
                     Object.keys(cloneAutomationRequest.formattedAutomationDependencies) &&
                         Object.keys(cloneAutomationRequest.formattedAutomationDependencies).forEach(async (context: any) => {
                             displayLine(`Cloning Dependencies: ${context}`, 'info')

@@ -67,6 +67,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         contentType: 'asset',
                         categoryId: argv.f,
                     });
+
                     const isolatedFolders = cloneRequest.map((cloneItem) => cloneItem && cloneItem.category);
                     const isolatedFoldersUnique = await uniqueArrayByKey(isolatedFolders, 'id');
 
