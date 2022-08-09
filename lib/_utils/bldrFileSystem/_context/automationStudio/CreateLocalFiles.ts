@@ -17,7 +17,7 @@ const createAutomationStudioEditableFiles = async (assets: any[]) => {
             //@ts-ignore
             const id = asset.id;
             const fileName = asset.name || asset.Name;
-            let folderPath = assetType.folder
+            let folderPath = assetType.folder;
 
             folderPath === 'my automations' ? 'Automation Studio/my automations' : folderPath;
 
