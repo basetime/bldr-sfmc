@@ -61,6 +61,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                 break;
 
             case 'clone':
+                displayLine(`Starting Clone`, 'info')
                 /**
                  * Search for Content Builder Folders
                  */
@@ -100,6 +101,9 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     await updateManifest('automationStudio', {
                         assets: cloneAutomationRequest.formattedAutomationDefinitions
                     });
+
+                    displayLine(`>> Cloned ${cloneAutomationRequest.formattedAssetResponse.length} Automations`)
+                    displayLine(`>> Cloned ${cloneAutomationRequest.formattedAutomationDefinitions.length} Definitions`)
                 }
                 break;
         }

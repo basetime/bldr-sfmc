@@ -24,11 +24,9 @@ const setContentBuilderDefinition = (sfmcUpdateObject: {
     switch (assetType) {
         case 'htmlemail':
             return setHTMLEmail(sfmcUpdateObject);
-            break;
         case 'htmlblock':
         case 'codesnippetblock':
             return SetContentBlock(sfmcUpdateObject);
-            break;
     }
 };
 

@@ -279,7 +279,6 @@ export class Push {
                     sfmcUpdateObject.id = stashFileObject.bldr.id;
                 } else {
                     sfmcUpdateObject = stashFileObject && stashFileObject.post;
-                    console.log('post sfmcUpdateObject', sfmcUpdateObject);
                 }
 
                 let sfmcAPIObject: any;
