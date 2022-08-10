@@ -14,7 +14,7 @@ interface StashItem {
             id: number;
             name: string;
         };
-        category: {
+        category?: {
             id?: number;
             name?: string;
             parentId?: number;

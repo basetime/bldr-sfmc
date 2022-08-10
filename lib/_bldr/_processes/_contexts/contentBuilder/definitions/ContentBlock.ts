@@ -18,8 +18,10 @@ const SetContentBlock = async (sfmcUpdateObject: {
     fileContent: string;
     content: string;
 }) => {
+    console.log('object in SetContentBlock', sfmcUpdateObject)
     // Update Content
-    sfmcUpdateObject = await updateContentBuilderAssetContent(sfmcUpdateObject, sfmcUpdateObject.fileContent);
+    const updatedSFMCObject = await updateContentBuilderAssetContent(sfmcUpdateObject, sfmcUpdateObject.content);
+    console.log('updated in SetContentBlock', updatedSFMCObject)
 
     let returnObject: {
         id?: number;
@@ -38,16 +40,16 @@ const SetContentBlock = async (sfmcUpdateObject: {
         };
         content: string;
     } = {
-        bldrId: sfmcUpdateObject.bldrId,
-        name: sfmcUpdateObject.name,
+        bldrId: updatedSFMCObject.bldrId,
+        name: updatedSFMCObject.name,
         assetType: sfmcUpdateObject.assetType,
         category: {
-            id: sfmcUpdateObject.category.id,
-            name: sfmcUpdateObject.category.name,
-            parentId: sfmcUpdateObject.category.parentId,
-            folderPath: sfmcUpdateObject.category.folderPath,
+            id: updatedSFMCObject.category.id,
+            name: updatedSFMCObject.category.name,
+            parentId: updatedSFMCObject.category.parentId,
+            folderPath: updatedSFMCObject.category.folderPath,
         },
-        content: sfmcUpdateObject.content,
+        content: updatedSFMCObject.content,
     };
 
     //Append keys for update flow
@@ -59,6 +61,7 @@ const SetContentBlock = async (sfmcUpdateObject: {
         returnObject.customerKey = sfmcUpdateObject.customerKey;
     }
 
+    console.log('return', returnObject)
     return returnObject;
 };
 

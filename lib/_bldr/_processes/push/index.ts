@@ -16,7 +16,7 @@ const { getState, getCurrentInstance } = new State();
 const { getStashArray, saveStash } = new Stash();
 
 export class Push {
-    constructor() {}
+    constructor() { }
 
     pushStash = async () => {
         const instance = await getCurrentInstance();
@@ -43,11 +43,10 @@ export class Push {
             postStashFiles.length && putStashFiles.length
                 ? `Updating and Creating assets for ${instance}`
                 : postStashFiles.length && !putStashFiles.length
-                ? `Creating assets for ${instance}`
-                : `Updating assets for ${instance}`;
+                    ? `Creating assets for ${instance}`
+                    : `Updating assets for ${instance}`;
 
         displayLine(pushInitMessage, 'info');
-
         for (const context in availableContexts) {
             displayLine(`Working on ${availableContexts[context]}`, 'progress');
             // Retrieve Manifest JSON file and get the assets for the specific context
@@ -55,11 +54,13 @@ export class Push {
                 manifestJSON[availableContexts[context]] && manifestJSON[availableContexts[context]]['assets'];
             const manifestContextFolders: ManifestFolder[] =
                 manifestJSON[availableContexts[context]] && manifestJSON[availableContexts[context]]['folders'];
+
             const putResults =
                 manifestContextAssets &&
                 putStashFiles &&
                 putStashFiles.length &&
                 (await this.pushToSFMC(putStashFiles, manifestContextAssets, manifestContextFolders));
+
             const postResults =
                 manifestContextAssets &&
                 postStashFiles &&
@@ -253,6 +254,7 @@ export class Push {
         manifestContextFolders: ManifestFolder[]
     ) => {
         try {
+            displayLine('Passing files to SFMC')
             const sdk: BLDR_Client = await initiateBldrSDK();
             const success = [];
             const errors = [];
@@ -297,6 +299,7 @@ export class Push {
                                     (manifestFolder) => manifestFolder.folderPath === folderPath
                                 );
 
+                            console.log('sfmcUpdateObject in push fn', sfmcUpdateObject)
                             // Set Asset Definition Schema
                             sfmcAPIObject = await setContentBuilderDefinition(sfmcUpdateObject);
 
@@ -322,7 +325,7 @@ export class Push {
                         Object.prototype.hasOwnProperty.call(assetResponse, 'objectId') ||
                         Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')
                     ) {
-                        await remove(stashFiles, (item) => item.bldr.bldrId === bldrId);
+                        await remove(stashFiles, (item: any) => item.bldr.bldrId === bldrId);
                         await saveStash(stashFiles);
                     }
                 }

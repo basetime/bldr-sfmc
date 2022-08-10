@@ -11,18 +11,19 @@ const { addFiles, addAllFiles } = new Add();
  *
  */
 const AddSwitch = async (req: any, argv: Argv) => {
+
     /**
      * Configure New Instance
      */
     if (argv && argv._ && argv._[1] && argv._[1] === '.') {
-        return addAllFiles();
+        await addAllFiles();
     }
 
     /**
      * Add specific list of files based on folder paths
      */
     if (argv && argv._ && argv._[1] && argv._[1] !== '.') {
-        return addFiles(argv);
+        await addFiles(argv);
     }
 
     return;

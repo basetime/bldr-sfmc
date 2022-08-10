@@ -60,7 +60,6 @@ export class Stash {
             });
         } else {
             const bldrId: string = stashUpdate.bldr.bldrId;
-
             const stashIndex = stashArr.findIndex((stashItem: StashItem) => stashItem.bldr.bldrId === bldrId);
 
             if (stashIndex === -1) {

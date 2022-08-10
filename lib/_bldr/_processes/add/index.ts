@@ -17,6 +17,7 @@ import { getRootPath, fileExists } from '../../../_utils/fileSystem';
 import { SFMC_Content_Builder_Asset } from '@basetime/bldr-sfmc-sdk/lib/sfmc/types/objects/sfmc_content_builder_assets';
 import { Stash } from '../stash';
 import { initiateBldrSDK } from '../../../_bldr_sdk';
+import remove from 'lodash.remove';
 
 const { getState } = new State();
 
@@ -39,7 +40,6 @@ export class Add {
         try {
             const stateObject = getState();
             const instance = stateObject && stateObject.instance;
-
             // Get the root directory for the project being worked on
             const rootPath = (await getRootPath()) || './';
             // Get the current working directory that the [add] command was triggered
@@ -136,6 +136,7 @@ export class Add {
      * @param rootPath
      */
     gatherAllFiles = async (contextFiles: string[], rootPath: string) => {
+        console.log('gather files')
         const putFiles = [];
         // Store all complete objects for Stash
         const postFiles = [];
@@ -160,6 +161,7 @@ export class Add {
         // Get all available contexts to check for files
         const availableContexts = Object.keys(manifestJSON);
         for (const context in availableContexts) {
+            console.log(availableContexts[context])
             // Retrieve Manifest JSON file and get the assets for the specific context
             const manifestContextAssets: {
                 id: number;
@@ -184,7 +186,6 @@ export class Add {
                     // Tests if the system file name is the same as the assets name
                     const existingAsset = manifestContextAssets.find((asset) => {
                         const { fileName, folderPath } = getFilePathDetails(systemFilePath);
-
                         return systemFilePath.includes(folderPath) && fileName === asset.name && asset;
                     });
 
@@ -199,10 +200,13 @@ export class Add {
                                 id: existingAsset.id,
                                 context: availableContexts[context],
                                 bldrId: existingAsset.bldrId,
-                                folderPath: existingAsset.category.folderPath,
+                                folderPath: existingAsset.category && existingAsset.category.folderPath,
                             },
                             fileContent,
                         });
+
+                        // Once stash file is processed remove the filepath from items waiting for processing
+                        remove(contextFiles, (contextFilePath) => contextFilePath === systemFilePath)
                     } else {
                         // If the file does not exist build the stash object for a post request
                         // Also Build the options for CLI prompt
@@ -236,6 +240,9 @@ export class Add {
                             choices: ['htmlemail', 'codesnippetblock', 'htmlblock', 'dataextension'],
                             prompt: 'always',
                         };
+
+                        // Once stash file is processed remove the filepath from items waiting for processing
+                        remove(contextFiles, (contextFilePath) => contextFilePath === systemFilePath)
                     }
                 }
             }

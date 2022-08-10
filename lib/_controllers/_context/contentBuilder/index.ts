@@ -59,6 +59,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                 break;
 
             case 'clone':
+                displayLine(`Starting Clone`, 'info');
                 /**
                  * Search for Content Builder Folders
                  */

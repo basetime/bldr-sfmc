@@ -13,9 +13,7 @@ const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_As
     try {
         for (const a in assets) {
             const asset = assets[a];
-
             const assetType = (asset.assetType && asset.assetType.name) || null;
-            //@ts-ignore
             const folderPath =
                 (Object.prototype.hasOwnProperty.call(asset.category, 'folderPath') && asset.category.folderPath) || '';
             const id = asset.id;
@@ -28,21 +26,20 @@ const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_As
             switch (assetType) {
                 case 'webpage':
                 case 'htmlemail':
-                    //@ts-ignore
-                    content = asset && asset.views.html.content;
+                    content = asset && asset.views && asset.views.html && asset.views.html.content || `<!-- Content for ${asset.name} could not be found. Check file in SFMC -->`;
                     ext = '.html';
                     dirPath = `${folderPath}/${fileName}${ext}`;
                     break;
                 case 'codesnippetblock':
                 case 'htmlblock':
                 case 'jscoderesource':
-                    content = asset.content;
+                    content = asset.content || `<!-- Content for ${asset.name} could not be found. Check file in SFMC -->`;
                     ext = '.html';
                     dirPath = `${folderPath}/${fileName}${ext}`;
                     break;
                 case 'textonlyemail':
                     //@ts-ignore
-                    content = asset.views.text.content;
+                    content = asset&& asset.views && asset.views.text && asset.views.text.content || `<!-- Content for ${asset.name} could not be found. Check file in SFMC -->`;;
                     ext = '.html';
                     dirPath = `${folderPath}/${fileName}${ext}`;
                     break;
@@ -55,7 +52,7 @@ const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_As
             content = await updateFilesFromConfiguration(content);
             await createFile(dirPath, content);
 
-            displayLine(`created: ${asset.name}`, 'success');
+            content.includes('could not be found') && displayLine(`created: ${asset.name} was created, but has no content.`, 'warn') || displayLine(`created: ${asset.name}`, 'success');
         }
     } catch (err: any) {
         displayLine(`ERROR: ${err.message}`);
