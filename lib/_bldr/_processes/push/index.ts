@@ -32,6 +32,7 @@ export class Push {
             instanceStash
                 .map((stashItem) => !Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)
                 .filter(Boolean) || [];
+
         const availableContexts = Object.keys(manifestJSON);
         // Removes the instanceDetails Key from array
         availableContexts.shift();
@@ -287,6 +288,8 @@ export class Push {
                 if (sfmcUpdateObject) {
                     switch (stashFileContext) {
                         case 'automationStudio':
+
+                            console.log('push AS', sfmcUpdateObject)
                             break;
                         case 'contentBuilder':
                             const createdFolders = await this.addNewFolders(folderPath);

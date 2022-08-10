@@ -56,6 +56,7 @@ export class Add {
                 contextFiles.push(`${cwdPath}/${argvArr[a]}`);
             }
 
+            console.log(contextFiles)
             // Gather all file content/details for each file path
             // Separate out existing files and newly created files
             // Add existing files to the Stash with the updated file content
@@ -136,7 +137,6 @@ export class Add {
      * @param rootPath
      */
     gatherAllFiles = async (contextFiles: string[], rootPath: string) => {
-        console.log('gather files')
         const putFiles = [];
         // Store all complete objects for Stash
         const postFiles = [];
@@ -159,9 +159,15 @@ export class Add {
         } = {};
 
         // Get all available contexts to check for files
-        const availableContexts = Object.keys(manifestJSON);
+        const availableContexts = contextFiles.map(filePath => {
+            const { context } = getFilePathDetails(filePath);
+            return filePath.includes(context.name) && context
+        });
+
         for (const context in availableContexts) {
-            console.log(availableContexts[context])
+            const contextPaths = contextFiles.filter(file => file.includes(availableContexts[context].name))
+            const bldrContext = availableContexts[context].context;
+
             // Retrieve Manifest JSON file and get the assets for the specific context
             const manifestContextAssets: {
                 id: number;
@@ -170,13 +176,13 @@ export class Add {
                 category: {
                     folderPath: string;
                 };
-            }[] = manifestJSON[availableContexts[context]] && manifestJSON[availableContexts[context]]['assets'];
+            }[] = manifestJSON[bldrContext] && manifestJSON[bldrContext]['assets'];
 
             // If the Manifest JSON file has an assets Array process files
             if (manifestContextAssets) {
                 // Iterate through files array to check if existing files
-                for (const path in contextFiles) {
-                    const systemFilePath: string = contextFiles[path];
+                for (const path in contextPaths) {
+                    const systemFilePath: any = contextPaths[path];
 
                     // Check Manifest assets if the file path exists
                     // Gets folder path from the manifest asset
@@ -186,6 +192,12 @@ export class Add {
                     // Tests if the system file name is the same as the assets name
                     const existingAsset = manifestContextAssets.find((asset) => {
                         const { fileName, folderPath } = getFilePathDetails(systemFilePath);
+
+                        console.log({
+                            systemFilePath,
+                            fileName,
+                            folderPath
+                        })
                         return systemFilePath.includes(folderPath) && fileName === asset.name && asset;
                     });
 
