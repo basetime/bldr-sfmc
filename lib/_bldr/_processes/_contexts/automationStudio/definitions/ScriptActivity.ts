@@ -1,8 +1,8 @@
 import { number } from "yargs";
 
-const { MappingByAssetType } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/contentBuilderAssetTypes');
+const { MappingByActivityType } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/automationActivities')
 
-const setScriptActivity = (asset: {
+const setScriptActivity = async (asset: {
     ssjsActivityId?: string;
     name: string;
     key?: string;
@@ -20,7 +20,9 @@ const setScriptActivity = (asset: {
     bldrId: string
   }) => {
 
-    const assetType = MappingByAssetType(asset.assetType.name)
+    console.log('asset', asset.assetType.name)
+    const assetType = await MappingByActivityType(asset.assetType.name)
+    console.log('assetType', assetType)
 
     let returnObject: {
         key?: string;

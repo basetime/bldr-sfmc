@@ -20,6 +20,7 @@ const setAutomationStudioDefinition = async (sfmcUpdateObject: {
     stashFileObject?: {
         fileContent?: string;
     }) => {
+    console.log('sfmcUpdateObject', sfmcUpdateObject)
     const assetType = sfmcUpdateObject.assetType.name;
     let assetOutput;
 

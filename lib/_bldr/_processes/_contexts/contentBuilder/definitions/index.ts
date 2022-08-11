@@ -2,7 +2,9 @@ import { setHTMLEmail } from './HTMLEmail';
 import { SetContentBlock } from './ContentBlock';
 
 const setContentBuilderDefinition = async (sfmcUpdateObject: {
-    bldrId: string;
+    bldr: {
+        bldrId: string;
+    };
     id?: number;
     customerKey?: string;
     name: string;
@@ -19,21 +21,19 @@ const setContentBuilderDefinition = async (sfmcUpdateObject: {
     content?: string;
     views?: any
 },
-stashFileObject?: {
-    fileContent?: string;
-}) => {
-    const assetType = sfmcUpdateObject.assetType.name;
+    fileContent: string
+) => {
     let assetOutput;
 
-    switch (assetType) {
+    switch (sfmcUpdateObject.assetType.name) {
         case 'htmlemail':
-            assetOutput = Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'views') && stashFileObject?.fileContent && setHTMLEmail(sfmcUpdateObject, stashFileObject.fileContent);
+            assetOutput = Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'views') && fileContent && await setHTMLEmail(sfmcUpdateObject, fileContent);
             break;
         case 'htmlblock':
         case 'codesnippetblock':
-            assetOutput = stashFileObject?.fileContent && SetContentBlock(sfmcUpdateObject, stashFileObject.fileContent);
-            break;
+            assetOutput = fileContent && await SetContentBlock(sfmcUpdateObject, fileContent)
     }
+
     return assetOutput
 };
 

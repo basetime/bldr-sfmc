@@ -191,7 +191,8 @@ export class Add {
                     // Tests if the system file name is the same as the assets name
                     const existingAsset = manifestContextAssets.find((asset) => {
                         const { fileName, folderPath } = getFilePathDetails(systemFilePath);
-                        return systemFilePath.includes(folderPath) && fileName === asset.name && asset;
+
+                        return asset.category.folderPath === folderPath && fileName === asset.name && asset;
                     });
 
                     if (existingAsset) {
@@ -223,20 +224,14 @@ export class Add {
                         const fileContent = fileContentRaw.toString();
 
                         postFiles.push({
+                            name: fileName,
                             path: systemFilePath,
                             bldr: {
                                 context: availableContexts[context],
                                 folderPath,
                                 bldrId,
                             },
-                            post: {
-                                bldrId,
-                                name: fileName || `bldr_${bldrId}`,
-                                category: {
-                                    folderPath,
-                                },
-                                fileContent,
-                            },
+                            fileContent
                         });
 
                         postFileOptions[bldrId] = {
@@ -292,9 +287,9 @@ export class Add {
                             (fileObject) => fileObject.bldr.bldrId === resultBldrId
                         );
 
-                        if (postFile && postFile.post) {
+                        if (postFile) {
                             // Get Asset Type from user input
-                            postFile.post.assetType = MappingByAssetType(optionsResult[resultBldrId]);
+                            postFile.assetType = MappingByAssetType(optionsResult[resultBldrId]);
                             await saveStash(postFile);
                         }
                     }

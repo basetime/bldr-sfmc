@@ -1,7 +1,7 @@
-import { updateContentBuilderAssetContent } from ".";
-
 const setHTMLEmail = async (sfmcUpdateObject: {
-    bldrId: string;
+    bldr: {
+        bldrId: string;
+    }
     id?: number;
     customerKey?: string;
     name: string;
@@ -17,7 +17,7 @@ const setHTMLEmail = async (sfmcUpdateObject: {
     views?: any
 }, updatedContent: string) => {
     // Update Content
-    const updatedSFMCObject = sfmcUpdateObject.views && await updateContentBuilderAssetContent(sfmcUpdateObject, updatedContent);
+
     let returnObject: {
         id?: number;
         customerKey?: string;
@@ -36,8 +36,8 @@ const setHTMLEmail = async (sfmcUpdateObject: {
         data: any;
         views: any;
     } = {
-        bldrId: updatedSFMCObject.bldrId,
-        name: updatedSFMCObject.name,
+        bldrId: sfmcUpdateObject.bldr.bldrId ,
+        name: sfmcUpdateObject.name,
         data: {
             email: {
                 options: {
@@ -46,12 +46,12 @@ const setHTMLEmail = async (sfmcUpdateObject: {
             },
         },
         category: {
-            id: updatedSFMCObject.category.id,
-            name: updatedSFMCObject.category.name,
-            parentId: updatedSFMCObject.category.parentId,
-            folderPath: updatedSFMCObject.category.folderPath,
+            id: sfmcUpdateObject.category.id,
+            name: sfmcUpdateObject.category.name,
+            parentId: sfmcUpdateObject.category.parentId,
+            folderPath: sfmcUpdateObject.category.folderPath,
         },
-        views: updatedSFMCObject.views,
+        views: sfmcUpdateObject.views,
         assetType: {
             name: 'htmlemail',
             id: 208,

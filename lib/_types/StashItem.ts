@@ -1,6 +1,10 @@
 interface StashItem {
     name?: string;
     path: string;
+    assetType?: {
+        name: string;
+        id: number;
+    };
     bldr: {
         id?: number;
         context: {
@@ -9,22 +13,7 @@ interface StashItem {
         bldrId: string;
         folderPath: string;
     };
-    post?: {
-        bldrId: string;
-        name: string;
-        assetType?: {
-            id: number;
-            name: string;
-        };
-        category?: {
-            id?: number;
-            name?: string;
-            parentId?: number;
-            folderPath: string;
-        };
-        fileContent: any;
-    };
-    fileContent?: any;
+    fileContent: any;
 }
 
 export { StashItem };

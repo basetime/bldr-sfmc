@@ -1,7 +1,7 @@
-import { updateContentBuilderAssetContent } from '.';
-
 const SetContentBlock = async (sfmcUpdateObject: {
-    bldrId: string;
+    bldr: {
+        bldrId: string;
+    };
     id?: number;
     customerKey?: string;
     name: string;
@@ -18,8 +18,6 @@ const SetContentBlock = async (sfmcUpdateObject: {
     content?: string;
 },
 updatedContent: string) => {
-    // Update Content
-    const updatedSFMCObject = sfmcUpdateObject.content && await updateContentBuilderAssetContent(sfmcUpdateObject, updatedContent);
 
     let returnObject: {
         id?: number;
@@ -38,16 +36,16 @@ updatedContent: string) => {
         };
         content: string;
     } = {
-        bldrId: updatedSFMCObject.bldrId,
-        name: updatedSFMCObject.name,
+        bldrId: sfmcUpdateObject.bldr.bldrId,
+        name: sfmcUpdateObject.name,
         assetType: sfmcUpdateObject.assetType,
         category: {
-            id: updatedSFMCObject.category.id,
-            name: updatedSFMCObject.category.name,
-            parentId: updatedSFMCObject.category.parentId,
-            folderPath: updatedSFMCObject.category.folderPath,
+            id: sfmcUpdateObject.category.id,
+            name: sfmcUpdateObject.category.name,
+            parentId: sfmcUpdateObject.category.parentId,
+            folderPath: sfmcUpdateObject.category.folderPath,
         },
-        content: updatedSFMCObject.content,
+        content: updatedContent,
     };
 
     //Append keys for update flow

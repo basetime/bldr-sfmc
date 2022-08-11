@@ -13,7 +13,6 @@ import { setContentBuilderDefinition } from '../_contexts/contentBuilder/definit
 import { setAutomationStudioDefinition } from '../_contexts/automationStudio/definitions';
 const { getState, getCurrentInstance } = new State();
 const { getStashArray, saveStash } = new Stash();
-
 const unique = require('lodash.uniq')
 
 export class Push {
@@ -40,19 +39,19 @@ export class Push {
 
             const postStashFiles: StashItem[] | any[] =
                 contextStash
-                    .map((stashItem) => Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)
-                    .filter(Boolean) || [];
-            const putStashFiles: StashItem[] | any[] =
-                contextStash
-                    .map((stashItem) => !Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)
+                    .map((stashItem) => !Object.prototype.hasOwnProperty.call(stashItem.bldr, 'id') && stashItem)
                     .filter(Boolean) || [];
 
-            const pushInitMessage =
-                postStashFiles.length && putStashFiles.length
-                    ? displayLine(`Updating and Creating assets for ${instance}`, 'info')
-                    : postStashFiles.length && !putStashFiles.length
-                        ? displayLine(`Creating assets for ${instance}`, 'info')
-                        : displayLine(`Updating assets for ${instance}`, 'info');
+            const putStashFiles: StashItem[] | any[] =
+                contextStash
+                    .map((stashItem) => Object.prototype.hasOwnProperty.call(stashItem.bldr, 'id') && stashItem)
+                    .filter(Boolean) || [];
+
+            postStashFiles.length && putStashFiles.length
+                ? displayLine(`Updating and Creating assets for ${instance}`, 'info')
+                : postStashFiles.length && !putStashFiles.length
+                    ? displayLine(`Creating assets for ${instance}`, 'info')
+                    : displayLine(`Updating assets for ${instance}`, 'info');
 
             // Retrieve Manifest JSON file and get the assets for the specific context
             const manifestContextAssets: ManifestAsset[] =
@@ -183,29 +182,35 @@ export class Push {
                 const bldrId = stashFileObject.bldr.bldrId;
                 const folderPath = stashFileObject.bldr && stashFileObject.bldr.folderPath;
                 const stashFileContext = stashFileObject.bldr && stashFileObject.bldr.context.context;
-                const method = Object.prototype.hasOwnProperty.call(stashFileObject, 'post') ? 'post' : 'put';
+                const method = stashFileObject.bldr.id ? 'put' : 'post';
                 let sfmcUpdateObject: any;
                 let assetResponse: any;
+                let sfmcAPIObject: any;
 
                 if (method === 'put') {
                     sfmcUpdateObject = manifestContextAssets.find(
                         (manifestItem: ManifestAsset) => manifestItem.bldrId === bldrId
                     );
+                    if(sfmcUpdateObject){
+                        sfmcUpdateObject.bldr = {
+                            bldrId
+                        }
+                    }
                 } else {
-                    sfmcUpdateObject = stashFileObject && stashFileObject.post;
+                    sfmcUpdateObject = stashFileObject;
                 }
 
-                let sfmcAPIObject: any;
+                console.log('sfmcupate', sfmcUpdateObject)
+
                 if (sfmcUpdateObject) {
                     switch (stashFileContext) {
                         case 'automationStudio':
-                            sfmcAPIObject = stashFileObject && stashFileObject.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject)
 
                             if (method === 'put') {
-                                // erroring showing not on automation object
+                                sfmcAPIObject = stashFileObject?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject)
                                 assetResponse = await sdk.sfmc.automation.patchAutomationAsset(sfmcAPIObject);
-
                             } else {
+                                // sfmcAPIObject = stashFileObject?.post?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject.post)
                                 // assetResponse = await sdk.sfmc.automation.postAsset(sfmcAPIObject);
                             }
 
@@ -229,7 +234,7 @@ export class Push {
                                 );
 
                             // Set Asset Definition Schema
-                            sfmcAPIObject = stashFileObject && stashFileObject.fileContent && await setContentBuilderDefinition(sfmcUpdateObject, stashFileObject);
+                            sfmcAPIObject = await setContentBuilderDefinition(sfmcUpdateObject, stashFileObject.fileContent);
 
                             if (method === 'put') {
                                 assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
@@ -242,7 +247,8 @@ export class Push {
                                 sfmcAPIObject.id = assetResponse.id;
                                 success.push(sfmcAPIObject);
                             } else {
-                                errors.push(assetResponse.message);
+                                console.log(assetResponse)
+                                errors.push(sfmcAPIObject);
                             }
                             break;
                     }
