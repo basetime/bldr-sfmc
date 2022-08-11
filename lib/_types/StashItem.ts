@@ -3,7 +3,9 @@ interface StashItem {
     path: string;
     bldr: {
         id?: number;
-        context: string;
+        context: {
+            context: string;
+        };
         bldrId: string;
         folderPath: string;
     };

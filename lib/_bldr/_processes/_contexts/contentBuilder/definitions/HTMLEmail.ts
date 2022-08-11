@@ -1,4 +1,9 @@
-const setHTMLEmail = (sfmcUpdateObject: {
+import { updateContentBuilderAssetContent } from ".";
+
+const setHTMLEmail = async (sfmcUpdateObject: {
+    bldrId: string;
+    id?: number;
+    customerKey?: string;
     name: string;
     category: {
         id: number;
@@ -9,10 +14,30 @@ const setHTMLEmail = (sfmcUpdateObject: {
     assetType: {
         name: string;
     };
-    content: string;
-}) => {
-    return {
-        name: sfmcUpdateObject.name,
+    views?: any
+}, updatedContent: string) => {
+    // Update Content
+    const updatedSFMCObject = sfmcUpdateObject.views && await updateContentBuilderAssetContent(sfmcUpdateObject, updatedContent);
+    let returnObject: {
+        id?: number;
+        customerKey?: string;
+        bldrId: string;
+        name: string;
+        assetType: {
+            name: string;
+            id: number;
+        };
+        category: {
+            id: number;
+            name: string;
+            parentId: number;
+            folderPath: string;
+        };
+        data: any;
+        views: any;
+    } = {
+        bldrId: updatedSFMCObject.bldrId,
+        name: updatedSFMCObject.name,
         data: {
             email: {
                 options: {
@@ -21,21 +46,30 @@ const setHTMLEmail = (sfmcUpdateObject: {
             },
         },
         category: {
-            id: sfmcUpdateObject.category.id,
-            name: sfmcUpdateObject.category.name,
-            parentId: sfmcUpdateObject.category.parentId,
+            id: updatedSFMCObject.category.id,
+            name: updatedSFMCObject.category.name,
+            parentId: updatedSFMCObject.category.parentId,
+            folderPath: updatedSFMCObject.category.folderPath,
         },
-        views: {
-            html: {
-                content: sfmcUpdateObject.content,
-            },
-        },
+        views: updatedSFMCObject.views,
         assetType: {
             name: 'htmlemail',
-            displayName: 'HTML Email',
             id: 208,
         },
     };
+
+
+    // Append keys for update flow
+    if (sfmcUpdateObject.id) {
+        returnObject.id = sfmcUpdateObject.id;
+    }
+
+    if (sfmcUpdateObject.customerKey) {
+        returnObject.customerKey = sfmcUpdateObject.customerKey;
+    }
+
+
+    return returnObject
 };
 
 export { setHTMLEmail };

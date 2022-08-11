@@ -1,7 +1,7 @@
 import { setHTMLEmail } from './HTMLEmail';
 import { SetContentBlock } from './ContentBlock';
 
-const setContentBuilderDefinition = (sfmcUpdateObject: {
+const setContentBuilderDefinition = async (sfmcUpdateObject: {
     bldrId: string;
     id?: number;
     customerKey?: string;
@@ -16,19 +16,25 @@ const setContentBuilderDefinition = (sfmcUpdateObject: {
         name: string;
         id: number;
     };
-    content: string;
-    fileContent: string;
+    content?: string;
+    views?: any
+},
+stashFileObject?: {
+    fileContent?: string;
 }) => {
     const assetType = sfmcUpdateObject.assetType.name;
-    console.log('assetType', assetType)
+    let assetOutput;
 
     switch (assetType) {
         case 'htmlemail':
-            return setHTMLEmail(sfmcUpdateObject);
+            assetOutput = Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'views') && stashFileObject?.fileContent && setHTMLEmail(sfmcUpdateObject, stashFileObject.fileContent);
+            break;
         case 'htmlblock':
         case 'codesnippetblock':
-            return SetContentBlock(sfmcUpdateObject);
+            assetOutput = stashFileObject?.fileContent && SetContentBlock(sfmcUpdateObject, stashFileObject.fileContent);
+            break;
     }
+    return assetOutput
 };
 
 /**

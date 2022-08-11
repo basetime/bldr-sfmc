@@ -56,7 +56,6 @@ export class Add {
                 contextFiles.push(`${cwdPath}/${argvArr[a]}`);
             }
 
-            console.log(contextFiles)
             // Gather all file content/details for each file path
             // Separate out existing files and newly created files
             // Add existing files to the Stash with the updated file content
@@ -192,12 +191,6 @@ export class Add {
                     // Tests if the system file name is the same as the assets name
                     const existingAsset = manifestContextAssets.find((asset) => {
                         const { fileName, folderPath } = getFilePathDetails(systemFilePath);
-
-                        console.log({
-                            systemFilePath,
-                            fileName,
-                            folderPath
-                        })
                         return systemFilePath.includes(folderPath) && fileName === asset.name && asset;
                     });
 

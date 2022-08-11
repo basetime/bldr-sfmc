@@ -15,13 +15,11 @@ const SetContentBlock = async (sfmcUpdateObject: {
         name: string;
         id: number;
     };
-    fileContent: string;
-    content: string;
-}) => {
-    console.log('object in SetContentBlock', sfmcUpdateObject)
+    content?: string;
+},
+updatedContent: string) => {
     // Update Content
-    const updatedSFMCObject = await updateContentBuilderAssetContent(sfmcUpdateObject, sfmcUpdateObject.content);
-    console.log('updated in SetContentBlock', updatedSFMCObject)
+    const updatedSFMCObject = sfmcUpdateObject.content && await updateContentBuilderAssetContent(sfmcUpdateObject, updatedContent);
 
     let returnObject: {
         id?: number;
@@ -61,7 +59,6 @@ const SetContentBlock = async (sfmcUpdateObject: {
         returnObject.customerKey = sfmcUpdateObject.customerKey;
     }
 
-    console.log('return', returnObject)
     return returnObject;
 };
 

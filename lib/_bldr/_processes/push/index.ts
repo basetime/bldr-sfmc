@@ -10,51 +10,57 @@ import { getFilePathDetails, uniqueArrayByKey } from '../../_utils';
 import { ManifestAsset, ManifestFolder } from '../../../_types/ManifestAsset';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { setContentBuilderDefinition } from '../_contexts/contentBuilder/definitions';
-
+import { setAutomationStudioDefinition } from '../_contexts/automationStudio/definitions';
 const { getState, getCurrentInstance } = new State();
-
 const { getStashArray, saveStash } = new Stash();
+
+const unique = require('lodash.uniq')
 
 export class Push {
     constructor() { }
-
+    /**
+     * Route and Push files into SFMC
+     */
     pushStash = async () => {
         const instance = await getCurrentInstance();
         // get stash for instance for state instance
         const instanceStash: StashItem[] = await getStashArray();
+        const availableContextsArray = instanceStash.map((stashItem) => {
+            return stashItem.bldr.context
+        })
 
+        const availableContexts = await unique(availableContextsArray)
         const manifestJSON = await readManifest();
-        const postStashFiles: StashItem[] | any[] =
-            instanceStash
-                .map((stashItem) => Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)
-                .filter(Boolean) || [];
-        const putStashFiles: StashItem[] | any[] =
-            instanceStash
-                .map((stashItem) => !Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)
-                .filter(Boolean) || [];
 
-        const availableContexts = Object.keys(manifestJSON);
-        // Removes the instanceDetails Key from array
-        availableContexts.shift();
-
-        // console.log('postStashFiles', postStashFiles)
-        // console.log('putStashFiles', putStashFiles)
-
-        const pushInitMessage =
-            postStashFiles.length && putStashFiles.length
-                ? `Updating and Creating assets for ${instance}`
-                : postStashFiles.length && !putStashFiles.length
-                    ? `Creating assets for ${instance}`
-                    : `Updating assets for ${instance}`;
-
-        displayLine(pushInitMessage, 'info');
         for (const context in availableContexts) {
-            displayLine(`Working on ${availableContexts[context]}`, 'progress');
+            const currentContext = availableContexts[context].context;
+            const contextStash = instanceStash.filter((stashItem) => stashItem.bldr.context.context === currentContext)
+
+            displayLine(`Working on ${currentContext}`, 'progress');
+
+            const postStashFiles: StashItem[] | any[] =
+                contextStash
+                    .map((stashItem) => Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)
+                    .filter(Boolean) || [];
+            const putStashFiles: StashItem[] | any[] =
+                contextStash
+                    .map((stashItem) => !Object.prototype.hasOwnProperty.call(stashItem, 'post') && stashItem)
+                    .filter(Boolean) || [];
+
+            const pushInitMessage =
+                postStashFiles.length && putStashFiles.length
+                    ? displayLine(`Updating and Creating assets for ${instance}`, 'info')
+                    : postStashFiles.length && !putStashFiles.length
+                        ? displayLine(`Creating assets for ${instance}`, 'info')
+                        : displayLine(`Updating assets for ${instance}`, 'info');
+
             // Retrieve Manifest JSON file and get the assets for the specific context
             const manifestContextAssets: ManifestAsset[] =
-                manifestJSON[availableContexts[context]] && manifestJSON[availableContexts[context]]['assets'];
+                manifestJSON[currentContext] && manifestJSON[currentContext]['assets'];
+
             const manifestContextFolders: ManifestFolder[] =
-                manifestJSON[availableContexts[context]] && manifestJSON[availableContexts[context]]['folders'];
+                manifestJSON[currentContext] && manifestJSON[currentContext]['folders'] ||
+                manifestContextAssets && manifestContextAssets.map(asset => asset && asset.category);
 
             const putResults =
                 manifestContextAssets &&
@@ -78,14 +84,14 @@ export class Push {
             putResults &&
                 putResults.success &&
                 putResults.success.length &&
-                (await updateManifest(availableContexts[context], {
+                (await updateManifest(currentContext, {
                     assets: [...putResults.success],
                 }));
 
             postResults &&
                 postResults.success &&
                 postResults.success.length &&
-                (await updateManifest(availableContexts[context], {
+                (await updateManifest(currentContext, {
                     assets: [...postResults.success],
                 }));
 
@@ -146,117 +152,23 @@ export class Push {
                 postResults.errors.length &&
                 displayLine(`>> ${postResults.errors.length} Assets Errored`);
         }
-        // // get local manifest file
-        // const rootPath = this.localFile._getRootPath(contextMap);
-        // const manifestPath = `${rootPath}.local.manifest.json`;
-        // const manifestJSON = this.localFile._parseJSON(manifestPath);
-        // const contextArr = this.contextMap.map((ctx) => ctx.context);
-
-        // for (const ctx in manifestJSON) {
-        //     if (contextArr.includes(ctx)) {
-        //         const manifestAssets = manifestJSON[ctx]['assets'];
-        //         const postAssets = await this._isolateManifestAssetsForUpdate(
-        //             manifestAssets,
-        //             bldrIds
-        //         );
-
-        //         const updatedManifestAssets = await this._updateManifestAssets(
-        //             postAssets,
-        //             stashJSON
-        //         );
-
-        //         const newAssets = await this._isolateNewAssets(
-        //             manifestAssets,
-        //             stashJSON
-        //         );
-
-        //         await this.updateSFMCAssets(
-        //             updatedManifestAssets,
-        //             stashJSON,
-        //             rootPath,
-        //             ctx,
-        //             instance
-        //         );
-
-        //         await this.updateSFMCAssets(
-        //             newAssets,
-        //             stashJSON,
-        //             rootPath,
-        //             ctx,
-        //             instance
-        //         );
-        //     }
-        // }
     };
 
-    // async updateSFMCAssets(apiAssets, stashJSON, rootPath, ctx, instance) {
-    //     const updatedStash = await this._postToSFMC(
-    //         ctx,
-    //         apiAssets,
-    //         stashJSON.stash,
-    //         rootPath
-    //     );
 
-    //     await this.localFile.manifestJSON(
-    //         ctx,
-    //         { assets: updatedStash.success },
-    //         rootPath
-    //     );
-
-    //     stashJSON.stash = updatedStash.stashArr;
-    //     this.store.stash.set(instance, stashJSON);
-
-    //     if (
-    //         updatedStash &&
-    //         updatedStash.success &&
-    //         updatedStash.success.length !== 0
-    //     ) {
-    //         const msg =
-    //             updatedStash.method === 'POST'
-    //                 ? `${ctx}: Created Assets`
-    //                 : `${ctx}: Updated Assets`;
-
-    //         const successHeaders = [
-    //             new Column(`${styles.command(msg)}`, width.c3),
-    //         ];
-
-    //         const successDisplayContent = updatedStash.success.map((result) => {
-    //             const name = result.name || result.Name;
-    //             return [new Column(`${name}`, width.c3)];
-    //         });
-
-    //         display.render(successHeaders, successDisplayContent);
-    //     }
-
-    //     if (
-    //         updatedStash &&
-    //         updatedStash.errors &&
-    //         updatedStash.errors.length !== 0
-    //     ) {
-    //         const errorsHeaders = [
-    //             new Column(`${styles.error('Errored Asset')}`, width.c2),
-    //             new Column(`${styles.error('Errored Message')}`, width.c2),
-    //         ];
-
-    //         const errorsDisplayContent = updatedStash.errors.map((result) => {
-    //             return [
-    //                 new Column(`${result.name}`, width.c2),
-    //                 new Column(`${result.error}`, width.c2),
-    //             ];
-    //         });
-
-    //         display.render(errorsHeaders, errorsDisplayContent);
-    //     }
-    // }
-
+    /**
+     *
+     * @param stashFiles
+     * @param manifestContextAssets
+     * @param manifestContextFolders
+     * @returns
+     */
     pushToSFMC = async (
         stashFiles: StashItem[],
         manifestContextAssets: ManifestAsset[],
         manifestContextFolders: ManifestFolder[]
     ) => {
         try {
-            displayLine('Passing files to SFMC')
-            const sdk: BLDR_Client = await initiateBldrSDK();
+            const sdk = await initiateBldrSDK();
             const success = [];
             const errors = [];
 
@@ -270,7 +182,7 @@ export class Push {
                 let stashFileObject = stashFiles[stashFile];
                 const bldrId = stashFileObject.bldr.bldrId;
                 const folderPath = stashFileObject.bldr && stashFileObject.bldr.folderPath;
-                const stashFileContext = stashFileObject.bldr && stashFileObject.bldr.context;
+                const stashFileContext = stashFileObject.bldr && stashFileObject.bldr.context.context;
                 const method = Object.prototype.hasOwnProperty.call(stashFileObject, 'post') ? 'post' : 'put';
                 let sfmcUpdateObject: any;
                 let assetResponse: any;
@@ -279,7 +191,6 @@ export class Push {
                     sfmcUpdateObject = manifestContextAssets.find(
                         (manifestItem: ManifestAsset) => manifestItem.bldrId === bldrId
                     );
-                    sfmcUpdateObject.id = stashFileObject.bldr.id;
                 } else {
                     sfmcUpdateObject = stashFileObject && stashFileObject.post;
                 }
@@ -288,8 +199,23 @@ export class Push {
                 if (sfmcUpdateObject) {
                     switch (stashFileContext) {
                         case 'automationStudio':
+                            sfmcAPIObject = stashFileObject && stashFileObject.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject)
 
-                            console.log('push AS', sfmcUpdateObject)
+                            if (method === 'put') {
+                                // erroring showing not on automation object
+                                // assetResponse = await sdk.sfmc.automation.patchAutomationAsset(sfmcAPIObject);
+
+                            } else {
+                                // assetResponse = await sdk.sfmc.automation.postAsset(sfmcAPIObject);
+                            }
+
+                            if (Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')) {
+                                sfmcAPIObject.customerKey = assetResponse.customerKey;
+                                sfmcAPIObject.id = assetResponse.id;
+                                success.push(sfmcAPIObject);
+                            } else {
+                                errors.push(assetResponse.message);
+                            }
                             break;
                         case 'contentBuilder':
                             const createdFolders = await this.addNewFolders(folderPath);
@@ -302,15 +228,12 @@ export class Push {
                                     (manifestFolder) => manifestFolder.folderPath === folderPath
                                 );
 
-                            console.log('sfmcUpdateObject in push fn', sfmcUpdateObject)
                             // Set Asset Definition Schema
-                            sfmcAPIObject = await setContentBuilderDefinition(sfmcUpdateObject);
+                            sfmcAPIObject = stashFileObject && stashFileObject.fileContent && await setContentBuilderDefinition(sfmcUpdateObject, stashFileObject);
 
                             if (method === 'put') {
-                                await displayLine(`Updating ${sfmcUpdateObject.name}`, 'progress');
                                 assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
                             } else {
-                                await displayLine(`Creating ${sfmcUpdateObject.name}`, 'progress');
                                 assetResponse = await sdk.sfmc.asset.postAsset(sfmcAPIObject);
                             }
 
@@ -319,7 +242,7 @@ export class Push {
                                 sfmcAPIObject.id = assetResponse.id;
                                 success.push(sfmcAPIObject);
                             } else {
-                                errors.push(assetResponse);
+                                errors.push(assetResponse.message);
                             }
                             break;
                     }
@@ -467,68 +390,5 @@ export class Push {
             console.log(err.message);
         }
     };
-    // async _updateManifestAssets(postAssets, stashJSON) {
-    //     const updates = postAssets.map((asset) => {
-    //         const assetBldrId = asset.bldrId;
-    //         const stashFile = stashJSON.stash.find((stashItem) => {
-    //             return stashItem.bldr.bldrId === assetBldrId;
-    //         });
 
-    //         let updatedFile = stashFile.fileContent;
-    //         const assetType = asset.assetType.name;
-
-    //         switch (assetType) {
-    //             case 'webpage':
-    //             case 'htmlemail':
-    //                 asset.views.html.content = updatedFile;
-    //                 break;
-    //             case 'codesnippetblock':
-    //             case 'htmlblock':
-    //             case 'jscoderesource':
-    //                 asset.content = updatedFile;
-    //                 break;
-    //             case 'textonlyemail':
-    //                 asset.views.text.content = updatedFile;
-    //                 break;
-    //             case 'queryactivity':
-    //                 asset.queryText = updatedFile;
-    //                 break;
-    //             case 'ssjsactivity':
-    //                 asset.script = updatedFile;
-    //                 break;
-    //             default:
-    //                 asset = JSON.parse(updatedFile);
-    //         }
-
-    //         if (Object.prototype.hasOwnProperty.call(asset, 'create')) {
-    //             delete asset.create;
-    //         }
-
-    //         return asset;
-    //     });
-
-    //     return updates;
-    // }
-
-    // _isolateManifestAssetsForUpdate(manifestAssets, bldrIds) {
-    //     // isolate post assets
-    //     const postAssets = manifestAssets.map((asset) => {
-    //         const bldrId = asset.bldrId;
-    //         if (bldrIds.includes(bldrId)) return asset;
-    //     });
-
-    //     return postAssets.filter(Boolean);
-    // }
-
-    // _isolateNewAssets(manifestAssets, stashJSON) {
-    //     const postAssets = stashJSON.stash.map((stashItem) => {
-    //         return (
-    //             Object.prototype.hasOwnProperty.call(stashItem, 'create') &&
-    //             stashItem.create &&
-    //             stashItem.post
-    //         );
-    //     });
-
-    //     return postAssets.filter(Boolean);
-    // }
 }
