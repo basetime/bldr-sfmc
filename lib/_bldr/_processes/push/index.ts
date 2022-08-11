@@ -203,7 +203,7 @@ export class Push {
 
                             if (method === 'put') {
                                 // erroring showing not on automation object
-                                // assetResponse = await sdk.sfmc.automation.patchAutomationAsset(sfmcAPIObject);
+                                assetResponse = await sdk.sfmc.automation.patchAutomationAsset(sfmcAPIObject);
 
                             } else {
                                 // assetResponse = await sdk.sfmc.automation.postAsset(sfmcAPIObject);
