@@ -4,6 +4,7 @@ interface ConfTypes {
     has: Function;
     get: Function;
     set: Function;
+    path: string;
 }
 
 const stash_conf: ConfTypes = new Conf({

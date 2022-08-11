@@ -4,6 +4,8 @@ import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
 import { handleError } from '../_utils/handleError';
 import { State } from '../_bldr/_processes/state';
 import { Config } from '../_bldr/_processes/config';
+import { SFMC_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/sfmc_client';
+import { CLI_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/cli_client';
 
 const { getState } = new State();
 const { getInstanceConfiguration } = new Config();
@@ -23,7 +25,10 @@ const initiateBldrSDK = async (
         auth_url: string;
     },
     account_id?: number
-): Promise<BLDR_Client> => {
+): Promise<{
+    sfmc: SFMC_Client;
+    cli: CLI_Client;
+}> => {
     try {
         // If authObject is passed use those credentials to initiate SDK
         if (authObject) {
