@@ -7,7 +7,7 @@ const { displayStashStatus } = new Stash();
 export class Status {
     constructor() {}
     /**
-     *
+     * Display Status messaging and state
      */
     displayStatus = async () => {
         displayLine('Current Status', 'info');
