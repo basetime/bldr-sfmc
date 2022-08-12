@@ -38,14 +38,22 @@ export class Push {
 
             const postStashFiles: StashItem[] | any[] =
                 contextStash
-                    .map((stashItem) => !Object.prototype.hasOwnProperty.call(stashItem.bldr, 'id') && stashItem)
+                    .map((stashItem) => {
+
+                        return (
+                            !Object.prototype.hasOwnProperty.call(stashItem.bldr, 'id') &&
+                            !Object.prototype.hasOwnProperty.call(stashItem.bldr, 'key')
+                        ) && stashItem
+                    })
                     .filter(Boolean) || [];
 
             const putStashFiles: StashItem[] | any[] =
                 contextStash
-                    .map((stashItem) => Object.prototype.hasOwnProperty.call(stashItem.bldr, 'id') && stashItem)
+                    .map((stashItem) => (
+                        Object.prototype.hasOwnProperty.call(stashItem.bldr, 'id') ||
+                        Object.prototype.hasOwnProperty.call(stashItem.bldr, 'key')
+                    ) && stashItem)
                     .filter(Boolean) || [];
-
 
             postStashFiles.length && putStashFiles.length
                 ? displayLine(`Updating and Creating assets for ${instance}`, 'info')
@@ -199,17 +207,21 @@ export class Push {
                         case 'automationStudio':
 
                             if (method === 'put') {
-                                sfmcAPIObject = stashFileObject?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject)
+                                sfmcAPIObject = stashFileObject?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject.fileContent)
                                 assetResponse = await sdk.sfmc.automation.patchAutomationAsset(sfmcAPIObject);
                             } else {
+                                console.log('as sfmcAPIObj post', sfmcUpdateObject)
                                 // sfmcAPIObject = stashFileObject?.post?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject.post)
                                 // assetResponse = await sdk.sfmc.automation.postAsset(sfmcAPIObject);
                             }
 
-                            if (Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')) {
-                                sfmcAPIObject.customerKey = assetResponse.customerKey;
-                                sfmcAPIObject.id = assetResponse.id;
-                                success.push(sfmcAPIObject);
+                           if(
+                                Object.prototype.hasOwnProperty.call(assetResponse, 'key')
+                            ) {
+                                const objectIdKey = sfmcUpdateObject.assetType.objectIdKey;
+                                sfmcAPIObject.key = assetResponse.key;
+                                sfmcAPIObject[objectIdKey] = assetResponse[objectIdKey];
+                                success.push(sfmcAPIObject)
                             } else {
                                 errors.push(assetResponse.message);
                             }
@@ -229,6 +241,7 @@ export class Push {
                             sfmcAPIObject = await setContentBuilderDefinition(sfmcUpdateObject, stashFileObject.fileContent);
 
                             if (method === 'put') {
+                                console.log('pre resp', sfmcAPIObject)
                                 assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
                             } else {
                                 assetResponse = await sdk.sfmc.asset.postAsset(sfmcAPIObject);
@@ -246,7 +259,8 @@ export class Push {
 
                     if (
                         Object.prototype.hasOwnProperty.call(assetResponse, 'objectId') ||
-                        Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')
+                        Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey') ||
+                        Object.prototype.hasOwnProperty.call(assetResponse, 'key')
                     ) {
                         await removeFromStashByBldrId(bldrId)
                     }
@@ -262,6 +276,7 @@ export class Push {
             displayObject(err);
         }
     };
+
 
     /**
      * Method to create new folders in SFMC when the do not exist

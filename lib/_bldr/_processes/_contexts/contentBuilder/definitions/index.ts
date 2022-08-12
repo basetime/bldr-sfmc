@@ -21,17 +21,20 @@ const setContentBuilderDefinition = async (sfmcUpdateObject: {
     content?: string;
     views?: any
 },
-    fileContent: string
+updatedContent: string
 ) => {
     let assetOutput;
 
     switch (sfmcUpdateObject.assetType.name) {
         case 'htmlemail':
-            assetOutput = Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'views') && fileContent && await setHTMLEmail(sfmcUpdateObject, fileContent);
+            assetOutput = Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'views') && updatedContent && await setHTMLEmail(sfmcUpdateObject, updatedContent);
             break;
         case 'htmlblock':
         case 'codesnippetblock':
-            assetOutput = fileContent && await SetContentBlock(sfmcUpdateObject, fileContent)
+            assetOutput = updatedContent && await SetContentBlock(sfmcUpdateObject, updatedContent)
+            break;
+        default:
+            assetOutput = JSON.parse(updatedContent);
     }
 
     return assetOutput
@@ -56,6 +59,7 @@ const updateContentBuilderAssetContent = (asset: any, content: string) => {
             asset.views.text.content = content;
             break;
         default:
+            asset = content
     }
 
     return asset;

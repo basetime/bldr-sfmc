@@ -136,7 +136,7 @@ export class Add {
      * @param rootPath
      */
     gatherAllFiles = async (contextFiles: string[], rootPath: string) => {
-        const putFiles = [];
+        const putFiles: any[]= [];
         // Store all complete objects for Stash
         const postFiles = [];
 
@@ -168,14 +168,9 @@ export class Add {
             const bldrContext = availableContexts[context].context;
 
             // Retrieve Manifest JSON file and get the assets for the specific context
-            const manifestContextAssets: {
-                id: number;
-                name: string;
-                bldrId: string;
-                category: {
-                    folderPath: string;
-                };
-            }[] = manifestJSON[bldrContext] && manifestJSON[bldrContext]['assets'];
+            type ManifestContext = any
+
+            const manifestContextAssets: ManifestContext [] = manifestJSON[bldrContext] && manifestJSON[bldrContext]['assets'];
 
             // If the Manifest JSON file has an assets Array process files
             if (manifestContextAssets) {
@@ -191,25 +186,34 @@ export class Add {
                     // Tests if the system file name is the same as the assets name
                     const existingAsset = manifestContextAssets.find((asset) => {
                         const { fileName, folderPath } = getFilePathDetails(systemFilePath);
-
                         return asset.category.folderPath === folderPath && fileName === asset.name && asset;
                     });
 
                     if (existingAsset) {
                         const fileContentRaw = await readFile(systemFilePath);
                         const fileContent = fileContentRaw.toString();
+                        const objectIdKey = existingAsset.assetType?.objectIdKey
 
-                        // If the file exists build the stash object for a put request
-                        putFiles.push({
+                        const existingSchema: {
+                            [key: string]: any
+                        } = {
                             path: systemFilePath,
                             bldr: {
-                                id: existingAsset.id,
                                 context: availableContexts[context],
                                 bldrId: existingAsset.bldrId,
                                 folderPath: existingAsset.category && existingAsset.category.folderPath,
                             },
                             fileContent,
-                        });
+                        }
+
+                        if(existingAsset.id){
+                            existingSchema.bldr.id = existingAsset.id
+                        } else if (objectIdKey) {
+                            existingSchema.bldr.id = existingAsset[objectIdKey]
+                        }
+
+                        // If the file exists build the stash object for a put request
+                        putFiles.push(existingSchema);
 
                         // Once stash file is processed remove the filepath from items waiting for processing
                         remove(contextFiles, (contextFilePath) => contextFilePath === systemFilePath)

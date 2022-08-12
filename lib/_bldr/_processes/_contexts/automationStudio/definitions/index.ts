@@ -1,4 +1,5 @@
 import { setScriptActivity } from "./ScriptActivity";
+import { setQueryActivity } from "./QueryActivity";
 
 const setAutomationStudioDefinition = async (sfmcUpdateObject: {
     ssjsActivityId?: string;
@@ -17,21 +18,20 @@ const setAutomationStudioDefinition = async (sfmcUpdateObject: {
     category: { folderPath: string; },
     bldrId: string
 },
-    stashFileObject?: {
-        fileContent?: string;
-    }) => {
-    console.log('sfmcUpdateObject', sfmcUpdateObject)
+    updatedContent: string
+) => {
     const assetType = sfmcUpdateObject.assetType.name;
     let assetOutput;
 
     switch (assetType) {
         case 'ssjsactivity':
-            assetOutput = setScriptActivity(sfmcUpdateObject)
+            assetOutput = await setScriptActivity(sfmcUpdateObject, updatedContent)
             break;
-        // case 'htmlblock':
-        // case 'codesnippetblock':
-        //     assetOutput = stashFileObject?.fileContent && SetContentBlock(sfmcUpdateObject, stashFileObject.fileContent);
-        //     break;
+        case 'queryactivity':
+            assetOutput = await setQueryActivity(sfmcUpdateObject, updatedContent)
+            break;
+        default:
+            assetOutput = JSON.parse(updatedContent);
     }
     return assetOutput
 };

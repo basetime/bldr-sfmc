@@ -66,4 +66,15 @@ const createFile = async (filePath: string, content: string) => {
     });
 };
 
-export { getRootPath, fileExists, createFile, createDirectory };
+/**
+ * Reads .sfmc.config.json file
+ *
+ * @returns
+ */
+ const getBldrVersion = async () => {
+    const { version } = require('../package.json');
+
+    return version
+};
+
+export { getRootPath, fileExists, createFile, createDirectory, getBldrVersion };

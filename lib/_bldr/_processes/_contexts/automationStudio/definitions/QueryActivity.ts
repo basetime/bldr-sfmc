@@ -2,8 +2,8 @@ import { number } from "yargs";
 
 const { MappingByActivityType } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/automationActivities')
 
-const setScriptActivity = async (asset: {
-    ssjsActivityId?: string;
+const setQueryActivity = async (asset: {
+    queryDefinitionId?: string;
     name: string;
     key?: string;
     description: string;
@@ -25,11 +25,11 @@ const setScriptActivity = async (asset: {
 
     let returnObject: {
         key?: string;
-        ssjsActivityId?: string;
+        queryDefinitionId?: string;
         name: string;
         description: string;
         categoryId: number;
-        script: string;
+        queryText: string;
         assetType: {
             objectTypeId: number,
             api: string;
@@ -41,7 +41,7 @@ const setScriptActivity = async (asset: {
         name: asset.name,
         description: asset.description,
         categoryId: asset.categoryId,
-        script: updatedContent,
+        queryText: updatedContent,
         assetType,
     };
 
@@ -49,13 +49,14 @@ const setScriptActivity = async (asset: {
         returnObject.key = asset.key;
     }
 
-    if(asset.ssjsActivityId){
-        returnObject.ssjsActivityId = asset.ssjsActivityId;
+    if(asset.queryDefinitionId){
+        returnObject.queryDefinitionId = asset.queryDefinitionId;
     }
 
+    console.log('returnObject', returnObject)
     return returnObject
 };
 
 export {
-    setScriptActivity
+    setQueryActivity
 }

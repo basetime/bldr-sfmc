@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import yargs from 'yargs';
 import { stash_conf, state_conf } from '../lib/_bldr_sdk/store';
-
+import { version } from './version';
 // Initiate all route switches
 // const InitSwitch = require('../lib/_controllers/init')
 import { ContextSwitch } from '../lib/_controllers/_context';
@@ -10,6 +10,7 @@ import { AddSwitch } from '../lib/_controllers/add';
 import { StashSwitch } from '../lib/_controllers/stash';
 import { PushSwitch } from '../lib/_controllers/push';
 import { StatusSwitch } from '../lib/_controllers/status';
+import { displayLine } from '../lib/_utils/display';
 
 // const contextSwitch = require('../lib/context/contextSwitch');
 // const configSwitch = require('../lib/config/switch');
@@ -38,8 +39,11 @@ const argv = userInput.argv;
  */
 const initCLI = async (req: string, argv: any) => {
     if (!req) {
-        // If no request is provided show help
-        // store.help.init();
+
+        if(argv.v){
+            displayLine(`bldr version: ${version}`, 'info')
+        }
+
     } else {
         switch (req) {
             case 'init':
