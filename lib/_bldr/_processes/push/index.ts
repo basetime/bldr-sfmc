@@ -73,14 +73,6 @@ export class Push {
                 postStashFiles.length &&
                 (await this.pushToSFMC(postStashFiles, manifestContextAssets, manifestContextFolders));
 
-            // // const updatedStashArray: StashItem[] = [];
-            // // putResults && putResults.stashFiles && updatedStashArray.push(...putResults.stashFiles);
-            // // postResults && postResults.stashFiles && updatedStashArray.push(...postResults.stashFiles);
-
-
-            // console.log('updatedStashArray',updatedStashArray)
-            // await saveStash(updatedStashArray);
-
             // Update manifest file with updated content/new file json
             putResults &&
                 putResults.success &&
