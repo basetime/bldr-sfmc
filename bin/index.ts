@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import yargs from 'yargs';
 import { stash_conf, state_conf } from '../lib/_bldr_sdk/store';
-import { version } from './version';
+import { version } from '../lib/_bldr_sdk/version';
 // Initiate all route switches
 // const InitSwitch = require('../lib/_controllers/init')
 import { ContextSwitch } from '../lib/_controllers/_context';
@@ -10,6 +10,7 @@ import { AddSwitch } from '../lib/_controllers/add';
 import { StashSwitch } from '../lib/_controllers/stash';
 import { PushSwitch } from '../lib/_controllers/push';
 import { StatusSwitch } from '../lib/_controllers/status';
+import { PackageSwitch } from '../lib/_controllers/package'
 import { displayLine } from '../lib/_utils/display';
 
 // const contextSwitch = require('../lib/context/contextSwitch');
@@ -38,6 +39,8 @@ const argv = userInput.argv;
  * @param {object} store
  */
 const initCLI = async (req: string, argv: any) => {
+
+    console.log('REQUEST', req)
     if (!req) {
 
         if(argv.v){
@@ -84,14 +87,12 @@ const initCLI = async (req: string, argv: any) => {
             case 'push':
                 PushSwitch();
                 break;
-            // /**
-            //  * Package Files
-            //  */
-            // case 'package':
-            //     blueprint = await blueprintInit.set(null, store);
-            //     if (blueprint)
-            //         packageSwitch.switch(req, argv, blueprint, store);
-            //     break;
+            /**
+             * Package Files
+             */
+            case 'package':
+                PackageSwitch()
+                break;
 
             // case 'install':
             //     blueprint = await blueprintInit.set(null, store);

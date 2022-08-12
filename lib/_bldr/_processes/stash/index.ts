@@ -1,6 +1,5 @@
 import { StashItem } from '../../../_types/StashItem';
 import { State } from '../state';
-import fs from 'fs';
 import { stash_conf } from '../../../_bldr_sdk/store';
 import { displayLine } from '../../../_utils/display';
 import { getFilePathDetails } from '../../_utils/index';
