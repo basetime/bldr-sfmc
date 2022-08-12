@@ -63,7 +63,7 @@ export class Add {
 
             const { putFiles, postFiles, postFileOptions } = organizedFiles;
 
-            await saveStash(putFiles);
+            putFiles && putFiles.length && await saveStash(putFiles);
             await this.buildNewAssetObjects({
                 postFileOptions,
                 postFiles,
@@ -118,7 +118,7 @@ export class Add {
             const organizedFiles = await this.gatherAllFiles(contextFiles, rootPath);
             const { putFiles, postFiles, postFileOptions } = organizedFiles;
 
-            await saveStash(putFiles);
+            putFiles && putFiles.length && await saveStash(putFiles);
             await this.buildNewAssetObjects({
                 postFileOptions,
                 postFiles,

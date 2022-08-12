@@ -4,6 +4,7 @@ import fs from 'fs';
 import { stash_conf } from '../../../_bldr_sdk/store';
 import { displayLine } from '../../../_utils/display';
 import { getFilePathDetails } from '../../_utils/index';
+import remove from 'lodash.remove';
 const { getCurrentInstance } = new State();
 
 export class Stash {
@@ -36,6 +37,7 @@ export class Stash {
      *
      * @param stashUpdate
      * @returns
+     *
      */
     saveStash = async (stashUpdate: StashItem[] | StashItem) => {
         const instance = await getCurrentInstance();
@@ -49,7 +51,6 @@ export class Stash {
 
             stashUpdate.forEach((update) => {
                 const bldrId: string = update.bldr.bldrId;
-
                 const stashIndex = stashArr.findIndex((stashItem: StashItem) => stashItem.bldr.bldrId === bldrId);
 
                 if (stashIndex === -1) {
@@ -71,6 +72,23 @@ export class Stash {
 
         await stash_conf.set({ [instance]: { stash: stashArr } });
     };
+
+    removeFromStashByBldrId = async (bldrId: string) => {
+        const instance = await getCurrentInstance();
+        const instanceStash = stash_conf.get(instance);
+        let stashArr = (instanceStash && instanceStash.stash) || [];
+
+        const stashIndex = stashArr.findIndex((stashItem: StashItem) => stashItem.bldr.bldrId === bldrId);
+
+        if (stashIndex === -1) {
+
+        } else {
+            stashArr.splice(stashArr[stashIndex], 1);
+            await stash_conf.set({ [instance]: { stash: stashArr } });
+        }
+    }
+
+
 
     getStashArray = async () => {
         const instance = await getCurrentInstance();
