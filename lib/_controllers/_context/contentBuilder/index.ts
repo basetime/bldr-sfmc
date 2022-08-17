@@ -61,7 +61,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
             case 'clone':
                 displayLine(`Starting Clone`, 'info');
                 /**
-                 * Search for Content Builder Folders
+                 * Clone Content Builder Folders
                  */
                 if (argv.f) {
                     const cloneRequest: SFMC_Content_Builder_Asset[] = await contentBuilder.gatherAssetsByCategoryId({
@@ -69,7 +69,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         categoryId: argv.f,
                     });
 
-                    const isolatedFolders = cloneRequest.map((cloneItem) => cloneItem && cloneItem.category);
+                    const isolatedFolders = cloneRequest && cloneRequest.map((cloneItem) => cloneItem && cloneItem.category);
                     const isolatedFoldersUnique = await uniqueArrayByKey(isolatedFolders, 'id');
 
                     cloneRequest && cloneRequest.length && (await createContentBuilderEditableFiles(cloneRequest));

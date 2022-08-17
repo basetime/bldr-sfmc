@@ -65,7 +65,21 @@ const createFile = async (filePath: string, content: string) => {
         }
     });
 };
-
+/**
+ *
+ * @param filePath
+ * @param content
+ */
+const appendFile = async (filePath:string, content:string) => {
+    fs.readFile(filePath, function (err, fileData) {
+        if (err) throw err;
+        if (!fileData.includes(content)) {
+            fs.appendFile(filePath, content, function (err) {
+                if (err) throw err;
+            });
+        }
+    });
+}
 /**
  * Reads .sfmc.config.json file
  *
@@ -77,4 +91,4 @@ const createFile = async (filePath: string, content: string) => {
     return version
 };
 
-export { getRootPath, fileExists, createFile, createDirectory, getBldrVersion };
+export { getRootPath, fileExists, createFile, appendFile, createDirectory, getBldrVersion };

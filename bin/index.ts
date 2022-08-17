@@ -11,8 +11,9 @@ import { StashSwitch } from '../lib/_controllers/stash';
 import { PushSwitch } from '../lib/_controllers/push';
 import { StatusSwitch } from '../lib/_controllers/status';
 import { PackageSwitch } from '../lib/_controllers/package'
+import { InstallSwitch } from '../lib/_controllers/install'
 import { displayLine } from '../lib/_utils/display';
-
+import { DeploySwitch } from '../lib/_controllers/deploy';
 // const contextSwitch = require('../lib/context/contextSwitch');
 // const configSwitch = require('../lib/config/switch');
 // const addSwitch = require('../lib/add/switch');
@@ -39,11 +40,9 @@ const argv = userInput.argv;
  * @param {object} store
  */
 const initCLI = async (req: string, argv: any) => {
-
-    console.log('REQUEST', req)
     if (!req) {
 
-        if(argv.v){
+        if (argv.v) {
             displayLine(`bldr version: ${version}`, 'info')
         }
 
@@ -91,18 +90,16 @@ const initCLI = async (req: string, argv: any) => {
              * Package Files
              */
             case 'package':
-                PackageSwitch()
+                PackageSwitch();
                 break;
 
-            // case 'install':
-            //     blueprint = await blueprintInit.set(null, store);
-            //     if (blueprint) installSwitch.switch(req, argv, blueprint);
-            //     break;
+            case 'install':
+                InstallSwitch(argv);
+                break;
 
-            // case 'deploy':
-            //     blueprint = await blueprintInit.set(null, store);
-            //     if (blueprint) deploySwitch.switch(req, argv, blueprint, store);
-            //     break;
+            case 'deploy':
+               DeploySwitch();
+                break;
 
             // case 'patch':
             //     patchSwitch.switch(argv);

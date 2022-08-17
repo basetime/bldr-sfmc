@@ -1,4 +1,4 @@
-const setContentBuilderAssetContent = (asset: {
+const getContentBuilderAssetContent = (asset: {
     content?: string;
     views?: any;
     assetType: {
@@ -30,5 +30,5 @@ const setContentBuilderAssetContent = (asset: {
 }
 
 export {
-    setContentBuilderAssetContent
+    getContentBuilderAssetContent
 }

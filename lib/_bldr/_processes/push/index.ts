@@ -179,7 +179,7 @@ export class Push {
                 displayLine('Unable to initiate BLDR SDK. Please review credentials and retry.', 'error');
                 return;
             }
-            for (const f in stashFiles) {
+            for (let f = 0; f < stashFiles.length; f++) {
                 let stashFileObject = stashFiles[f];
                 const bldrId = stashFileObject.bldr.bldrId;
                 const folderPath = stashFileObject.bldr && stashFileObject.bldr.folderPath;
@@ -210,7 +210,6 @@ export class Push {
                                 sfmcAPIObject = stashFileObject?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject.fileContent)
                                 assetResponse = await sdk.sfmc.automation.patchAutomationAsset(sfmcAPIObject);
                             } else {
-                                console.log('as sfmcAPIObj post', sfmcUpdateObject)
                                 // sfmcAPIObject = stashFileObject?.post?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject.post)
                                 // assetResponse = await sdk.sfmc.automation.postAsset(sfmcAPIObject);
                             }
@@ -241,7 +240,6 @@ export class Push {
                             sfmcAPIObject = await setContentBuilderDefinition(sfmcUpdateObject, stashFileObject.fileContent);
 
                             if (method === 'put') {
-                                console.log('pre resp', sfmcAPIObject)
                                 assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
                             } else {
                                 assetResponse = await sdk.sfmc.asset.postAsset(sfmcAPIObject);
@@ -288,7 +286,6 @@ export class Push {
         try {
 
             let createdFolderCount = 0;
-
             const sdk = await initiateBldrSDK();
             const { context } = await getFilePathDetails(stashItemFolderPath);
             // Split path into array to check each individually

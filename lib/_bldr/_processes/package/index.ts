@@ -5,6 +5,12 @@ import { package_new } from '../../../_utils/options';
 // const coreConfigurationOptions = require('../options');
 import { setContentBuilderPackageAssets } from '../../_processes/_contexts/contentBuilder/package'
 import yargsInteractive from 'yargs-interactive';
+import { createFile } from '../../../_utils/fileSystem';
+import { create } from 'lodash';
+import { initiateBldrSDK } from '../../../_bldr_sdk';
+import { createEditableFilesBasedOnContext } from '../../../_utils/bldrFileSystem/_context/CreateFilesBasedOnContext';
+import { displayLine } from '../../../_utils/display';
+import { assignObject } from '../../_utils';
 
 /**
  */
@@ -20,9 +26,8 @@ export class Package {
                 );
             }
 
-            console.log('in package Config')
             const manifestJSON = await readManifest();
-            // console.log(manifestJSON)
+
             await yargsInteractive()
                 .usage('$0 <command> [args]')
                 .interactive(await package_new(manifestJSON))
@@ -34,6 +39,7 @@ export class Package {
                     tags?: string;
                 }) => {
                     try {
+                        const sdk = await initiateBldrSDK();
                         let packageOut: {
                             name?: string;
                             version?: string;
@@ -41,20 +47,22 @@ export class Package {
                             description?: string;
                             tags?: string[];
                             sfmcConfiguration?: any;
+                            contentBuilder?: any;
+                            dataExtension?: any;
+                            automationStudio?: any;
                         } = {};
-
 
                         packageOut.name = initResults.name;
                         packageOut.version = initResults.packageVersion;
                         packageOut.repository = initResults.repository;
                         packageOut.description = initResults.description;
 
-                        const tagsSplit = initResults.tags && initResults.tags.split(', ') || [];
+                        const tagsSplit = initResults.tags && initResults.tags.split(',') || [];
                         const tagsArray = tagsSplit?.map((tag) => tag.trim()) || [];
                         packageOut.tags = tagsArray;
 
-
                         const sfmcConfig = await readBldrSfmcConfig() || null;
+
                         if (sfmcConfig) {
                             packageOut['sfmcConfiguration'] = sfmcConfig;
                         }
@@ -65,15 +73,38 @@ export class Package {
                         for (const c in availableContexts) {
                             const context = availableContexts[c];
                             const contextAssets = manifestJSON[context]['assets']
+                            displayLine(`Gathering Dependencies for ${contextAssets.length} Assets`, 'info')
 
                             switch (context) {
                                 case "contentBuilder":
-                                    await setContentBuilderPackageAssets(packageOut, contextAssets)
+                                    await sdk.cli.contentBuilder.setContentBuilderPackageAssets(packageOut, contextAssets)
+
+                                    const {
+                                        newDependencies
+                                    } = await sdk.cli.contentBuilder.setContentBuilderDependenciesFromPackage(packageOut)
+                                    const newContextKeys = Object.keys(newDependencies)
+
+                                    displayLine(`Creating files for ${newContextKeys.join(', ')}`, 'info')
+
+                                    for (const k in newContextKeys) {
+                                        displayLine(`Working on ${newContextKeys[k]}`, 'progress')
+                                        let newAssets = newDependencies[newContextKeys[k]]['assets']
+                                        await createEditableFilesBasedOnContext(newContextKeys[k], newAssets)
+                                    }
+
                                     break;
                             }
-                            console.log(JSON.stringify(packageOut, null, 2))
                         }
 
+                        packageOut?.contentBuilder?.assets.forEach((asset: {
+                            id?: number;
+                            exists?: Boolean;
+                        }) => {
+                            delete asset.id
+                            delete asset.exists
+                        })
+
+                        await createFile('./.package.manifest.json', JSON.stringify(packageOut, null, 2))
 
                     } catch (err) {
                         console.log(err)
