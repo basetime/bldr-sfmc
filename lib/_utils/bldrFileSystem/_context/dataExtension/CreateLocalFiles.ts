@@ -36,7 +36,7 @@ const createEmailStudioEditableFiles = async (assets: any[]) => {
             content = await updateFilesFromConfiguration(content);
             await createFile(dirPath, content);
 
-            content.includes('could not be found') && displayLine(`created: ${asset.name} was created, but has no content.`, 'warn') || displayLine(`created: ${asset.name}`, 'success');
+             displayLine(`created [local]: ${asset.name}`, 'success');
         }
     } catch (err: any) {
         displayLine(`ERROR: ${err.message}`);

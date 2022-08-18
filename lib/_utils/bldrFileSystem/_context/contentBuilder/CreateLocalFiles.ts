@@ -52,7 +52,7 @@ const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_As
             content = await updateFilesFromConfiguration(content);
             await createFile(dirPath, content);
 
-            displayLine(`created: ${asset.name}`, 'success');
+            displayLine(`created [local]: ${asset.name}`, 'success');
         }
     } catch (err: any) {
         displayLine(`ERROR: ${err.message}`);

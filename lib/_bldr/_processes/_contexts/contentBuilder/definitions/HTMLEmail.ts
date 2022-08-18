@@ -18,7 +18,6 @@ const setHTMLEmail = async (sfmcUpdateObject: {
     views?: any
 }, updatedContent: string) => {
     // Update Content
-
     let returnObject: {
         id?: number;
         customerKey?: string;

@@ -1,6 +1,7 @@
 import { getRootPath, fileExists, appendFile } from '../fileSystem';
 import { createFile } from '../fileSystem';
 import fs from 'fs';
+const fsPromises = require('fs').promises;
 
 /**
  * Reads .sfmc.config.json file
@@ -15,7 +16,7 @@ const readBldrSfmcConfig = async () => {
     }
 };
 
-const createAPIConfig = async (config: any, template = true) => {
+const createAPIConfig = async (config = null, template = true) => {
     const configTemplate = config || {
         client_id: '',
         client_secret: '',
@@ -93,4 +94,30 @@ const readPackageManifest = async () => {
     }
 };
 
-export { readBldrSfmcConfig, replaceBldrSfmcConfig, createAPIConfig, readManifest, readPackageManifest };
+
+
+const createAllDirectories = (folderPaths: { folderPath: string }[]) => {
+    const directories = folderPaths.map(({ folderPath }) => folderPath);
+    for (const f in directories) {
+        const dir = directories[f];
+        createDirectory(dir);
+    }
+}
+
+const createDirectory = async (dir: string) => {
+    try {
+        await fsPromises.access(dir, fs.constants.F_OK);
+    } catch (e) {
+        await fsPromises.mkdir(dir, { recursive: true });
+    }
+}
+
+export {
+    readBldrSfmcConfig,
+    replaceBldrSfmcConfig,
+    createAPIConfig,
+    readManifest,
+    readPackageManifest,
+    createAllDirectories,
+    createDirectory
+};

@@ -1,8 +1,10 @@
 //TODO figure out why sfmc_context_mapping is returning module not found
 // import { sfmc_context_mapping } from '@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping'
 const sfmcContext: {
-    sfmc_context_mapping: { name: string }[];
+    sfmc_context_mapping: { name: string, rootName:string }[];
 } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping');
+const getFiles = require('node-recursive-directory');
+
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import path from 'path';
@@ -91,4 +93,35 @@ const appendFile = async (filePath:string, content:string) => {
     return version
 };
 
-export { getRootPath, fileExists, createFile, appendFile, createDirectory, getBldrVersion };
+
+
+const getAllFiles = async () => {
+    // Get the root directory for the project being worked on
+    const dirPath = await getRootPath();
+
+    // Get the current working directory that the [add] command was triggered
+    const cwdPath = process.cwd();
+
+    // Identify the context for request
+    const contexts = sfmcContext.sfmc_context_mapping
+        .map((ctx) => fileExists(`./${ctx.rootName}`) && ctx.rootName)
+        .filter(Boolean);
+
+    // Store all complete file paths for files in CWD and subdirectories
+    let ctxFiles = new Array();
+
+    // if dir is root folder
+    if (dirPath === './') {
+        // iterate all contexts and add files
+        for (const c in contexts) {
+            ctxFiles.push(...(await getFiles(`./${contexts[c]}`)));
+        }
+    } else {
+        // get files from current working directory and subdirectories
+        ctxFiles.push(...(await getFiles(`${cwdPath}`)));
+    }
+
+    return ctxFiles;
+};
+
+export { getRootPath, fileExists, createFile, appendFile, createDirectory, getBldrVersion, getAllFiles };

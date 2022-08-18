@@ -11,7 +11,7 @@ import { ManifestAsset, ManifestFolder } from '../../../_types/ManifestAsset';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { setContentBuilderDefinition } from '../_contexts/contentBuilder/definitions';
 import { setAutomationStudioDefinition } from '../_contexts/automationStudio/definitions';
-const { getState, getCurrentInstance } = new State();
+const { getCurrentInstance } = new State();
 const { getStashArray, removeFromStashByBldrId } = new Stash();
 
 export class Push {
@@ -170,7 +170,6 @@ export class Push {
     ) => {
         try {
             const sdk = await initiateBldrSDK();
-            let stashFileOut: StashItem[] = stashFiles;
             const success = [];
             const errors = [];
 
@@ -179,6 +178,13 @@ export class Push {
                 displayLine('Unable to initiate BLDR SDK. Please review credentials and retry.', 'error');
                 return;
             }
+
+            const stashFolders = stashFiles.map((stashItem:StashItem) => stashItem.bldr.folderPath)
+
+            for (const sf in stashFolders) {
+                await this.addNewFolders(stashFolders[sf])
+            }
+
             for (let f = 0; f < stashFiles.length; f++) {
                 let stashFileObject = stashFiles[f];
                 const bldrId = stashFileObject.bldr.bldrId;

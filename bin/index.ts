@@ -14,6 +14,7 @@ import { PackageSwitch } from '../lib/_controllers/package'
 import { InstallSwitch } from '../lib/_controllers/install'
 import { displayLine } from '../lib/_utils/display';
 import { DeploySwitch } from '../lib/_controllers/deploy';
+import { InitSwitch } from '../lib/_controllers/initiate';
 // const contextSwitch = require('../lib/context/contextSwitch');
 // const configSwitch = require('../lib/config/switch');
 // const addSwitch = require('../lib/add/switch');
@@ -49,7 +50,7 @@ const initCLI = async (req: string, argv: any) => {
     } else {
         switch (req) {
             case 'init':
-                // InitSwitch(req, argv, bldrSDK);
+                InitSwitch(argv);
                 break;
             /**
              * Config route handles all CLI configuration of SFMC Instance

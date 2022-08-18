@@ -11,6 +11,7 @@ import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
 import { displayLine } from "../../../_utils/display";
 import { ManifestFolder } from "../../../_types/ManifestAsset";
 import { setContentBuilderDefinition } from "../_contexts/contentBuilder/definitions";
+import { getFilePathDetails, uniqueArrayByKey } from "../../_utils";
 
 const add = new Add()
 const push = new Push()
@@ -53,15 +54,18 @@ export class Deploy {
                     );
 
                     const pkgAssets = packageJSON[context]['assets'];
-                    const pkgFolderPaths = pkgAssets.map((asset: {
+                    let pkgFolderPaths = pkgAssets.map((asset: {
                         category: {
                             folderPath: string;
                         }
                     }) => asset.category.folderPath)
 
+                    pkgFolderPaths = [...new Set(pkgFolderPaths)]
+
                     await createEditableFilesBasedOnContext(context, pkgAssets)
 
                     for (const fp in pkgFolderPaths) {
+                        displayLine(`Creating ${context} folders in sfmc`, 'progress')
                         await addNewFolders(pkgFolderPaths[fp])
                     }
                 }
@@ -74,62 +78,6 @@ export class Deploy {
             const sdk = await initiateBldrSDK()
             const createDataExtensions = sdk && package_dataExtension && await this.deployDataExtension(sdk, package_dataExtension)
             const createContentBuilder = sdk && package_contentBuilder && await this.deployContentBuilderAssets(sdk, package_contentBuilder)
-
-
-            // for (const c in packageContexts) {
-            //     const context = packageContexts[c];
-
-            //     if (context && packageJSON[context]) {
-            //         await updateManifest(
-            //             context,
-            //             { assets: [], folders: [] }
-            //         );
-
-            //         // const contextDetails = this.contextMap.find(
-            //         //     (ctx) => ctx.context === context
-            //         // );
-            //         // const pkgFolders = packageJSON[context]['folders']
-
-            //         const pkgAssets = packageJSON[context]['assets'];
-            //         const pkgFolderPaths = pkgAssets.map((asset: {
-            //             category: {
-            //                 folderPath: string;
-            //             }
-            //         }) => asset.category.folderPath)
-
-            //         await createEditableFilesBasedOnContext(context, pkgAssets)
-
-            //         for (const fp in pkgFolderPaths) {
-            //             await addNewFolders(pkgFolderPaths[fp])
-            //         }
-
-            //         if (
-            //             context === 'dataExtension' &&
-            //             Object.prototype.hasOwnProperty.call(
-            //                 packageJSON,
-            //                 'dataExtension'
-            //             )
-            //         ) {
-            //             await this.deployDataExtensions(
-            //                 pkgAssets,
-            //                 contextDetails
-            //             );
-            //         }
-
-            // if (
-            //     context === 'contentBuilder' &&
-            //     Object.prototype.hasOwnProperty.call(
-            //         packageJSON,
-            //         'contentBuilder'
-            //     )
-            // ) {
-            //     await this.deployContentBuilderAssets(
-            //         pkgAssets,
-            //         contextDetails
-            //     );
-            // }
-            //     }
-            // }
 
         } catch (err) {
             console.log(err);
@@ -158,21 +106,35 @@ export class Deploy {
     };
 
 
-
-    async deployContentBuilderAssets(sdk: BLDR_Client, contentBuilderAssets: any[]) {
+    deployContentBuilderAssets = async (sdk: BLDR_Client, contentBuilderAssets: any[]) => {
         try {
-            const package_contentBuilder_noDependencies = contentBuilderAssets.map((asset: any) => {
-                return asset.dependencies && asset.dependencies.length === 0 || !asset.dependencies && asset
-            }).filter(Boolean)
+            //Find 0 Dependency assets
+            const noDependencyAssets = contentBuilderAssets
+                .map((asset) => {
+                    if (asset.dependencies && asset.dependencies.length === 0 || !asset.dependencies) {
+                        return asset;
+                    }
+                })
+                .filter(Boolean);
 
-            const package_contentBuilder_withDependencies = contentBuilderAssets.map((asset: any) => {
-                return asset.dependencies && asset.dependencies.length > 0 && asset
-            }).filter(Boolean)
+            const dependencyAssets = contentBuilderAssets
+                .map((asset) => {
+                    if (asset.dependencies && asset.dependencies.length > 0) {
+                        return asset;
+                    }
+                })
+                .filter(Boolean);
 
-            const createContentBuilderNoDependencies = await package_contentBuilder_noDependencies.forEach((noDepAsset) => this.deployContentBuilderAssetNoDependencies(sdk, noDepAsset))
-            const createContentBuilderWithDependencies = await this.deployContentBuilderAssetWithDependencies(sdk, package_contentBuilder_withDependencies)
+            for (const nd in noDependencyAssets) {
+                const asset = noDependencyAssets[nd];
+                await this.deployContentBuilderAssetNoDependencies(sdk, asset)
+            }
 
 
+            for (const d in dependencyAssets) {
+                const depAsset = dependencyAssets[d];
+                await this.deployContentBuilderAssetWithDependencies(sdk, depAsset);
+            }
         } catch (err) {
             console.log('ERR', err);
         }
@@ -182,7 +144,6 @@ export class Deploy {
         sdk: BLDR_Client,
         contentBuilderAsset: any
     ) => {
-
         const ignoreDeployment = ['webpage', 'jscoderesource'];
         const manifestJSON = await readManifest();
         const manifestJSONFolders = manifestJSON['contentBuilder']['folders'];
@@ -227,7 +188,7 @@ export class Deploy {
             );
         } else {
 
-            displayLine(`creating: ${contentBuilderAsset.name}`)
+
             const createAsset = await sdk.sfmc.asset.postAsset(
                 contentBuilderAsset
             );
@@ -235,6 +196,7 @@ export class Deploy {
             if (createAsset.status === 'ERROR') {
                 console.log(createAsset);
             } else {
+                displayLine(`created [sfmc]: ${contentBuilderAsset.name}`, 'success')
                 contentBuilderAsset.id = createAsset.id;
                 contentBuilderAsset.assetType = createAsset.assetType;
                 contentBuilderAsset.category = createAsset.category;
@@ -256,92 +218,37 @@ export class Deploy {
      */
     deployContentBuilderAssetWithDependencies = async (
         sdk: BLDR_Client,
-        contentBuilderAssets: any
+        contentBuilderAsset: any
     ) => {
+        //Get assets dependencies
+        const assetDependencies = contentBuilderAsset.dependencies;
+        const contentFolderPath = contentBuilderAsset.category.folderPath;
+        const updatedAsset = await this.updateContentBuilderReferences(
+            contentBuilderAsset,
+            assetDependencies
+        );
 
-        const sortedAssets = contentBuilderAssets.sort((a: { dependencies: any[] }, b: { dependencies: any[] }) => a.dependencies.length - b.dependencies.length)
-        for (let s = 0; s < sortedAssets.length; s++) {
-            //Get assets dependencies
-            const contentBuilderAsset = sortedAssets[s];
-            const assetDependencies = contentBuilderAsset.dependencies;
-            const contentFolderPath = contentBuilderAsset.category.folderPath;
-            const updatedAsset = await this.updateContentBuilderReferences(
-                contentBuilderAsset,
-                assetDependencies
+        const createAsset = await sdk.sfmc.asset.postAsset(
+            updatedAsset
+        );
+
+        if (createAsset.status === 'ERROR') {
+            console.log(createAsset.statusText);
+        } else {
+            updatedAsset.id = createAsset.id;
+            updatedAsset.assetType = createAsset.assetType;
+            updatedAsset.category = createAsset.category;
+            updatedAsset.customerKey = createAsset.customerKey;
+            updatedAsset.category.folderPath = contentFolderPath;
+
+            // Update ManifestJSON file with responses
+            await updateManifest(
+                'contentBuilder',
+                { assets: [updatedAsset] }
             );
 
-            const createAsset = await sdk.sfmc.asset.postAsset(
-                updatedAsset
-            );
-
-            if (createAsset.status === 'ERROR') {
-                console.log(createAsset.statusText);
-            } else {
-                updatedAsset.id = createAsset.id;
-                updatedAsset.assetType = createAsset.assetType;
-                updatedAsset.category = createAsset.category;
-                updatedAsset.customerKey = createAsset.customerKey;
-                updatedAsset.category.folderPath = contentFolderPath;
-
-                // Update ManifestJSON file with responses
-                await updateManifest(
-                    'contentBuilder',
-                    { assets: [updatedAsset] }
-                );
-            }
-
+            await createEditableFilesBasedOnContext('contentBuilder', [updatedAsset])
         }
-
-
-
-        //     if (
-        //         Object.prototype.hasOwnProperty.call(
-        //             contentBuilderAsset,
-        //             'assetType'
-        //         ) &&
-        //         Object.prototype.hasOwnProperty.call(
-        //             contentBuilderAsset.assetType,
-        //             'name'
-        //         ) &&
-        //         ignoreDeployment.includes(contentBuilderAsset.assetType.name)
-        //     ) {
-        //         console.log(
-        //             `${contentBuilderAsset.assetType.name} asset type requires the user to create the asset manually. Create the asset, then run the [ bldr clone ] command to get the asset.`
-        //         );
-        //         await this.localFile.createEditableFiles(
-        //             [contentBuilderAsset],
-        //             contextDetails.context,
-        //             false
-        //         );
-        //     } else {
-        //         const createAsset = await this.bldr.asset.postAsset(
-        //             contentBuilderAsset
-        //         );
-
-        //         if (createAsset.status === 'ERROR') {
-        //             console.log(createAsset.statusText);
-        //         } else {
-        //             contentBuilderAsset.id = createAsset.id;
-        //             contentBuilderAsset.assetType = createAsset.assetType;
-        //             contentBuilderAsset.category = createAsset.category;
-        //             contentBuilderAsset.customerKey = createAsset.customerKey;
-        //             contentBuilderAsset.category.folderPath = contentFolderPath;
-
-        //             // Update ManifestJSON file with responses
-        //             await this.localFile.manifestJSON(
-        //                 contextDetails.context,
-        //                 { assets: [contentBuilderAsset] },
-        //                 null
-        //             );
-
-        //             await this.localFile.createEditableFiles(
-        //                 [contentBuilderAsset],
-        //                 contextDetails.context,
-        //                 true
-        //             );
-        //         }
-
-        // }
     }
 
     updateContentBuilderReferences = async (
@@ -472,19 +379,17 @@ export class Deploy {
                         dataExtension
                     );
 
-                console.log(createDataExtension)
                 if (createDataExtension.OverallStatus === "OK") {
                     dataExtension.fields = dataExtensionFields
                     await updateManifest('dataExtension', {
                         assets: [dataExtension]
                     })
+                    displayLine(`Created [sfmc]: ${dataExtension.name}`, 'success')
                     output.push(dataExtension)
                 } else {
                     displayLine(createDataExtension.OverallStatus, 'error')
                 }
             }
-
-
 
             return output
         } catch (err: any) {
@@ -492,144 +397,4 @@ export class Deploy {
         }
     }
 
-    // async deployFolders(packageFolders, contextDetails) {
-    //     try {
-    //         const results = new Array();
-    //         for (const f in packageFolders) {
-    //             const folderPath = packageFolders[f];
-
-    //             const deployFolder = await this.deployFolder(
-    //                 folderPath,
-    //                 contextDetails
-    //             );
-
-    //             if (deployFolder.OverallStatus === 'ERROR') {
-    //                 throw new Error(deployFolder.StatusText);
-    //             }
-
-    //             results.push(...deployFolder.Results);
-    //         }
-
-    //         return {
-    //             OverallStatus: 'OK',
-    //             Results: results,
-    //         };
-    //     } catch (err) {
-    //         return {
-    //             OverallStatus: 'ERROR',
-    //             StatusText: err.message,
-    //         };
-    //     }
-    // }
-
-    // /**
-    //  * Method to create new folders in SFMC when the do not exist
-    //  *
-    //  * @param {object} categoryDetails various folder/asset values from the full file path
-    //  */
-    // async deployFolder(folderPath, contextDetails) {
-    //     try {
-    //         let categoryType = contextDetails.categoryType;
-    //         let checkPath = contextDetails.root;
-    //         let parentId;
-    //         let createFolder;
-    //         let manifestFolders = new Array();
-
-    //         let pathArr = folderPath.split('/');
-    //         pathArr.shift();
-
-    //         // Iterate through all folder names to see where folders need to be created
-    //         for (const p in pathArr) {
-    //             const folder = pathArr[p];
-    //             let updatedFolder = 0;
-
-    //             // Compile path to check against
-    //             checkPath = `${checkPath}/${folder}`;
-
-    //             const manifestJSON = await this.stash._getManifestAssetData();
-    //             const manifestJSONFolder = manifestJSON[contextDetails.context][
-    //                 'folders'
-    //             ].find(
-    //                 (manifestJSONFolderFolderObj) =>
-    //                     manifestJSONFolderFolderObj.folderPath === checkPath
-    //             );
-
-    //             if (!manifestJSONFolder) {
-    //                 if (typeof parentId === 'undefined') {
-    //                     const parentObj = await this.bldr.folder.search(
-    //                         categoryType,
-    //                         'Name',
-    //                         contextDetails.root
-    //                     );
-
-    //                     if (parentObj.OverallStatus !== 'OK') {
-    //                         throw new Error(parentObj.OverallStatus);
-    //                     }
-
-    //                     if (
-    //                         !Object.prototype.hasOwnProperty.call(
-    //                             parentObj,
-    //                             'Results'
-    //                         ) &&
-    //                         parentObj.Results.length > 0
-    //                     ) {
-    //                         throw new Error('No Results Found for Root Folder');
-    //                     }
-
-    //                     parentId = parentObj.Results[0].ID;
-    //                 }
-
-    //                 // Create folder via SFMC API
-    //                 createFolder = await this.bldr.folder.create({
-    //                     name: folder,
-    //                     parentId,
-    //                     contentType: categoryType,
-    //                 });
-
-    //                 if (createFolder.StatusCode === 'Error') {
-    //                     throw new Error(createFolder.StatusMessage);
-    //                 } else {
-    //                     // Wait for response from folder creation and add object to manifestFolder array
-    //                     // Folder permissions my not allow child folders, so when exception is thrown create will retry
-    //                     // do/while will check until retry is done and folder is created
-    //                     do {
-    //                         const folderObj = {
-    //                             id: createFolder.Results[0].NewID,
-    //                             name: folder,
-    //                             parentId: parentId,
-    //                             categoryType: categoryType,
-    //                             folderPath: checkPath,
-    //                         };
-
-    //                         // Update ManifestJSON file with responses
-    //                         await this.localFile.manifestJSON(
-    //                             contextDetails.context,
-    //                             { folders: [folderObj] },
-    //                             null
-    //                         );
-
-    //                         parentId = createFolder.Results[0].NewID;
-    //                         updatedFolder++;
-    //                     } while (
-    //                         typeof createFolder !== 'undefined' &&
-    //                         updatedFolder === 0
-    //                     );
-    //                 }
-    //             } else {
-    //                 //if folder exists set it's ID as parentID for next subfolder
-    //                 parentId = manifestJSONFolder.id;
-    //             }
-    //         }
-
-    //         return {
-    //             OverallStatus: 'OK',
-    //             Results: manifestFolders,
-    //         };
-    //     } catch (err) {
-    //         return {
-    //             OverallStatus: 'ERROR',
-    //             StatusText: err.message,
-    //         };
-    //     }
-    // }
 };
