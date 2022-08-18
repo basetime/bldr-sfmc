@@ -25,10 +25,9 @@ const setContentBuilderDefinition = async (sfmcUpdateObject: {
 updatedContent: string
 ) => {
     let assetOutput;
-    console.log(sfmcUpdateObject)
     switch (sfmcUpdateObject.assetType.name) {
         case 'htmlemail':
-            assetOutput = Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'views') && updatedContent && await setHTMLEmail(sfmcUpdateObject, updatedContent);
+            assetOutput = updatedContent && await setHTMLEmail(sfmcUpdateObject, updatedContent);
             break;
         case 'htmlblock':
         case 'codesnippetblock':

@@ -74,10 +74,6 @@ export class Deploy {
             const sdk = await initiateBldrSDK()
             const createDataExtensions = sdk && package_dataExtension && await this.deployDataExtension(sdk, package_dataExtension)
             const createContentBuilder = sdk && package_contentBuilder && await this.deployContentBuilderAssets(sdk, package_contentBuilder)
-            createDataExtensions && await updateManifest('dataExtension', {
-                assets: createDataExtensions
-            })
-
 
 
             // for (const c in packageContexts) {
@@ -166,30 +162,26 @@ export class Deploy {
     async deployContentBuilderAssets(sdk: BLDR_Client, contentBuilderAssets: any[]) {
         try {
             const package_contentBuilder_noDependencies = contentBuilderAssets.map((asset: any) => {
-                return !Object.prototype.hasOwnProperty.call(asset, 'dependencies') || asset.dependencies.length === 0 && asset
+                return asset.dependencies && asset.dependencies.length === 0 || !asset.dependencies && asset
             }).filter(Boolean)
 
-            console.log('package_contentBuilder_noDependencies',package_contentBuilder_noDependencies)
-            const createContentBuilderNoDependencies = Promise.all(package_contentBuilder_noDependencies.map((noDepAsset) => this.deployContentBuilderAsset(sdk, noDepAsset)))
+            const package_contentBuilder_withDependencies = contentBuilderAssets.map((asset: any) => {
+                return asset.dependencies && asset.dependencies.length > 0 && asset
+            }).filter(Boolean)
 
+            const createContentBuilderNoDependencies = await package_contentBuilder_noDependencies.forEach((noDepAsset) => this.deployContentBuilderAssetNoDependencies(sdk, noDepAsset))
+            const createContentBuilderWithDependencies = await this.deployContentBuilderAssetWithDependencies(sdk, package_contentBuilder_withDependencies)
 
-            // const package_contentBuilder_dependencies = contentBuilderAssets.map((asset: any) => {
-            //     return Object.prototype.hasOwnProperty.call(asset, 'dependencies') && asset.dependencies.length > 0 && asset
-            // }).filter(Boolean)
-
-
-            // const createContentBuilderDependencies = await this.deployContentBuilderAsset(sdk, package_contentBuilder_dependencies, true)
 
         } catch (err) {
             console.log('ERR', err);
         }
     }
 
-    async deployContentBuilderAsset(
+    deployContentBuilderAssetNoDependencies = async (
         sdk: BLDR_Client,
-        contentBuilderAsset: any,
-        dependencies = false
-    ) {
+        contentBuilderAsset: any
+    ) => {
 
         const ignoreDeployment = ['webpage', 'jscoderesource'];
         const manifestJSON = await readManifest();
@@ -198,7 +190,6 @@ export class Deploy {
         const category = manifestJSONFolders.find(
             (folder: ManifestFolder) => folder.folderPath === contentFolderPath
         );
-        console.log('category', category)
 
         //Update asset content with configurations before posting
         let content = contentBuilderAsset.content;
@@ -235,12 +226,14 @@ export class Deploy {
                 `${contentBuilderAsset.assetType.name} asset type requires the user to create the asset manually. Create the asset, then run the [ bldr clone ] command to get the asset.`
             );
         } else {
+
+            displayLine(`creating: ${contentBuilderAsset.name}`)
             const createAsset = await sdk.sfmc.asset.postAsset(
                 contentBuilderAsset
             );
 
             if (createAsset.status === 'ERROR') {
-                console.log(createAsset.statusText);
+                console.log(createAsset);
             } else {
                 contentBuilderAsset.id = createAsset.id;
                 contentBuilderAsset.assetType = createAsset.assetType;
@@ -255,15 +248,51 @@ export class Deploy {
                 );
             }
         }
-        // } else {
-        //     //Get assets dependencies
-        //     const assetDependencies = contentBuilderAsset.dependencies;
+    }
+    /**
+     *
+     * @param sdk
+     * @param contentBuilderAssets
+     */
+    deployContentBuilderAssetWithDependencies = async (
+        sdk: BLDR_Client,
+        contentBuilderAssets: any
+    ) => {
 
-        //     await this.updateContentBuilderReferences(
-        //         contentBuilderAsset,
-        //         manifestJSON,
-        //         assetDependencies
-        //     );
+        const sortedAssets = contentBuilderAssets.sort((a: { dependencies: any[] }, b: { dependencies: any[] }) => a.dependencies.length - b.dependencies.length)
+        for (let s = 0; s < sortedAssets.length; s++) {
+            //Get assets dependencies
+            const contentBuilderAsset = sortedAssets[s];
+            const assetDependencies = contentBuilderAsset.dependencies;
+            const contentFolderPath = contentBuilderAsset.category.folderPath;
+            const updatedAsset = await this.updateContentBuilderReferences(
+                contentBuilderAsset,
+                assetDependencies
+            );
+
+            const createAsset = await sdk.sfmc.asset.postAsset(
+                updatedAsset
+            );
+
+            if (createAsset.status === 'ERROR') {
+                console.log(createAsset.statusText);
+            } else {
+                updatedAsset.id = createAsset.id;
+                updatedAsset.assetType = createAsset.assetType;
+                updatedAsset.category = createAsset.category;
+                updatedAsset.customerKey = createAsset.customerKey;
+                updatedAsset.category.folderPath = contentFolderPath;
+
+                // Update ManifestJSON file with responses
+                await updateManifest(
+                    'contentBuilder',
+                    { assets: [updatedAsset] }
+                );
+            }
+
+        }
+
+
 
         //     if (
         //         Object.prototype.hasOwnProperty.call(
@@ -311,75 +340,104 @@ export class Deploy {
         //                 true
         //             );
         //         }
-        // }
+
         // }
     }
 
-    // async updateContentBuilderReferences(
-    //     contentBuilderAsset: any,
-    //     assetDependencies
-    // ) {
-    //     let content = await utils.getAssetContent(contentBuilderAsset);
-    //     let createdId;
+    updateContentBuilderReferences = async (
+        contentBuilderAsset: any,
+        assetDependencies: {
+            bldrId: string;
+            context: string;
+            reference: string;
+        }[]
+    ) => {
+        let content = contentBuilderAsset.content;
+        content = await replaceBldrSfmcConfig(content);
+        let createdId;
 
-    //     for (const a in assetDependencies) {
-    //         const assetDependency = assetDependencies[a];
-    //         const findObj = await find(
-    //             manifestJSON[assetDependency.context]['assets'],
-    //             (o) => {
-    //                 return o.bldrId === assetDependency.bldrId;
-    //             }
-    //         );
 
-    //         switch (assetDependency.ref) {
-    //             case 'Lookup':
-    //             case 'LookupRows':
-    //             case 'ClaimRow':
-    //             case 'DataExtensionRowCount':
-    //             case 'DeleteData':
-    //             case 'DeleteDE':
-    //             case 'InsertDE':
-    //             case 'UpdateData':
-    //             case 'UpdateDE':
-    //             case 'UpsertData':
-    //             case 'UpsertDE':
-    //             case 'LookupOrderedRows':
-    //             case 'LookupOrderedRowsCS':
-    //             case 'LookupRowsCS':
-    //                 createdId = findObj.name;
-    //                 break;
-    //             case 'ContentBlockById':
-    //                 createdId = findObj.id;
-    //                 break;
-    //             case 'ContentBlockByName':
-    //                 if (
-    //                     content.match(
-    //                         new RegExp(
-    //                             `(?<=Platform.Function.ContentBlockByName\\(')${assetDependency.bldrId}`,
-    //                             'g'
-    //                         )
-    //                     )
-    //                 ) {
-    //                     createdId =
-    //                         `${findObj.category.folderPath}/${findObj.name}`.replaceAll(
-    //                             '/',
-    //                             '\\\\'
-    //                         );
-    //                 } else {
-    //                     createdId =
-    //                         `${findObj.category.folderPath}/${findObj.name}`.replaceAll(
-    //                             '/',
-    //                             '\\'
-    //                         );
-    //                 }
-    //                 break;
-    //         }
+        const manifestJSON: {
+            [key: string]: any;
+        } = await readManifest();
 
-    //         content = content.replaceAll(assetDependency.bldrId, createdId);
-    //     }
+        const manifestJSONFolders = manifestJSON['contentBuilder']['folders'];
+        const contentFolderPath = contentBuilderAsset.category.folderPath;
+        const category = manifestJSONFolders.find(
+            (folder: ManifestFolder) => folder.folderPath === contentFolderPath
+        );
 
-    //     return utils.updateAssetContent(contentBuilderAsset, content);
-    // }
+        contentBuilderAsset.category = category;
+        contentBuilderAsset.bldr = {
+            bldrId: contentBuilderAsset.bldrId
+        }
+
+        for (const a in assetDependencies) {
+            const assetDependency = assetDependencies[a];
+
+            const assetContext = assetDependency.context
+            const manifestContextAssets = manifestJSON[assetContext]['assets']
+
+            const findObj = await find(manifestContextAssets,
+                (o: {
+                    bldrId: string;
+                }) => {
+                    return o.bldrId === assetDependency.bldrId;
+                }
+            );
+
+            if (findObj) {
+                switch (assetDependency.reference) {
+                    case 'Lookup':
+                    case 'LookupRows':
+                    case 'ClaimRow':
+                    case 'DataExtensionRowCount':
+                    case 'DeleteData':
+                    case 'DeleteDE':
+                    case 'InsertDE':
+                    case 'UpdateData':
+                    case 'UpdateDE':
+                    case 'UpsertData':
+                    case 'UpsertDE':
+                    case 'LookupOrderedRows':
+                    case 'LookupOrderedRowsCS':
+                    case 'LookupRowsCS':
+                        createdId = findObj.name;
+                        break;
+                    case 'ContentBlockById':
+                        createdId = findObj.id;
+                        break;
+                    case 'ContentBlockByName':
+                        if (
+                            content.match(
+                                new RegExp(
+                                    `(?<=Platform.Function.ContentBlockByName\\(')${assetDependency.bldrId}`,
+                                    'g'
+                                )
+                            )
+                        ) {
+                            createdId =
+                                `${findObj.category.folderPath}/${findObj.name}`.replaceAll(
+                                    '/',
+                                    '\\\\'
+                                );
+                        } else {
+                            createdId =
+                                `${findObj.category.folderPath}/${findObj.name}`.replaceAll(
+                                    '/',
+                                    '\\'
+                                );
+                        }
+                        break;
+                }
+
+                content = content.replaceAll(assetDependency.bldrId, createdId);
+            }
+        }
+
+        return setContentBuilderDefinition(contentBuilderAsset, content);
+    }
+
 
     deployDataExtension = async (sdk: BLDR_Client, dataExtensions: any[]) => {
         try {
@@ -414,13 +472,19 @@ export class Deploy {
                         dataExtension
                     );
 
+                console.log(createDataExtension)
                 if (createDataExtension.OverallStatus === "OK") {
                     dataExtension.fields = dataExtensionFields
+                    await updateManifest('dataExtension', {
+                        assets: [dataExtension]
+                    })
                     output.push(dataExtension)
                 } else {
                     displayLine(createDataExtension.OverallStatus, 'error')
                 }
             }
+
+
 
             return output
         } catch (err: any) {
