@@ -14,11 +14,11 @@ import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
  * @param {object} store
  *
  */
-const ContentBuilderSwitch = async (req: any, argv: Argv) => {
+const DataExtensionSwitch = async (req: any, argv: Argv) => {
     try {
         const bldr = await initiateBldrSDK();
         //@ts-ignore //TODO figure out why contentBuilder is throwing TS error
-        const { contentBuilder } = bldr.cli;
+        const { emailStudio } = bldr.cli;
 
         if (!bldr) {
             throw new Error('unable to load sdk');
@@ -30,8 +30,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                  * Search for Content Builder Folders
                  */
                 if (argv.f) {
-                    const searchRequest = await contentBuilder.searchFolders({
-                        contentType: 'asset',
+                    const searchRequest = await emailStudio.searchFolders({
+                        contentType: 'dataextension',
                         searchKey: 'Name',
                         searchTerm: argv.f,
                     });
@@ -46,7 +46,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                  * Search for Content Builder Assets
                  */
                 if (argv.a) {
-                    const searchRequest = await contentBuilder.searchAssets({
+                    const searchRequest = await emailStudio.searchDataExtensions({
                         searchKey: 'Name',
                         searchTerm: argv.a,
                     });
@@ -73,8 +73,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             ParentFolder: any,
                             FolderPath: string;
                         }[]
-                    } = await contentBuilder.gatherAssetsByCategoryId({
-                        contentType: 'asset',
+                    } = await emailStudio.gatherAssetsByCategoryId({
+                        contentType: 'dataextension',
                         categoryId: argv.f,
                     });
 
@@ -82,38 +82,38 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
                     assets && assets.length && (await createContentBuilderEditableFiles(assets));
-                    assets && folders && await updateManifest('contentBuilder', {
+                    assets && folders && await updateManifest('dataExtension', {
                         assets: assets,
                         folders: isolatedFoldersUnique,
                     });
                 }
 
-                /**
-                 * Search for Content Builder Assets
-                 */
-                if (argv.a) {
-                    const cloneRequest: {
-                        assets: SFMC_Content_Builder_Asset[],
-                        folders: {
-                            ID: number,
-                            Name: string;
-                            ContentType: string;
-                            ParentFolder: any,
-                            FolderPath: string;
-                        }[]
-                    } = await contentBuilder.gatherAssetById(argv.a);
+                // /**
+                //  * Search for Content Builder Assets
+                //  */
+                // if (argv.a) {
+                //     const cloneRequest: {
+                //         assets: SFMC_Content_Builder_Asset[],
+                //         folders: {
+                //             ID: number,
+                //             Name: string;
+                //             ContentType: string;
+                //             ParentFolder: any,
+                //             FolderPath: string;
+                //         }[]
+                //     } = await contentBuilder.gatherAssetById(argv.a);
 
 
-                     const { assets, folders } = cloneRequest
+                //      const { assets, folders } = cloneRequest
 
-                    const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
-                    assets && assets.length && (await createContentBuilderEditableFiles(assets));
-                    assets && folders && await updateManifest('contentBuilder', {
-                        assets: assets,
-                        folders: isolatedFoldersUnique,
-                    });
-                }
-                break;
+                //     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
+                //     assets && assets.length && (await createContentBuilderEditableFiles(assets));
+                //     assets && folders && await updateManifest('contentBuilder', {
+                //         assets: assets,
+                //         folders: isolatedFoldersUnique,
+                //     });
+                // }
+                // break;
         }
 
         return;
@@ -122,4 +122,4 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
     }
 };
 
-export { ContentBuilderSwitch };
+export { DataExtensionSwitch };

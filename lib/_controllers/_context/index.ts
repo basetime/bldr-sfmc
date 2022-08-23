@@ -1,6 +1,7 @@
 import { Argv } from '../../_types/Argv';
 import { ContentBuilderSwitch } from './contentBuilder';
 import { AutomationStudioSwitch } from './automationStudio';
+import { DataExtensionSwitch } from './dataExtension';
 /*
  * Flag routing for Config command
  *
@@ -13,7 +14,14 @@ const ContextSwitch = async (req: any, argv: Argv) => {
     /**
      * Configure New Instance
      */
-    if (!argv['content-builder'] && !argv.cb && !argv['automation-studio'] && !argv.as) {
+    if (
+        !argv['content-builder']
+        && !argv.cb
+        && !argv['automation-studio']
+        && !argv.as
+        && !argv.de
+        && !argv['data-extension']
+    ) {
         throw new Error('Please include a context flag');
     }
 
@@ -25,6 +33,10 @@ const ContextSwitch = async (req: any, argv: Argv) => {
         AutomationStudioSwitch(req, argv);
     }
 
+
+    if (argv.de || argv['data-extension']) {
+        DataExtensionSwitch(req, argv)
+    }
     // /**
     //  * Get Configuration by Instance key
     //  * argv._[0] is the command

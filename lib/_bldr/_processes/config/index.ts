@@ -22,7 +22,7 @@ const { getState } = new State();
  * @property {object} stateConfiguration
  */
 export class Config {
-    constructor() {}
+    constructor() { }
     /**
      * Initiate the setting of a Configuration
      * Prompts user input
@@ -277,4 +277,5 @@ export class Config {
             displayLine(err.message, 'error');
         }
     };
+
 }
