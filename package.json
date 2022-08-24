@@ -1,6 +1,6 @@
 {
     "name": "@basetime/bldr-sfmc",
-    "version": "1.4.3",
+    "version": "1.4.3-beta.5",
     "description": "CLI application for SFMC Development workflow and package deployment",
     "main": "bin/index.js",
     "scripts": {
@@ -15,7 +15,7 @@
         "updateLink": "npm run clean && npm run build && npm rm @basetime/bldr-sfmc-ts -g && npm link @basetime/bldr-sfmc-sdk && npm link"
     },
     "bin": {
-        "ts": "./dist/bin/index.js"
+        "bldr": "./dist/bin/index.js"
     },
     "author": "Basetime.io",
     "repository": {
@@ -31,7 +31,7 @@
     ],
     "license": "BSD-3-Clause",
     "dependencies": {
-        "@basetime/bldr-sfmc-sdk": "^1.0.0",
+        "@basetime/bldr-sfmc-sdk": "^1.0.2",
         "@nodelib/fs.walk": "^1.2.8",
         "axios": "^0.26.0",
         "boxen": "^4.2.0",
