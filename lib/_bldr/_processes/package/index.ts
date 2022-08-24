@@ -93,6 +93,24 @@ export class Package {
                                     }
 
                                     break;
+
+                                    case "dataExtension":
+                                        // await sdk.cli.contentBuilder.setContentBuilderPackageAssets(packageOut, contextAssets)
+
+                                        // const {
+                                        //     newDependencies
+                                        // } = await sdk.cli.contentBuilder.setContentBuilderDependenciesFromPackage(packageOut)
+                                        // const newContextKeys = Object.keys(newDependencies)
+
+                                        // displayLine(`Creating files for ${newContextKeys.join(', ')}`, 'info')
+
+                                        // for (const k in newContextKeys) {
+                                        //     displayLine(`Working on ${newContextKeys[k]}`, 'progress')
+                                        //     let newAssets = newDependencies[newContextKeys[k]]['assets']
+                                        //     await createEditableFilesBasedOnContext(newContextKeys[k], newAssets)
+                                        // }
+
+                                        break;
                             }
                         }
 

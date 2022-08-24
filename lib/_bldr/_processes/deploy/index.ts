@@ -76,8 +76,8 @@ export class Deploy {
             const package_automationStudio = packageContexts.includes('automationStudio') && packageJSON['automationStudio']['assets']
 
             const sdk = await initiateBldrSDK()
-            const createDataExtensions = sdk && package_dataExtension && await this.deployDataExtension(sdk, package_dataExtension)
-            const createContentBuilder = sdk && package_contentBuilder && await this.deployContentBuilderAssets(sdk, package_contentBuilder)
+            sdk && package_dataExtension && await this.deployDataExtension(sdk, package_dataExtension)
+            sdk && package_contentBuilder && await this.deployContentBuilderAssets(sdk, package_contentBuilder)
 
         } catch (err) {
             console.log(err);
