@@ -49,12 +49,12 @@ const initCLI = async (req: string, argv: any) => {
 
             displayLine('status', 'success')
             displayObject({
-                '                       ': 'Clear All Staged Files',
+                '                       ': 'Show Current State and Staged Files',
             })
 
             displayLine('stash', 'success')
             displayObject({
-                '-c                     ': 'Show Current State and Staged Files',
+                '-c                     ': 'Clear All Staged Files',
             })
 
             displayLine('init', 'success')
