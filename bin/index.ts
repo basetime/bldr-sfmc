@@ -44,7 +44,9 @@ const initCLI = async (req: string, argv: any) => {
                 '-l, --list             ': 'List all Configurations',
                 '-s --set               ': 'Set Target Configuration to Use',
                 '>> -m, --mid           ': 'Set Target MID to Use',
-                '-r, --remove           ': 'Remove Configuration'
+                '-r, --remove           ': 'Remove Configuration',
+                '--verbose              ': 'Toggle Verbose Messaging',
+
             })
 
             displayLine('status', 'success')
@@ -71,6 +73,8 @@ const initCLI = async (req: string, argv: any) => {
                 '--cb -a <search term>  ': 'Content Builder Assets',
                 '--as -f <search term>  ': 'Automation Folders',
                 '--as -a <search term>  ': 'Automation Assets',
+                '--de -f <search term>  ': 'Data Extension Folders',
+                '--de -a <search term>  ': 'Data Extension Assets',
             })
 
             displayLine('clone', 'success')
@@ -79,7 +83,9 @@ const initCLI = async (req: string, argv: any) => {
                 '--cb -f <asset id>     ': 'Content Builder Folder ID to Clone',
                 '--cb -a <asset id>     ': 'Content Builder Asset ID to Clone',
                 '--as -f <asset id>     ': 'Automation Folder ID to Clone',
-                '--as -a <asset id>     ': 'Automation Asset ID to Clone',
+                '--as -a <object id>    ': 'Automation Object ID to Clone',
+                '--de -f <asset id>     ': 'Data Extension Folder Id to Clone',
+                '--de -a <customer key> ': 'Data Extension Customer Key to Clone',
             })
 
             displayLine('add', 'success')
@@ -92,6 +98,21 @@ const initCLI = async (req: string, argv: any) => {
             displayLine('push', 'success')
             displayObject({
                 '                       ': 'Update or Create Assets/Folders in SFMC'
+            })
+
+            displayLine('package', 'success')
+            displayObject({
+                '                       ': 'Package cloned files'
+            })
+
+            displayLine('install', 'success')
+            displayObject({
+                '<github url>            ': 'Download package files from repository'
+            })
+
+            displayLine('deploy', 'success')
+            displayObject({
+                '                       ': 'Create local files and push to SFMC'
             })
         }
     } else {
