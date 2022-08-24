@@ -1,8 +1,8 @@
 {
     "name": "@basetime/bldr-sfmc",
-    "version": "1.4.3",
+    "version": "1.4.3-beta.3",
     "description": "CLI application for SFMC Development workflow and package deployment",
-    "main": "bin/index.js",
+    "main": "./dist/bin/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "format:check": "prettier --check .",
@@ -15,7 +15,7 @@
         "updateLink": "npm run clean && npm run build && npm rm @basetime/bldr-sfmc-ts -g && npm link @basetime/bldr-sfmc-sdk && npm link"
     },
     "bin": {
-        "ts": "./dist/bin/index.js"
+        "bldr": "./dist/bin/index.js"
     },
     "author": "Basetime.io",
     "repository": {
@@ -31,6 +31,7 @@
     ],
     "license": "BSD-3-Clause",
     "dependencies": {
+        "@basetime/bldr-sfmc-sdk": "^1.0.2",
         "@nodelib/fs.walk": "^1.2.8",
         "axios": "^0.26.0",
         "boxen": "^4.2.0",
@@ -61,7 +62,7 @@
         "@types/yargs-interactive": "^2.1.3",
         "eslint": "^8.12.0",
         "eslint-config-prettier": "^8.5.0",
-        "typescript": "4.7.4",
-        "prettier": "^2.6.2"
+        "prettier": "^2.6.2",
+        "typescript": "4.7.4"
     }
 }
