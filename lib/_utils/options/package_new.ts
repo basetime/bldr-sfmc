@@ -1,11 +1,5 @@
 
-module.exports.package_new = (manifestJSON: {
-    name?: string;
-    version?: string;
-    repository?: string;
-    description?: string;
-    tags?: string[];
-}) => {
+const package_new = (manifestJSON: any) => {
     return {
         interactive: { default: true },
         name: {
@@ -40,3 +34,7 @@ module.exports.package_new = (manifestJSON: {
         },
     };
 };
+
+export {
+    package_new
+}

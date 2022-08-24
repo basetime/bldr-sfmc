@@ -1,6 +1,6 @@
 import { getRootPath, fileExists } from '../../../_utils/fileSystem';
 import { readManifest, readBldrSfmcConfig } from '../../../_utils/bldrFileSystem/'
-import { package_new } from '../../../_utils/options';
+import { package_new } from '../../../_utils/options/package_new';
 // const packageReference = require('../packageReference');
 // const coreConfigurationOptions = require('../options');
 import { setContentBuilderPackageAssets } from '../../_processes/_contexts/contentBuilder/package'
