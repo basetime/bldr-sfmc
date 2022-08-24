@@ -11,7 +11,8 @@ import { ManifestAsset, ManifestFolder } from '../../../_types/ManifestAsset';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { setContentBuilderDefinition } from '../_contexts/contentBuilder/definitions';
 import { setAutomationStudioDefinition } from '../_contexts/automationStudio/definitions';
-const { getState, getCurrentInstance } = new State();
+
+const { getCurrentInstance, isVerbose } = new State();
 const { getStashArray, removeFromStashByBldrId } = new Stash();
 
 export class Push {
@@ -34,7 +35,7 @@ export class Push {
             const currentContext = availableContexts[context].context;
             const contextStash = instanceStash.filter((stashItem) => stashItem.bldr.context.context === currentContext)
 
-            displayLine(`Working on ${currentContext}`, 'progress');
+            isVerbose() && displayLine(`Working on ${currentContext}`, 'progress');
 
             const postStashFiles: StashItem[] | any[] =
                 contextStash
@@ -55,7 +56,8 @@ export class Push {
                     ) && stashItem)
                     .filter(Boolean) || [];
 
-            postStashFiles.length && putStashFiles.length
+
+            isVerbose() && postStashFiles.length && putStashFiles.length
                 ? displayLine(`Updating and Creating assets for ${instance}`, 'info')
                 : postStashFiles.length && !putStashFiles.length
                     ? displayLine(`Creating assets for ${instance}`, 'info')
@@ -106,7 +108,7 @@ export class Push {
                 putResults.success.forEach((result) => {
                     displayLine(result.name, 'success');
                 });
-            putResults &&
+            isVerbose() && putResults &&
                 putResults.success &&
                 putResults.success.length &&
                 displayLine(`>> ${putResults.success.length} Assets Updated`);
@@ -114,7 +116,7 @@ export class Push {
                 postResults.success &&
                 postResults.success.length &&
                 displayLine(`Successfully Created Assets`, 'info');
-            postResults &&
+            isVerbose() && postResults &&
                 postResults.success &&
                 postResults.success.length &&
                 postResults.success.forEach((result) => {
@@ -124,17 +126,17 @@ export class Push {
                 postResults.success &&
                 postResults.success.length &&
                 displayLine(`>> ${postResults.success.length} Assets Created`);
-            putResults &&
+            isVerbose() && putResults &&
                 putResults.errors &&
                 putResults.errors.length &&
                 displayLine(`Unsuccessfully Updated Assets`, 'info');
-            putResults &&
+            isVerbose() && putResults &&
                 putResults.errors &&
                 putResults.errors.length &&
                 putResults.errors.forEach((result) => {
                     displayLine(result.name, 'error');
                 });
-            putResults &&
+            isVerbose() && putResults &&
                 putResults.errors &&
                 putResults.errors.length &&
                 displayLine(`>> ${putResults.errors.length} Assets Errored`);
@@ -142,13 +144,13 @@ export class Push {
                 postResults.errors &&
                 postResults.errors.length &&
                 displayLine(`Unsuccessfully Created Assets`, 'info');
-            postResults &&
+            isVerbose() && postResults &&
                 postResults.errors &&
                 postResults.errors.length &&
                 postResults.errors.forEach((result) => {
                     displayLine(result.name, 'error');
                 });
-            postResults &&
+            isVerbose() && postResults &&
                 postResults.errors &&
                 postResults.errors.length &&
                 displayLine(`>> ${postResults.errors.length} Assets Errored`);
@@ -170,21 +172,23 @@ export class Push {
     ) => {
         try {
             const sdk = await initiateBldrSDK();
-            let stashFileOut: StashItem[] = stashFiles;
             const success = [];
             const errors = [];
+
 
             // Throw Error if SDK Fails to Load
             if (!sdk) {
                 displayLine('Unable to initiate BLDR SDK. Please review credentials and retry.', 'error');
                 return;
             }
-            for (const f in stashFiles) {
+
+            for (let f = 0; f < stashFiles.length; f++) {
                 let stashFileObject = stashFiles[f];
                 const bldrId = stashFileObject.bldr.bldrId;
                 const folderPath = stashFileObject.bldr && stashFileObject.bldr.folderPath;
                 const stashFileContext = stashFileObject.bldr && stashFileObject.bldr.context.context;
-                const method = stashFileObject.bldr.id ? 'put' : 'post';
+                const method = Object.prototype.hasOwnProperty.call(stashFileObject.bldr, 'id') ? 'put' : 'post';
+
                 let sfmcUpdateObject: any;
                 let assetResponse: any;
                 let sfmcAPIObject: any;
@@ -210,12 +214,11 @@ export class Push {
                                 sfmcAPIObject = stashFileObject?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject.fileContent)
                                 assetResponse = await sdk.sfmc.automation.patchAutomationAsset(sfmcAPIObject);
                             } else {
-                                console.log('as sfmcAPIObj post', sfmcUpdateObject)
                                 // sfmcAPIObject = stashFileObject?.post?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject.post)
                                 // assetResponse = await sdk.sfmc.automation.postAsset(sfmcAPIObject);
                             }
 
-                           if(
+                            if (
                                 Object.prototype.hasOwnProperty.call(assetResponse, 'key')
                             ) {
                                 const objectIdKey = sfmcUpdateObject.assetType.objectIdKey;
@@ -241,7 +244,6 @@ export class Push {
                             sfmcAPIObject = await setContentBuilderDefinition(sfmcUpdateObject, stashFileObject.fileContent);
 
                             if (method === 'put') {
-                                console.log('pre resp', sfmcAPIObject)
                                 assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
                             } else {
                                 assetResponse = await sdk.sfmc.asset.postAsset(sfmcAPIObject);
@@ -288,7 +290,6 @@ export class Push {
         try {
 
             let createdFolderCount = 0;
-
             const sdk = await initiateBldrSDK();
             const { context } = await getFilePathDetails(stashItemFolderPath);
             // Split path into array to check each individually
@@ -368,7 +369,8 @@ export class Push {
                                 (createFolder && createFolder.Results && createFolder.Results[0].NewID) || null;
 
                             if (newFolderId) {
-                                displayLine(`${folder} has been created; CategoryId: ${newFolderId}`, 'success');
+                                isVerbose() && displayLine(`${folder} has been created; CategoryId: ${newFolderId}`, 'success');
+                                !isVerbose() && displayLine(`${folder} has been created`, 'success')
 
                                 const createdFolderObject = {
                                     id: newFolderId,
@@ -392,7 +394,7 @@ export class Push {
                 }
             }
 
-            createdFolderCount > 0 && displayLine(`>> ${createdFolderCount} folders created`);
+            isVerbose() && createdFolderCount > 0 && displayLine(`>> ${createdFolderCount} folders created`);
             return createdFoldersOutput;
         } catch (err: any) {
             console.log(err);

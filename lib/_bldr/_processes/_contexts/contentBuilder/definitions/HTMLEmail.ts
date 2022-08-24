@@ -1,4 +1,5 @@
 const setHTMLEmail = async (sfmcUpdateObject: {
+    bldrId?: any;
     bldr: {
         bldrId: string;
     }
@@ -17,11 +18,10 @@ const setHTMLEmail = async (sfmcUpdateObject: {
     views?: any
 }, updatedContent: string) => {
     // Update Content
-
     let returnObject: {
         id?: number;
         customerKey?: string;
-        bldrId: string;
+        bldrId: any;
         name: string;
         assetType: {
             name: string;
@@ -36,7 +36,7 @@ const setHTMLEmail = async (sfmcUpdateObject: {
         data: any;
         views: any;
     } = {
-        bldrId: sfmcUpdateObject.bldr.bldrId ,
+        bldrId: sfmcUpdateObject.bldr.bldrId || sfmcUpdateObject.bldrId,
         name: sfmcUpdateObject.name,
         data: {
             email: {
@@ -51,7 +51,11 @@ const setHTMLEmail = async (sfmcUpdateObject: {
             parentId: sfmcUpdateObject.category.parentId,
             folderPath: sfmcUpdateObject.category.folderPath,
         },
-        views: sfmcUpdateObject.views,
+        views: {
+            html: {
+                content: updatedContent
+            }
+        },
         assetType: {
             name: 'htmlemail',
             id: 208,
@@ -59,15 +63,13 @@ const setHTMLEmail = async (sfmcUpdateObject: {
     };
 
 
-    // Append keys for update flow
-    if (sfmcUpdateObject.id) {
+    if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'id')) {
         returnObject.id = sfmcUpdateObject.id;
     }
 
-    if (sfmcUpdateObject.customerKey) {
+    if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'customerKey')) {
         returnObject.customerKey = sfmcUpdateObject.customerKey;
     }
-
 
     return returnObject
 };

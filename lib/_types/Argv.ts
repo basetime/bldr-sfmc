@@ -1,6 +1,9 @@
 import { string } from 'yargs';
 
 export interface Argv {
+    de: any;
+    'data-extension'?: Boolean;
+    verbose: Boolean;
     _?: string[];
     // Config
     n?: string;

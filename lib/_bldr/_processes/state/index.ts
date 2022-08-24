@@ -1,5 +1,5 @@
 import { state_conf } from '../../../_bldr_sdk/store';
-import { displayObject } from '../../../_utils/display';
+import { displayLine, displayObject } from '../../../_utils/display';
 import { assignObject } from '../../_utils';
 
 // const Config = require('./Config');
@@ -52,80 +52,24 @@ export class State {
         }
     };
 
-    // /**
-    //  *
-    //  * @param argv
-    //  */
-    // async set(argv: {
-    //     s?: string;
-    //     set?: string;
-    //     m?: string;
-    //     mid?: string
-    // }) {
-    //     try {
-    //         const instanceToSet = argv.s || argv.set;
-    //         const midToSet = argv.m || argv.mid;
 
-    //         if (typeof instanceToSet !== 'string')
-    //             throw new Error('Please provide an Instance Name to Set.');
+    toggleVerbose = () => {
+        const isVerbose = state_conf.get('isVerbose')
+        if (isVerbose !== 'undefined') {
+            isVerbose && displayLine('Verbose messaging turned off', 'info')
+            !isVerbose && displayLine('Verbose messaging turned on', 'info')
+            state_conf.set({
+                isVerbose: !isVerbose
+            });
+        } else {
+            state_conf.set({
+                isVerbose: false
+            });
+        }
+    }
 
-    //         const clientConfig = await configInit.get(instanceToSet);
+    isVerbose = () => {
+       return state_conf.get('isVerbose') || false
+    }
 
-    //         if (!clientConfig)
-    //             throw new Error(`${instanceToSet} is not Configured`);
-
-    //         if (
-    //             midToSet &&
-    //             !clientConfig.mids.find((bu) => bu.mid === midToSet)
-    //         )
-    //             throw new Error(`${midToSet} is not a Valid MID`);
-
-    //         const initState = {
-    //             instance: instanceToSet,
-    //             parentMID: clientConfig.parentMID,
-    //             activeMID: midToSet || clientConfig.parentMID,
-    //         };
-
-    //         this.stateConfiguration.set(initState);
-
-    //         const displayHeader = [new Column(`Configuration Set`, width.c3)];
-    //         const displayContent = [
-    //             [new Column(`${JSON.stringify(initState, null, 2)}`, width.c3)],
-    //         ];
-
-    //         display.render(displayHeader, displayContent);
-    //     } catch (err) {
-    //         const displayHeader = [
-    //             new Column(
-    //                 `${styles.error('Set Configuration Error')}`,
-    //                 width.c3
-    //             ),
-    //         ];
-
-    //         const displayContent = [[new Column(err.message, width.c3)]];
-
-    //         display.render(displayHeader, displayContent);
-    //     }
-    // }
-
-    // update(update) {
-    //     if (!update.key) {
-    //         throw new Error('Key required');
-    //     }
-    //     if (!update.value) {
-    //         throw new Error('Value required');
-    //     }
-
-    //     return this.stateConfiguration.set(update.key, update.value);
-    // }
-
-    // deleteKey(argv) {
-    //     return this.stateConfiguration.has(argv.d)
-    //         ? this.stateConfiguration.delete(argv.d)
-    //         : null;
-    // }
-
-    // clear() {
-    //     return this.stateConfiguration.clear();
-    // }
 }

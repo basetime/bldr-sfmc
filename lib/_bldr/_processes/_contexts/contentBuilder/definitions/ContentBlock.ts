@@ -1,4 +1,5 @@
 const SetContentBlock = async (sfmcUpdateObject: {
+    bldrId?: any;
     bldr: {
         bldrId: string;
     };
@@ -22,7 +23,7 @@ updatedContent: string) => {
     let returnObject: {
         id?: number;
         customerKey?: string;
-        bldrId: string;
+        bldrId: any;
         name: string;
         assetType: {
             name: string;
@@ -36,7 +37,7 @@ updatedContent: string) => {
         };
         content: string;
     } = {
-        bldrId: sfmcUpdateObject.bldr.bldrId,
+        bldrId: sfmcUpdateObject.bldr.bldrId || sfmcUpdateObject.bldrId,
         name: sfmcUpdateObject.name,
         assetType: sfmcUpdateObject.assetType,
         category: {
@@ -49,11 +50,11 @@ updatedContent: string) => {
     };
 
     //Append keys for update flow
-    if (sfmcUpdateObject.id) {
+    if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'id')) {
         returnObject.id = sfmcUpdateObject.id;
     }
 
-    if (sfmcUpdateObject.customerKey) {
+    if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'customerKey')) {
         returnObject.customerKey = sfmcUpdateObject.customerKey;
     }
 

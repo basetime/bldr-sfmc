@@ -1,137 +1,244 @@
-// import { getRootPath, fileExists } from '../../../_utils/fileSystem';
+import { getRootPath, fileExists } from '../../../_utils/fileSystem';
+import { readManifest, readBldrSfmcConfig } from '../../../_utils/bldrFileSystem/'
+import { package_new } from '../../../_utils/options/package_new';
+// const packageReference = require('../packageReference');
+// const coreConfigurationOptions = require('../options');
+import { setContentBuilderPackageAssets } from '../../_processes/_contexts/contentBuilder/package'
+import yargsInteractive from 'yargs-interactive';
+import { createFile } from '../../../_utils/fileSystem';
+import { create } from 'lodash';
+import { initiateBldrSDK } from '../../../_bldr_sdk';
+import { createEditableFilesBasedOnContext } from '../../../_utils/bldrFileSystem/_context/CreateFilesBasedOnContext';
+import { displayLine } from '../../../_utils/display';
+import { assignObject } from '../../_utils';
 
-// // const packageReference = require('../packageReference');
-// // const coreConfigurationOptions = require('../options');
+/**
+ */
+export class Package {
+    constructor() { }
 
-// const yargsInteractive = require('yargs-interactive');
+    packageConfig = async () => {
+        try {
+            const dirPath = await getRootPath();
+            if (!fileExists(`${dirPath}.local.manifest.json`)) {
+                throw new Error(
+                    'Please run [ bldr init ] or clone SFMC assets before running [ bldr package ]'
+                );
+            }
 
-// /**
-//  * Notes June 2
-//  * Left off replacing matchedValue references with the new bldr IDs
-//  * Need to work on ContentBlockByName
-//  * Plan out deploy flow
-//  */
-// export class Package {
-//   constructor(bldr, localFile, contextMap, store, stash, initiate) {
+            const manifestJSON = await readManifest();
 
-//   }
+            await yargsInteractive()
+                .usage('$0 <command> [args]')
+                .interactive(await package_new(manifestJSON))
+                .then(async (initResults: {
+                    name?: string;
+                    packageVersion?: string;
+                    repository?: string;
+                    description?: string;
+                    tags?: string;
+                }) => {
+                    try {
+                        const sdk = await initiateBldrSDK();
+                        let packageOut: {
+                            name?: string;
+                            version?: string;
+                            repository?: string;
+                            description?: string;
+                            tags?: string[];
+                            sfmcConfiguration?: any;
+                            contentBuilder?: any;
+                            dataExtension?: any;
+                            automationStudio?: any;
+                        } = {};
 
-//   async package() {
-//     try {
-//       const dirPath = await getRootPath();
-//       if (!fileExists(`${dirPath}.local.manifest.json`)) {
-//         throw new Error(
-//           'Please run [ bldr init ] or clone SFMC assets before running [ bldr package ]'
-//         );
-//       }
+                        packageOut.name = initResults.name;
+                        packageOut.version = initResults.packageVersion;
+                        packageOut.repository = initResults.repository;
+                        packageOut.description = initResults.description;
 
-//       const packageJSON = await this.localFile._getSFMCPackage();
+                        const tagsSplit = initResults.tags && initResults.tags.split(',') || [];
+                        const tagsArray = tagsSplit?.map((tag) => tag.trim()) || [];
+                        packageOut.tags = tagsArray;
 
-//       yargsInteractive()
-//         .usage('$bldr init [args]')
-//         .interactive(coreConfigurationOptions.pkg_init(packageJSON))
-//         .then(async (initResults) => {
-//           let packageOut = {};
-//           const sfmcConfig =
-//             (await this.getSFMCConfigSettings()) || null;
-//           packageOut.name = initResults.packageName;
-//           packageOut.version = initResults.packageVersion;
-//           packageOut.repositoryUrl = initResults.repositoryUrl;
-//           packageOut.description = initResults.packageDescription;
+                        const sfmcConfig = await readBldrSfmcConfig() || null;
 
-//           let tagsArray = initResults.packageTags.split(', ')
-//           tagsArray = tagsArray.map((tag) => tag.trim()) || [];
-//           packageOut.tags = tagsArray;
+                        if (sfmcConfig) {
+                            packageOut['sfmcConfiguration'] = sfmcConfig;
+                        }
 
-//           if (sfmcConfig) {
-//             packageOut['sfmcConfig'] = sfmcConfig;
-//           }
+                        const availableContexts = Object.keys(manifestJSON)
+                        availableContexts.shift()
 
-//           const manifestJSON =
-//             await this.stash._getManifestAssetData();
+                        for (const c in availableContexts) {
+                            const context = availableContexts[c];
+                            const contextAssets = manifestJSON[context]['assets']
+                            displayLine(`Gathering Dependencies for ${contextAssets.length} Assets`, 'info')
 
-//           const contexts = this.contextMap.map(
-//             (contextItem) => contextItem.context
-//           );
+                            switch (context) {
+                                case "contentBuilder":
+                                    await sdk.cli.contentBuilder.setContentBuilderPackageAssets(packageOut, contextAssets)
 
-//           for (const c in contexts) {
-//             const context = contexts[c];
+                                    const {
+                                        newDependencies
+                                    } = await sdk.cli.contentBuilder.setContentBuilderDependenciesFromPackage(packageOut)
+                                    const newContextKeys = Object.keys(newDependencies)
 
-//             if (
-//               Object.prototype.hasOwnProperty.call(
-//                 manifestJSON,
-//                 context
-//               )
-//             ) {
-//               const assets = manifestJSON[contexts[c]]['assets'];
+                                    displayLine(`Creating files for ${newContextKeys.join(', ')}`, 'info')
 
-//               packageOut[context] = {
-//                 assets: [],
-//               };
+                                    for (const k in newContextKeys) {
+                                        displayLine(`Working on ${newContextKeys[k]}`, 'progress')
+                                        let newAssets = newDependencies[newContextKeys[k]]['assets']
+                                        await createEditableFilesBasedOnContext(newContextKeys[k], newAssets)
+                                    }
 
-//               packageOut[context]['assets'] = assets.map(
-//                 (asset) => {
-//                   return {
-//                     bldrId: asset.bldrId,
-//                     name: asset.name,
-//                     assetType: asset.assetType,
-//                     category: {
-//                       folderPath:
-//                         (asset.category &&
-//                           asset.category
-//                             .folderPath) ||
-//                         asset.folderPath,
-//                     },
-//                     content: utils.getAssetContent(asset),
-//                   };
-//                 }
-//               );
+                                    break;
 
-//               const dependencyList =
-//                 await this.getAllAssetDependencies(
-//                   assets,
-//                   context
-//                 );
+                                    case "dataExtension":
+                                        // await sdk.cli.contentBuilder.setContentBuilderPackageAssets(packageOut, contextAssets)
 
-//               const dependencies = dependencyList.dependencies;
-//               packageOut[context]['assets'] =
-//                 dependencyList.assets;
+                                        // const {
+                                        //     newDependencies
+                                        // } = await sdk.cli.contentBuilder.setContentBuilderDependenciesFromPackage(packageOut)
+                                        // const newContextKeys = Object.keys(newDependencies)
 
-//               for (const d in dependencies) {
-//                 if (
-//                   !Object.prototype.hasOwnProperty.call(
-//                     packageOut,
-//                     d
-//                   )
-//                 ) {
-//                   packageOut[d] = {
-//                     assets: [],
-//                   };
-//                 }
+                                        // displayLine(`Creating files for ${newContextKeys.join(', ')}`, 'info')
 
-//                 packageOut[d] = {
-//                   assets: dependencies[d].map(
-//                     (dep) => dep.payload
-//                   ),
-//                 };
-//               }
-//             }
-//           }
+                                        // for (const k in newContextKeys) {
+                                        //     displayLine(`Working on ${newContextKeys[k]}`, 'progress')
+                                        //     let newAssets = newDependencies[newContextKeys[k]]['assets']
+                                        //     await createEditableFilesBasedOnContext(newContextKeys[k], newAssets)
+                                        // }
 
-//           const rootDir = await this.localFile._getRootPath(
-//             this.contextMap
-//           );
+                                        break;
+                            }
+                        }
 
-//           await this.localFile.createFile(
-//             `${rootDir}/.package.manifest.json`,
-//             JSON.stringify(packageOut, null, 2)
-//           );
+                        packageOut?.contentBuilder?.assets.forEach((asset: {
+                            id?: number;
+                            exists?: Boolean;
+                        }) => {
+                            delete asset.id
+                            delete asset.exists
+                        })
 
-//           await this.initiate.updateKeys();
-//         });
+                        await createFile('./.package.manifest.json', JSON.stringify(packageOut, null, 2))
+
+                    } catch (err) {
+                        console.log(err)
+                    }
+
+                })
+        } catch (err) {
+            console.log(err)
+        }
+    }
+}
+    //   yargsInteractive()
+    //     .usage('$bldr init [args]')
+    //     .interactive(coreConfigurationOptions.pkg_init(packageJSON))
+    //     .then(async (initResults) => {
+    //       let packageOut = {};
+    //       const sfmcConfig =
+    //         (await this.getSFMCConfigSettings()) || null;
+    //       packageOut.name = initResults.packageName;
+    //       packageOut.version = initResults.packageVersion;
+    //       packageOut.repositoryUrl = initResults.repositoryUrl;
+    //       packageOut.description = initResults.packageDescription;
+
+    //       let tagsArray = initResults.packageTags.split(', ')
+    //       tagsArray = tagsArray.map((tag) => tag.trim()) || [];
+    //       packageOut.tags = tagsArray;
+
+    //       if (sfmcConfig) {
+    //         packageOut['sfmcConfig'] = sfmcConfig;
+    //       }
+
+    //       const manifestJSON =
+    //         await this.stash._getManifestAssetData();
+
+    //       const contexts = this.contextMap.map(
+    //         (contextItem) => contextItem.context
+    //       );
+
+    //       for (const c in contexts) {
+    //         const context = contexts[c];
+
+    //         if (
+    //           Object.prototype.hasOwnProperty.call(
+    //             manifestJSON,
+    //             context
+    //           )
+    //         ) {
+    //           const assets = manifestJSON[contexts[c]]['assets'];
+
+    //           packageOut[context] = {
+    //             assets: [],
+    //           };
+
+    //           packageOut[context]['assets'] = assets.map(
+    //             (asset) => {
+    //               return {
+    //                 bldrId: asset.bldrId,
+    //                 name: asset.name,
+    //                 assetType: asset.assetType,
+    //                 category: {
+    //                   folderPath:
+    //                     (asset.category &&
+    //                       asset.category
+    //                         .folderPath) ||
+    //                     asset.folderPath,
+    //                 },
+    //                 content: utils.getAssetContent(asset),
+    //               };
+    //             }
+    //           );
+
+    //           const dependencyList =
+    //             await this.getAllAssetDependencies(
+    //               assets,
+    //               context
+    //             );
+
+    //           const dependencies = dependencyList.dependencies;
+    //           packageOut[context]['assets'] =
+    //             dependencyList.assets;
+
+    //           for (const d in dependencies) {
+    //             if (
+    //               !Object.prototype.hasOwnProperty.call(
+    //                 packageOut,
+    //                 d
+    //               )
+    //             ) {
+    //               packageOut[d] = {
+    //                 assets: [],
+    //               };
+    //             }
+
+    //             packageOut[d] = {
+    //               assets: dependencies[d].map(
+    //                 (dep) => dep.payload
+    //               ),
+    //             };
+    //           }
+    //         }
+    //       }
+
+    //       const rootDir = await this.localFile._getRootPath(
+    //         this.contextMap
+    //       );
+
+    //       await this.localFile.createFile(
+    //         `${rootDir}/.package.manifest.json`,
+    //         JSON.stringify(packageOut, null, 2)
+    //       );
+
+    //       await this.initiate.updateKeys();
+    //     });
 //     } catch (err) {
-//       console.log(err.message);
-//     }
+//     console.log(err);
+// }
 //   }
 
 //   async getSFMCConfigSettings() {
