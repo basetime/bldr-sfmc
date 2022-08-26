@@ -21,12 +21,13 @@ export interface Argv {
     clear?: Boolean;
     // Context
     cb?: Boolean;
+    'f:sql'?: string;
     'content-builder'?: Boolean;
     as?: Boolean;
     'automation-studio'?: Boolean;
     // Context Types
-    f?: Boolean;
-    a?: Boolean;
+    f?: Boolean | string;
+    a?: Boolean | string;
     sql?: Boolean;
     ssjs?: Boolean;
 }

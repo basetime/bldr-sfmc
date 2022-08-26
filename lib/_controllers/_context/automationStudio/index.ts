@@ -1,4 +1,5 @@
 import { SFMC_Content_Builder_Asset } from '@basetime/bldr-sfmc-sdk/lib/sfmc/types/objects/sfmc_content_builder_assets';
+import { MappingByActivityType } from '../../../_utils/bldrFileSystem/_context/automationStudio/automationActivities';
 import { Argv } from '../../../_types/Argv';
 import { initiateBldrSDK } from '../../../_bldr_sdk';
 import { displayLine, displayObject } from '../../../_utils/display';
@@ -8,7 +9,10 @@ import { SFMC_Automation } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_asse
 import { createAutomationStudioEditableFiles } from '../../../_utils/bldrFileSystem/_context/automationStudio/CreateLocalFiles';
 import { createContentBuilderEditableFiles } from '../../../_utils/bldrFileSystem/_context/contentBuilder/CreateLocalFiles';
 
+
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
+import { findPassword } from 'keytar-sync';
+import { update } from 'lodash';
 /**
  * Flag routing for Config command
  *
@@ -33,31 +37,79 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                  * Search for Content Builder Folders
                  */
                 if (argv.f) {
-                    const searchRequest = await automationStudio.searchFolders({
-                        contentType: 'automations',
-                        searchKey: 'Name',
-                        searchTerm: argv.f,
-                    });
+                    if (typeof argv.f === 'string' && argv.f.includes(':')) {
+                        const activity = argv.f.split(":")[1]
+                        const searchTerm = argv._ && argv._[1]
 
-                    displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj: any) => {
-                        displayObject(flatten(obj));
-                    });
+                        let contentType: string = ''
+                        switch (activity) {
+                            case 'ssjs':
+                                contentType = 'ssjsactivity'
+                                break;
+                            case 'sql':
+                                contentType = 'queryactivity'
+                                break;
+                            case 'esd':
+                                contentType = 'userinitiatedsends'
+                                break;
+                        }
+
+                        const searchRequest = await automationStudio.searchFolders({
+                            contentType,
+                            searchKey: 'Name',
+                            searchTerm: searchTerm,
+                        });
+
+                        displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
+                        searchRequest.forEach((obj: any) => {
+                            displayObject(flatten(obj));
+                        });
+
+                    } else {
+                        console.log(argv.f)
+                        const searchRequest = await automationStudio.searchFolders({
+                            contentType: 'automations',
+                            searchKey: 'Name',
+                            searchTerm: argv.f,
+                        });
+
+                        displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
+                        searchRequest.forEach((obj: any) => {
+                            displayObject(flatten(obj));
+                        });
+                    }
+
+
+
                 }
 
                 /**
                  * Search for Content Builder Assets
                  */
                 if (argv.a) {
-                    const searchRequest = await automationStudio.searchAssets({
-                        searchKey: 'Name',
-                        searchTerm: argv.a,
-                    });
+                    if (typeof argv.a === 'string' && argv.a.includes(':')) {
+                        const activity = argv.a.split(":")[1]
+                        const searchTerm = argv._ && argv._[1]
 
-                    displayLine(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj: any) => {
-                        displayObject(flatten(obj));
-                    });
+                        const searchRequest = await automationStudio.searchActivity(activity, searchTerm)
+                        searchRequest && searchRequest.length && searchRequest.forEach((item: {
+                            Name: string;
+                            queryDefinitionId: string;
+                            CategoryID: number,
+                            ModifiedDate: string;
+                        }[]) => displayObject(item))
+
+                    } else {
+                        const searchRequest = await automationStudio.searchAssets({
+                            searchKey: 'Name',
+                            searchTerm: argv.a,
+                        });
+
+                        displayLine(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
+                        searchRequest.forEach((obj: any) => {
+                            displayObject(flatten(obj));
+                        });
+                    }
                 }
                 break;
 
@@ -66,7 +118,59 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                 /**
                  * Search for Content Builder Folders
                  */
-                if (argv.f) {
+                if (typeof argv.f === 'string' && argv.f.includes(':')) {
+                    const activity = argv.f.split(":")[1]
+                    const categoryId = argv._ && argv._[1]
+
+                    let contentType: string = ''
+                    switch (activity) {
+                        case 'ssjs':
+                            contentType = 'ssjsactivity'
+                            break;
+                        case 'sql':
+                            contentType = 'queryactivity'
+                            break;
+                        case 'esd':
+                            contentType = 'userinitiatedsends'
+                            break;
+                    }
+
+                    const searchRequest = await automationStudio.gatherAutomationDefinitionsByCategoryId({
+                        contentType,
+                        categoryId
+                    })
+
+                    const { assets, folders } = searchRequest
+
+                    const formattedAssetResponse = await assets.map((asset: any) => {
+                        const category = folders.find((folder: { ID: number }) => folder.ID === asset.categoryId)
+                        asset.assetType = MappingByActivityType(contentType)
+                            asset.category = {
+                                id: category.ID,
+                                name: category.Name,
+                                parentId: category.ParentFolder.ID,
+                                folderPath: category.FolderPath
+                            }
+
+                        return asset
+                    })
+
+                    const formattedAssetCategories = folders.map((category: any) => {
+                        return {
+                            id: category.ID,
+                            name: category.Name,
+                            parentId: category.ParentFolder.ID,
+                            folderPath: category.FolderPath
+                        }
+                    })
+
+                    await createAutomationStudioEditableFiles(formattedAssetResponse)
+                    await updateManifest('automationStudio', {
+                        assets: formattedAssetResponse,
+                        folders: formattedAssetCategories
+                    })
+
+                } else {
                     const cloneAutomationRequest: {
                         formattedAssetResponse: any[];
                         formattedAutomationDefinitions: any[];

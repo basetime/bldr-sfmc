@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import yargs from 'yargs';
 import { stash_conf, state_conf } from '../lib/_bldr_sdk/store';
 import { version } from '../lib/_bldr_sdk/version';
@@ -69,12 +70,16 @@ const initCLI = async (req: string, argv: any) => {
             displayLine('search', 'success')
             displayLine('Search requires the use of context flags.', 'progress')
             displayObject({
-                '--cb -f <search term>  ': 'Content Builder Folders',
-                '--cb -a <search term>  ': 'Content Builder Assets',
-                '--as -f <search term>  ': 'Automation Folders',
-                '--as -a <search term>  ': 'Automation Assets',
-                '--de -f <search term>  ': 'Data Extension Folders',
-                '--de -a <search term>  ': 'Data Extension Assets',
+                '--cb -f <search term>      ': 'Content Builder Folders',
+                '--cb -a <search term>      ': 'Content Builder Assets',
+                '--as -f <search term>      ': 'Automation Folders',
+                '--as -a <search term>      ': 'Automation Assets',
+                '--as -f:sql  <search term> ': 'Automation Folders',
+                '--as -a:sql  <search term> ': 'Automation Assets',
+                '--as -f:ssjs <search term> ': 'Automation Folders',
+                '--as -a:ssjs <search term> ': 'Automation Assets',
+                '--de -f <search term>      ': 'Data Extension Folders',
+                '--de -a <search term>      ': 'Data Extension Assets',
             })
 
             displayLine('clone', 'success')
@@ -90,9 +95,9 @@ const initCLI = async (req: string, argv: any) => {
 
             displayLine('add', 'success')
             displayObject({
-                '.                      ': 'Add All Assets to the Stash to be Pushed into SFMC',
-                '<file path>            ': 'Add One or Multiple Assets to the Stash to be Pushed into SFMC',
-                '                       ': 'New Assets to be created will prompt for selection of asset type',
+                '.            ': 'Add All Assets to the Stash to be Pushed into SFMC',
+                '<file path>  ': 'Add One or Multiple Assets to the Stash to be Pushed into SFMC',
+                '             ': 'New Assets to be created will prompt for selection of asset type',
             })
 
             displayLine('push', 'success')

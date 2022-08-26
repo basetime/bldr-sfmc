@@ -1,10 +1,10 @@
-import { SFMC_Content_Builder_Asset } from '@basetime/bldr-sfmc-sdk/lib/sfmc/types/objects/sfmc_content_builder_assets';
+import { SFMC_Data_Extension_Asset } from '@basetime/bldr-sfmc-sdk/lib/sfmc/types/objects/sfmc_data_extension_assets';
 import { Argv } from '../../../_types/Argv';
 import { initiateBldrSDK } from '../../../_bldr_sdk';
 import { displayLine, displayObject } from '../../../_utils/display';
-import { uniqueArrayByKey } from '../../../_bldr/_utils';
+import { guid, uniqueArrayByKey } from '../../../_bldr/_utils';
 import flatten from 'flat';
-import { createContentBuilderEditableFiles } from '../../../_utils/bldrFileSystem/_context/contentBuilder/CreateLocalFiles';
+import { createEmailStudioEditableFiles } from '../../../_utils/bldrFileSystem/_context/dataExtension/CreateLocalFiles';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 /**
  * Flag routing for Config command
@@ -65,7 +65,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                  */
                 if (argv.f) {
                     const cloneRequest: {
-                        assets: SFMC_Content_Builder_Asset[],
+                        assets: SFMC_Data_Extension_Asset[],
                         folders: {
                             ID: number,
                             Name: string;
@@ -79,41 +79,40 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                     });
 
                     const { assets, folders } = cloneRequest
-
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
-                    assets && assets.length && (await createContentBuilderEditableFiles(assets));
+                    assets && assets.length && (await createEmailStudioEditableFiles(assets));
                     assets && folders && await updateManifest('dataExtension', {
                         assets: assets,
                         folders: isolatedFoldersUnique,
                     });
                 }
 
-                // /**
-                //  * Search for Content Builder Assets
-                //  */
-                // if (argv.a) {
-                //     const cloneRequest: {
-                //         assets: SFMC_Content_Builder_Asset[],
-                //         folders: {
-                //             ID: number,
-                //             Name: string;
-                //             ContentType: string;
-                //             ParentFolder: any,
-                //             FolderPath: string;
-                //         }[]
-                //     } = await contentBuilder.gatherAssetById(argv.a);
+                /**
+                 * Search for Content Builder Assets
+                 */
+                if (argv.a) {
+                    const cloneRequest: {
+                        assets: SFMC_Data_Extension_Asset[],
+                        folders: {
+                            ID: number,
+                            Name: string;
+                            ContentType: string;
+                            ParentFolder: any,
+                            FolderPath: string;
+                        }[]
+                    } = await emailStudio.gatherAssetById(argv.a);
 
+                    console.log(JSON.stringify(cloneRequest, null, 2))
+                     const { assets, folders } = cloneRequest
 
-                //      const { assets, folders } = cloneRequest
-
-                //     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
-                //     assets && assets.length && (await createContentBuilderEditableFiles(assets));
-                //     assets && folders && await updateManifest('contentBuilder', {
-                //         assets: assets,
-                //         folders: isolatedFoldersUnique,
-                //     });
-                // }
-                // break;
+                    const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
+                    assets && assets.length && (await createEmailStudioEditableFiles(assets));
+                    assets && folders && await updateManifest('dataExtension', {
+                        assets: assets,
+                        folders: isolatedFoldersUnique,
+                    });
+                }
+                break;
         }
 
         return;

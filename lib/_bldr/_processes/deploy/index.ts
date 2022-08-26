@@ -368,12 +368,6 @@ export class Deploy {
                     delete dataExtension.category;
                 }
 
-                dataExtension.fields = dataExtension.fields.map((field: any) => {
-                    return {
-                        field: field,
-                    };
-                });
-
                 const createDataExtension =
                     await sdk.sfmc.emailStudio.postAsset(
                         dataExtension

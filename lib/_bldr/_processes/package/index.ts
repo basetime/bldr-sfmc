@@ -1,5 +1,5 @@
 import { getRootPath, fileExists } from '../../../_utils/fileSystem';
-import { readManifest, readBldrSfmcConfig } from '../../../_utils/bldrFileSystem/'
+import { readManifest, readBldrSfmcConfig, readPackageManifest } from '../../../_utils/bldrFileSystem/'
 import { package_new } from '../../../_utils/options/package_new';
 // const packageReference = require('../packageReference');
 // const coreConfigurationOptions = require('../options');
@@ -10,7 +10,7 @@ import { create } from 'lodash';
 import { initiateBldrSDK } from '../../../_bldr_sdk';
 import { createEditableFilesBasedOnContext } from '../../../_utils/bldrFileSystem/_context/CreateFilesBasedOnContext';
 import { displayLine } from '../../../_utils/display';
-import { assignObject } from '../../_utils';
+import { assignObject, uniqueArrayByKey } from '../../_utils';
 
 /**
  */
@@ -27,10 +27,10 @@ export class Package {
             }
 
             const manifestJSON = await readManifest();
-
+            const existingPkg = await readPackageManifest()
             await yargsInteractive()
                 .usage('$0 <command> [args]')
-                .interactive(await package_new(manifestJSON))
+                .interactive(await package_new(existingPkg))
                 .then(async (initResults: {
                     name?: string;
                     packageVersion?: string;
@@ -95,21 +95,10 @@ export class Package {
                                     break;
 
                                     case "dataExtension":
-                                        // await sdk.cli.contentBuilder.setContentBuilderPackageAssets(packageOut, contextAssets)
-
-                                        // const {
-                                        //     newDependencies
-                                        // } = await sdk.cli.contentBuilder.setContentBuilderDependenciesFromPackage(packageOut)
-                                        // const newContextKeys = Object.keys(newDependencies)
-
-                                        // displayLine(`Creating files for ${newContextKeys.join(', ')}`, 'info')
-
-                                        // for (const k in newContextKeys) {
-                                        //     displayLine(`Working on ${newContextKeys[k]}`, 'progress')
-                                        //     let newAssets = newDependencies[newContextKeys[k]]['assets']
-                                        //     await createEditableFilesBasedOnContext(newContextKeys[k], newAssets)
-                                        // }
-
+                                        const dataExtensionPkgAssets = existingPkg ? await uniqueArrayByKey([...existingPkg.dataExtension.assets, ...contextAssets], 'customerKey') : contextAssets;
+                                        packageOut.dataExtension = {
+                                            assets: dataExtensionPkgAssets
+                                        }
                                         break;
                             }
                         }
@@ -120,6 +109,14 @@ export class Package {
                         }) => {
                             delete asset.id
                             delete asset.exists
+                        })
+
+                        packageOut?.dataExtension?.assets.forEach((asset: {
+                            category:{
+                                categoryId?: number
+                            }
+                        }) => {
+                            delete asset.category.categoryId
                         })
 
                         await createFile('./.package.manifest.json', JSON.stringify(packageOut, null, 2))
