@@ -12,6 +12,8 @@ import { displayLine } from "../../../_utils/display";
 import { ManifestFolder } from "../../../_types/ManifestAsset";
 import { setContentBuilderDefinition } from "../_contexts/contentBuilder/definitions";
 import { getFilePathDetails, uniqueArrayByKey } from "../../_utils";
+import { State } from '../state';
+const { isVerbose } = new State();
 
 const add = new Add()
 const push = new Push()
@@ -62,11 +64,13 @@ export class Deploy {
 
                     pkgFolderPaths = [...new Set(pkgFolderPaths)]
 
+                    displayLine(`Creating ${context} Local Files`, 'progress')
                     await createEditableFilesBasedOnContext(context, pkgAssets)
 
+                    displayLine(`Creating ${context} folders in sfmc`, 'progress')
                     for (const fp in pkgFolderPaths) {
-                        displayLine(`Creating ${context} folders in sfmc`, 'progress')
-                        await addNewFolders(pkgFolderPaths[fp])
+                        isVerbose() && displayLine(`Creating ${pkgFolderPaths} folders in sfmc`, 'progress')
+                        await addNewFolders(pkgFolderPaths)
                     }
                 }
             }
@@ -235,6 +239,7 @@ export class Deploy {
         if (createAsset.status === 'ERROR') {
             console.log(createAsset.statusText);
         } else {
+            displayLine(`created [sfmc]: ${contentBuilderAsset.name}`, 'success')
             updatedAsset.id = createAsset.id;
             updatedAsset.assetType = createAsset.assetType;
             updatedAsset.category = createAsset.category;
