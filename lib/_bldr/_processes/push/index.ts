@@ -13,7 +13,7 @@ import { setContentBuilderDefinition } from '../_contexts/contentBuilder/definit
 import { setAutomationStudioDefinition } from '../_contexts/automationStudio/definitions';
 
 const { getCurrentInstance, isVerbose } = new State();
-const { getStashArray, removeFromStashByBldrId } = new Stash();
+const { getStashArray, removeFromStashByBldrId, clearStash } = new Stash();
 
 export class Push {
     constructor() { }
@@ -189,6 +189,8 @@ export class Push {
                 const stashFileContext = stashFileObject.bldr && stashFileObject.bldr.context.context;
                 const method = Object.prototype.hasOwnProperty.call(stashFileObject.bldr, 'id') ? 'put' : 'post';
 
+                const manifestJSON = await readManifest();
+
                 let sfmcUpdateObject: any;
                 let assetResponse: any;
                 let sfmcAPIObject: any;
@@ -231,6 +233,16 @@ export class Push {
                             break;
                         case 'contentBuilder':
                             const createdFolders = await this.addNewFolders(folderPath);
+                            const manifestContextFolders: ManifestFolder[] = manifestJSON['contentBuilder'] && manifestJSON['contentBuilder']['folders']
+
+                            if (typeof createdFolders === 'string' && createdFolders.includes("Please select a different Name.")) {
+                                await displayLine(createdFolders, 'error');
+                                await displayLine('Clearing out the stash files', 'progress');
+                                await clearStash();
+                                await displayLine(`Please rename the folder and update the stash with [bldr add .]`, 'info');
+                                return
+                            }
+
                             // Get Category Data
                             sfmcUpdateObject.category =
                                 (createdFolders &&
@@ -274,8 +286,7 @@ export class Push {
                 errors,
             };
         } catch (err: any) {
-            console.log(err);
-            displayObject(err);
+            console.log(err)
         }
     };
 
@@ -288,7 +299,6 @@ export class Push {
      */
     addNewFolders = async (stashItemFolderPath: string) => {
         try {
-
             let createdFolderCount = 0;
             const sdk = await initiateBldrSDK();
             const { context } = await getFilePathDetails(stashItemFolderPath);
@@ -349,6 +359,16 @@ export class Push {
                         }
 
                         parentId = parentFolderResponse.Results[0].ID;
+
+                        const parentFolderObject = {
+                            id: parentId,
+                            name: context.name,
+                            parentId: parentFolderResponse.Results[0].ParentFolder.ID,
+                            folderPath: context.name,
+                        };
+
+                        await updateManifest(context.context, { folders: [parentFolderObject] });
+
                     }
 
                     // Create folder via SFMC API
@@ -358,8 +378,8 @@ export class Push {
                         parentId,
                     });
 
-                    if (createFolder.StatusCode === 'Error') {
-                        throw new Error(createFolder.StatusMessage);
+                    if (typeof createFolder === 'string' && createFolder.includes("Please select a different Name.")) {
+                        throw new Error(createFolder);
                     } else {
                         // Wait for response from folder creation and add object to manifestFolder array
                         // Folder permissions my not allow child folders, so when exception is thrown create will retry
@@ -397,8 +417,7 @@ export class Push {
             isVerbose() && createdFolderCount > 0 && displayLine(`>> ${createdFolderCount} folders created`);
             return createdFoldersOutput;
         } catch (err: any) {
-            console.log(err);
-            console.log(err.message);
+            return err.message
         }
     };
 
