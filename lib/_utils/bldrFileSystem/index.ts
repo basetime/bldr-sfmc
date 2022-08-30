@@ -61,7 +61,7 @@ const scrubBldrSfmcConfig = async (content: string) => {
         for (const c in config) {
             const key = c;
             const value = config[c];
-            if (content.match(value)) {
+            if (value !=="" && content.match(value)) {
                 content = content.replace(value, `{{${key}}}`);
             }
         }
@@ -78,9 +78,8 @@ const replaceBldrSfmcConfig = async (content: string) => {
         for (const c in config) {
             const key = c;
             const value = config[c];
-
             if (content.match(key)) {
-                content = content.replace(`{{${key}}}`, value);
+                content = value && value !== "" && content.replace(`{{${key}}}`, value) || content;
             }
         }
     }

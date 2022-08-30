@@ -247,7 +247,7 @@ export class Add {
                             postFileOptions[bldrId] = {
                                 type: 'list',
                                 describe: `What type of asset is ${folderPath}/${fileName}`,
-                                choices: ['htmlemail', 'codesnippetblock', 'htmlblock', 'dataextension'],
+                                choices: ['htmlemail', 'codesnippetblock', 'htmlblock'],
                                 prompt: 'always',
                             };
 
