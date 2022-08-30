@@ -51,9 +51,28 @@ const createAPIConfig = async (config = null, template = true) => {
 };
 
 
+
+const scrubBldrSfmcConfig = async (content: string) => {
+    const dirPath = await getRootPath();
+
+    if (fileExists(`${dirPath}.sfmc.config.json`)) {
+        const config = await readBldrSfmcConfig();
+
+        for (const c in config) {
+            const key = c;
+            const value = config[c];
+            if (content.match(value)) {
+                content = content.replace(value, `{{${key}}}`);
+            }
+        }
+    }
+
+    return content;
+};
+
 const replaceBldrSfmcConfig = async (content: string) => {
     const dirPath = await getRootPath();
-    if (fileExists(`${dirPath}/.sfmc.config.json`)) {
+    if (fileExists(`${dirPath}.sfmc.config.json`)) {
         const config = await readBldrSfmcConfig();
 
         for (const c in config) {
@@ -115,6 +134,7 @@ const createDirectory = async (dir: string) => {
 export {
     readBldrSfmcConfig,
     replaceBldrSfmcConfig,
+    scrubBldrSfmcConfig,
     createAPIConfig,
     readManifest,
     readPackageManifest,

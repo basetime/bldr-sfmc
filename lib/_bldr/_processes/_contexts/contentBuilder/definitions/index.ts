@@ -1,5 +1,6 @@
 import { setHTMLEmail } from './HTMLEmail';
 import { SetContentBlock } from './ContentBlock';
+import { replaceBldrSfmcConfig } from '../../../../../_utils/bldrFileSystem';
 
 const setContentBuilderDefinition = async (sfmcUpdateObject: {
     bldrId?:string;
@@ -25,6 +26,7 @@ const setContentBuilderDefinition = async (sfmcUpdateObject: {
 updatedContent: string
 ) => {
     let assetOutput;
+    updatedContent = await replaceBldrSfmcConfig(updatedContent)
     switch (sfmcUpdateObject.assetType.name) {
         case 'htmlemail':
             assetOutput = updatedContent && await setHTMLEmail(sfmcUpdateObject, updatedContent);
