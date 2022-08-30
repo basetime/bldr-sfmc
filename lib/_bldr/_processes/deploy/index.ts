@@ -392,7 +392,7 @@ export class Deploy {
 
             return output
         } catch (err: any) {
-            console.log(err.message);
+            console.log(err);
         }
     }
 
