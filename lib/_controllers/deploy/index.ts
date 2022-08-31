@@ -9,6 +9,6 @@ const {deployPackage} = new Deploy();
  * @param {object} argv
  * @param {object} blueprint
  */
-export async function DeploySwitch() {
-    return deployPackage()
+export async function DeploySwitch(argv: Argv) {
+    return deployPackage(argv)
 }

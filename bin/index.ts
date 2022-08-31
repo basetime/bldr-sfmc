@@ -117,6 +117,7 @@ const initCLI = async (req: string, argv: any) => {
 
             displayLine('deploy', 'success')
             displayObject({
+                '--sfmc-only            ': 'Create files in SFMC only',
                 '                       ': 'Create local files and push to SFMC'
             })
         }
@@ -172,7 +173,7 @@ const initCLI = async (req: string, argv: any) => {
                 break;
 
             case 'deploy':
-               DeploySwitch();
+               DeploySwitch(argv);
                 break;
 
             // case 'patch':

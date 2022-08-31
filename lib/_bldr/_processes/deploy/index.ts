@@ -13,7 +13,9 @@ import { ManifestFolder } from "../../../_types/ManifestAsset";
 import { setContentBuilderDefinition } from "../_contexts/contentBuilder/definitions";
 import { getFilePathDetails, uniqueArrayByKey } from "../../_utils";
 import { State } from '../state';
+import { Argv } from "../../../_types/Argv";
 const { isVerbose } = new State();
+import fs from 'fs';
 
 const add = new Add()
 const push = new Push()
@@ -34,13 +36,18 @@ export class Deploy {
 
     constructor() { }
 
-    deployPackage = async () => {
+    deployPackage = async (argv: Argv) => {
         try {
             const packageJSON = await readPackageManifest();
             const availableContexts: string[] = sfmcContext.sfmc_context_mapping.map((ctx) => ctx.context);
             const packageContexts = Object.keys(packageJSON).map(key => {
                 return availableContexts.includes(key) && typeof key === 'string' && key
             })
+
+            let sfmcOnly = false;
+            if(argv['sfmc-only']){
+                sfmcOnly = true;
+            }
 
             if (await this.deployCheckConfig()) {
                 return;
@@ -64,8 +71,8 @@ export class Deploy {
 
                     pkgFolderPaths = [...new Set(pkgFolderPaths)]
 
-                    displayLine(`Creating ${context} Local Files`, 'progress')
-                    await createEditableFilesBasedOnContext(context, pkgAssets)
+                    !sfmcOnly && displayLine(`Creating ${context} Local Files`, 'progress')
+                    !sfmcOnly &&  await createEditableFilesBasedOnContext(context, pkgAssets)
 
                     displayLine(`Creating ${context} folders in sfmc`, 'progress')
                     for (const fp in pkgFolderPaths) {
@@ -81,6 +88,8 @@ export class Deploy {
             const sdk = await initiateBldrSDK()
             sdk && package_dataExtension && await this.deployDataExtension(sdk, package_dataExtension)
             sdk && package_contentBuilder && await this.deployContentBuilderAssets(sdk, package_contentBuilder)
+
+            sfmcOnly && fs.unlinkSync('./.local.manifest.json')
 
         } catch (err) {
             console.log(err);
