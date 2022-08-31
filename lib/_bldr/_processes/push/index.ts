@@ -83,7 +83,6 @@ export class Push {
                 postStashFiles.length &&
                 (await this.pushToSFMC(postStashFiles, manifestContextAssets, manifestContextFolders));
 
-                console.log(putResults)
             // Update manifest file with updated content/new file json
             putResults &&
                 putResults.success &&
