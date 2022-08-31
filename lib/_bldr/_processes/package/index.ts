@@ -26,7 +26,7 @@ export class Package {
                 );
             }
 
-            const manifestJSON = await readManifest();
+            let manifestJSON = await readManifest();
             const existingPkg = await readPackageManifest()
             await yargsInteractive()
                 .usage('$0 <command> [args]')
@@ -72,11 +72,12 @@ export class Package {
 
                         for (const c in availableContexts) {
                             const context = availableContexts[c];
+                            manifestJSON = await readManifest();
                             const contextAssets = manifestJSON[context]['assets']
-                            displayLine(`Gathering Dependencies for ${contextAssets.length} Assets`, 'info')
 
                             switch (context) {
                                 case "contentBuilder":
+                                    displayLine(`Gathering Dependencies for ${contextAssets.length} Assets`, 'info')
                                     await sdk.cli.contentBuilder.setContentBuilderPackageAssets(packageOut, contextAssets)
 
                                     const {
@@ -94,12 +95,19 @@ export class Package {
 
                                     break;
 
-                                    case "dataExtension":
-                                        const dataExtensionPkgAssets = existingPkg ? await uniqueArrayByKey([...existingPkg.dataExtension.assets, ...contextAssets], 'customerKey') : contextAssets;
-                                        packageOut.dataExtension = {
-                                            assets: dataExtensionPkgAssets
-                                        }
-                                        break;
+                                case "dataExtension":
+                                    const dataExtensionPkgAssets = existingPkg && existingPkg[context] && existingPkg[context]['assets'] ? await uniqueArrayByKey([...existingPkg.dataExtension.assets, ...contextAssets], 'customerKey') : contextAssets;
+
+                                    dataExtensionPkgAssets && dataExtensionPkgAssets.forEach((de: {
+                                        customerKey?: string;
+                                    }) => {
+                                        delete de.customerKey
+                                    })
+
+                                    packageOut.dataExtension = {
+                                        assets: dataExtensionPkgAssets
+                                    }
+                                    break;
                             }
                         }
 
@@ -112,7 +120,7 @@ export class Package {
                         })
 
                         packageOut?.dataExtension?.assets.forEach((asset: {
-                            category:{
+                            category: {
                                 categoryId?: number
                             }
                         }) => {
