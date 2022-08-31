@@ -131,13 +131,16 @@ const updateManifest = async (
 
                         } else if (context === 'dataExtension') {
                             itemId = updateItem.customerKey;
-                            updateIndex= manifestContextItems.findIndex(({customerKey}) => customerKey === updateItem.customerKey);
+                            updateIndex = manifestContextItems.findIndex(({customerKey}) => customerKey === updateItem.customerKey);
                         }
 
-                        updateIndex ? manifestContextItems[updateIndex] = updateItem : null;
+                        if(typeof updateIndex !== 'undefined'){
+                            manifestContextItems[updateIndex] = updateItem;
+                        }
 
                     }
                 }
+
                 manifestJSON[context][assetType] = manifestContextItems;
             }
         } else {
