@@ -49,6 +49,11 @@ export class Deploy {
                 sfmcOnly = true;
             }
 
+            let localOnly = false;
+            if(argv['local-only']){
+                localOnly = true;
+            }
+
             if (await this.deployCheckConfig()) {
                 return;
             }
@@ -72,11 +77,11 @@ export class Deploy {
                     pkgFolderPaths = [...new Set(pkgFolderPaths)]
 
                     !sfmcOnly && displayLine(`Creating ${context} Local Files`, 'progress')
-                    !sfmcOnly &&  await createEditableFilesBasedOnContext(context, pkgAssets)
+                    !sfmcOnly && await createEditableFilesBasedOnContext(context, pkgAssets)
 
                     displayLine(`Creating ${context} folders in sfmc`, 'progress')
                     for (const fp in pkgFolderPaths) {
-                        await addNewFolders(pkgFolderPaths[fp])
+                        !localOnly && await addNewFolders(pkgFolderPaths[fp])
                     }
                 }
             }
@@ -85,9 +90,9 @@ export class Deploy {
             const package_contentBuilder = packageContexts.includes('contentBuilder') && packageJSON['contentBuilder']['assets']
             const package_automationStudio = packageContexts.includes('automationStudio') && packageJSON['automationStudio']['assets']
 
-            const sdk = await initiateBldrSDK()
-            sdk && package_dataExtension && await this.deployDataExtension(sdk, package_dataExtension)
-            sdk && package_contentBuilder && await this.deployContentBuilderAssets(sdk, package_contentBuilder)
+            const sdk = !localOnly && await initiateBldrSDK()
+            !localOnly && sdk && package_dataExtension && await this.deployDataExtension(sdk, package_dataExtension)
+            !localOnly && sdk && package_contentBuilder && await this.deployContentBuilderAssets(sdk, package_contentBuilder)
 
             sfmcOnly && fs.unlinkSync('./.local.manifest.json')
 

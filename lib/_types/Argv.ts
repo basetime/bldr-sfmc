@@ -30,5 +30,6 @@ export interface Argv {
     a?: Boolean | string;
     sql?: Boolean;
     ssjs?: Boolean;
-    'sfmc-only'?: Boolean
+    'sfmc-only'?: Boolean;
+    'local-only'?: Boolean;
 }

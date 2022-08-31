@@ -118,6 +118,7 @@ const initCLI = async (req: string, argv: any) => {
             displayLine('deploy', 'success')
             displayObject({
                 '--sfmc-only            ': 'Create files in SFMC only',
+                '--local-only           ': 'Create files in locally only',
                 '                       ': 'Create local files and push to SFMC'
             })
         }
