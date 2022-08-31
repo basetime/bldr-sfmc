@@ -69,8 +69,7 @@ export class Deploy {
 
                     displayLine(`Creating ${context} folders in sfmc`, 'progress')
                     for (const fp in pkgFolderPaths) {
-                        isVerbose() && displayLine(`Creating ${pkgFolderPaths} folders in sfmc`, 'progress')
-                        await addNewFolders(pkgFolderPaths)
+                        await addNewFolders(pkgFolderPaths[fp])
                     }
                 }
             }
@@ -386,13 +385,18 @@ export class Deploy {
                     displayLine(`Created [sfmc]: ${dataExtension.name}`, 'success')
                     output.push(dataExtension)
                 } else {
-                    displayLine(createDataExtension.OverallStatus, 'error')
+                    console.log('response', createDataExtension)
                 }
             }
 
             return output
         } catch (err: any) {
-            console.log(err);
+            const statusMessage = err && err.JSON && err.JSON.Results && err.JSON.Results.length && err.JSON.Results[0].StatusMessage
+            displayLine(statusMessage, 'error')
+            statusMessage
+            && statusMessage.includes('Updating an existing Data Extension definition')
+            && displayLine("Please ensure all Data Extension names/customer keys are unique", 'error')
+
         }
     }
 
