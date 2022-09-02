@@ -8,7 +8,7 @@ import fs from 'fs';
 
 import { fileExists, getRootPath } from '../fileSystem';
 import { displayLine } from '../display';
-import { scrubBldrSfmcConfig } from '.';
+import { scrubBldrSfmcEnv } from '.';
 
 const { updateFilesFromConfiguration } = new User_BLDR_Config();
 
@@ -155,7 +155,7 @@ const updateManifest = async (
     }
 
     let manifestStr = JSON.stringify(manifestJSON);
-    manifestStr = await scrubBldrSfmcConfig(manifestStr)
+    manifestStr = await scrubBldrSfmcEnv(manifestStr)
     let updatedManifest = JSON.parse(manifestStr);
 
     await fs.writeFileSync(manifestPath, JSON.stringify(updatedManifest, null, 2));

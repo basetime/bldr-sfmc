@@ -8,15 +8,15 @@ const fsPromises = require('fs').promises;
  *
  * @returns
  */
-const readBldrSfmcConfig = async () => {
+const readBldrSfmcEnv = async () => {
     const rootPath = await getRootPath();
-    if (fileExists(`${rootPath}.sfmc.config.json`)) {
-        const config = fs.readFileSync(`${rootPath}.sfmc.config.json`);
+    if (fileExists(`${rootPath}.sfmc.env.json`)) {
+        const config = fs.readFileSync(`${rootPath}.sfmc.env.json`);
         return JSON.parse(config.toString());
     }
 };
 
-const createAPIConfig = async (config = null, template = true) => {
+const createEnv = async (config = null, template = true) => {
     const configTemplate = config || {
         client_id: '',
         client_secret: '',
@@ -26,13 +26,13 @@ const createAPIConfig = async (config = null, template = true) => {
 
     const dirPath = await getRootPath();
     await createFile(
-        `${dirPath}.sfmc.config.json`,
+        `${dirPath}.sfmc.env.json`,
         JSON.stringify(configTemplate, null, 2)
     );
 
     if (template) {
         await createFile(
-            `${dirPath}template.sfmc.config.json`,
+            `${dirPath}template.sfmc.env.json`,
             JSON.stringify(configTemplate, null, 2)
         );
     }
@@ -40,23 +40,23 @@ const createAPIConfig = async (config = null, template = true) => {
     if (fileExists(`${dirPath}.gitignore`)) {
         await appendFile(
             `${dirPath}.gitignore`,
-            `\n#sfmc config \n.sfmc.config.json`
+            `\n#sfmc env \n.sfmc.env.json`
         );
     } else {
         await createFile(
             `${dirPath}.gitignore`,
-            `\n#sfmc config \n.sfmc.config.json`
+            `\n#sfmc env \n.sfmc.env.json`
         );
     }
 };
 
 
 
-const scrubBldrSfmcConfig = async (content: string) => {
+const scrubBldrSfmcEnv = async (content: string) => {
     const dirPath = await getRootPath();
 
-    if (fileExists(`${dirPath}.sfmc.config.json`)) {
-        const config = await readBldrSfmcConfig();
+    if (fileExists(`${dirPath}.sfmc.env.json`)) {
+        const config = await readBldrSfmcEnv();
 
         for (const c in config) {
             const key = c;
@@ -70,10 +70,10 @@ const scrubBldrSfmcConfig = async (content: string) => {
     return content;
 };
 
-const replaceBldrSfmcConfig = async (content: string) => {
+const replaceBldrSfmcEnv = async (content: string) => {
     const dirPath = await getRootPath();
-    if (fileExists(`${dirPath}.sfmc.config.json`)) {
-        const config = await readBldrSfmcConfig();
+    if (fileExists(`${dirPath}.sfmc.env.json`)) {
+        const config = await readBldrSfmcEnv();
 
         for (const c in config) {
             const key = c;
@@ -131,10 +131,10 @@ const createDirectory = async (dir: string) => {
 }
 
 export {
-    readBldrSfmcConfig,
-    replaceBldrSfmcConfig,
-    scrubBldrSfmcConfig,
-    createAPIConfig,
+    readBldrSfmcEnv,
+    replaceBldrSfmcEnv,
+    scrubBldrSfmcEnv,
+    createEnv,
     readManifest,
     readPackageManifest,
     createAllDirectories,

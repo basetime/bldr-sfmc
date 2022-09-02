@@ -62,9 +62,9 @@ const initCLI = async (req: string, argv: any) => {
 
             displayLine('init', 'success')
             displayObject({
-                '--cb                   ': 'Initiate Content Builder Project',
-                '--config-only          ': 'Setup Variable Configurations for Project',
-                '--update-config-keys   ': 'Update .sfmc.config.json keys found in content'
+                '--cb                ': 'Initiate Content Builder Project',
+                '--env-only          ': 'Setup Environment Variables for Project',
+                '--update-env-keys   ': 'Update .sfmc.env.json keys found in content'
             })
 
             displayLine('search', 'success')
@@ -74,10 +74,10 @@ const initCLI = async (req: string, argv: any) => {
                 '--cb -a <search term>      ': 'Content Builder Assets',
                 '--as -f <search term>      ': 'Automation Folders',
                 '--as -a <search term>      ': 'Automation Assets',
-                '--as -f:sql  <search term> ': 'Automation Folders',
-                '--as -a:sql  <search term> ': 'Automation Assets',
-                '--as -f:ssjs <search term> ': 'Automation Folders',
-                '--as -a:ssjs <search term> ': 'Automation Assets',
+                '--as -f:sql  <search term> ': 'SQL Activity Folders',
+                '--as -a:sql  <search term> ': 'SQL Activity Assets',
+                '--as -f:ssjs <search term> ': 'SSJS Activity Folders',
+                '--as -a:ssjs <search term> ': 'SSJS Activity Assets',
                 '--de -f <search term>      ': 'Data Extension Folders',
                 '--de -a <search term>      ': 'Data Extension Assets',
             })
@@ -85,12 +85,16 @@ const initCLI = async (req: string, argv: any) => {
             displayLine('clone', 'success')
             displayLine('Clone requires the use of context flags.', 'progress')
             displayObject({
-                '--cb -f <asset id>     ': 'Content Builder Folder ID to Clone',
-                '--cb -a <asset id>     ': 'Content Builder Asset ID to Clone',
-                '--as -f <asset id>     ': 'Automation Folder ID to Clone',
-                '--as -a <object id>    ': 'Automation Object ID to Clone',
-                '--de -f <asset id>     ': 'Data Extension Folder Id to Clone',
-                '--de -a <customer key> ': 'Data Extension Customer Key to Clone',
+                '--cb -f <folder id>            ': 'Content Builder Folder ID to Clone',
+                '--cb -a <asset id>             ': 'Content Builder Asset ID to Clone',
+                '--as -f <folder id>            ': 'Automation Folder ID to Clone',
+                '--as -a <object id>            ': 'Automation Object ID to Clone',
+                '--as -f:sql  <folder id>       ': 'SQL Activity Folders',
+                '--as -a:sql  <definition id>   ': 'SQL Activity Assets',
+                '--as -f:ssjs <folder id>       ': 'SSJS Activity Folders',
+                '--as -a:ssjs <definition id>   ': 'SSJS Activity Assets',
+                '--de -f <folder id>            ': 'Data Extension Folder Id to Clone',
+                '--de -a <customer key>         ': 'Data Extension Customer Key to Clone',
             })
 
             displayLine('add', 'success')

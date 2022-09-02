@@ -1,7 +1,7 @@
 
 import { Argv } from "../../../_types/Argv";
 import { createFile, fileExists } from "../../../_utils/fileSystem";
-import { createAPIConfig } from "../../../_utils/bldrFileSystem";
+import { createEnv } from "../../../_utils/bldrFileSystem";
 import axios from 'axios';
 
 /**
@@ -32,7 +32,7 @@ export class Install {
             if (
                 Object.prototype.hasOwnProperty.call(pkgData.package, 'sfmcConfig')
             ) {
-                await createAPIConfig(pkgData.package.sfmcConfig, true);
+                await createEnv(pkgData.package.sfmcConfig, true);
             }
 
             if (

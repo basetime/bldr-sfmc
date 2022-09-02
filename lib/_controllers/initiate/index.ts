@@ -1,4 +1,5 @@
 import {Initiate} from '../../_bldr/_processes/initiate'
+import { Argv } from '../../_types/Argv';
 const initiate = new Initiate();
 /**
  * Flag routing for init command
@@ -7,13 +8,13 @@ const initiate = new Initiate();
  * @param {object} argv
  * @param {object} blueprint
  */
-export async function InitSwitch(argv: any) {
-    if (argv['update-config-keys']) {
+export async function InitSwitch(argv: Argv) {
+    if (argv['update-env-keys']) {
         return initiate.updateKeys();
     }
 
-    if (argv['config-only']) {
-        return initiate.configOnly();
+    if (argv['env-only']) {
+        return initiate.envOnly();
     }
 
     if (argv.cb) {

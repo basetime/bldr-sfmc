@@ -7,7 +7,7 @@ module.exports = {
     },
     createConfig: {
         type: 'confirm',
-        describe: 'Does your project need a configuration?',
+        describe: 'Does your project need environment variables?',
         prompt: 'always',
     },
 };

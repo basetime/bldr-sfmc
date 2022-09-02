@@ -1,4 +1,4 @@
-import { readBldrSfmcConfig, readPackageManifest, replaceBldrSfmcConfig } from "../../../_utils/bldrFileSystem";
+import { readBldrSfmcEnv, readPackageManifest, replaceBldrSfmcEnv } from "../../../_utils/bldrFileSystem";
 import { fileExists, getRootPath } from "../../../_utils/fileSystem";
 import { createEditableFilesBasedOnContext } from "../../../_utils/bldrFileSystem/_context/CreateFilesBasedOnContext";
 import { updateManifest } from "../../../_utils/bldrFileSystem/manifestJSON";
@@ -106,14 +106,14 @@ export class Deploy {
         let preventDeployment = false;
 
         const dirPath = await getRootPath();
-        if (fileExists(`${dirPath}/.sfmc.config.json`)) {
-            const config = await readBldrSfmcConfig();
+        if (fileExists(`${dirPath}/.sfmc.env.json`)) {
+            const config = await readBldrSfmcEnv();
             for (const c in config) {
                 const key = c;
                 const value = config[c];
 
                 if (value === '') {
-                    console.log(`Please configure ${key} in .sfmc.config.json`);
+                    console.log(`Please configure ${key} in .sfmc.env.json`);
                     preventDeployment = true;
                 }
             }
@@ -171,7 +171,7 @@ export class Deploy {
 
         //Update asset content with configurations before posting
         let content = contentBuilderAsset.content;
-        let buildContent = await replaceBldrSfmcConfig(content);
+        let buildContent = await replaceBldrSfmcEnv(content);
 
         contentBuilderAsset.category = category;
         contentBuilderAsset.bldr = {
@@ -278,7 +278,7 @@ export class Deploy {
         }[]
     ) => {
         let content = contentBuilderAsset.content;
-        content = await replaceBldrSfmcConfig(content);
+        content = await replaceBldrSfmcEnv(content);
         let createdId;
 
 

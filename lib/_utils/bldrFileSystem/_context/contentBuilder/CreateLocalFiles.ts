@@ -30,16 +30,21 @@ const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_As
                     ext = '.html';
                     dirPath = `${folderPath}/${fileName}${ext}`;
                     break;
-                case 'codesnippetblock':
                 case 'htmlblock':
+                case 'codesnippetblock':
                 case 'jscoderesource':
+                case 'jsoncoderesource':
+                case 'csscoderesource':
+                case 'textcoderesource':
+                case 'rsscoderesource':
+                case 'xmlcoderesource':
                     content = asset.content;
                     ext = '.html';
                     dirPath = `${folderPath}/${fileName}${ext}`;
                     break;
                 case 'textonlyemail':
                     //@ts-ignore
-                    content = asset&& asset.views && asset.views.text && asset.views.text.content;
+                    content = asset && asset.views && asset.views.text && asset.views.text.content;
                     ext = '.html';
                     dirPath = `${folderPath}/${fileName}${ext}`;
                     break;

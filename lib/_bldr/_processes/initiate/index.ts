@@ -1,7 +1,7 @@
 
 import { Argv } from "../../../_types/Argv";
 import { createFile, fileExists, getAllFiles, getRootPath } from "../../../_utils/fileSystem";
-import { createAllDirectories, createAPIConfig, readManifest, readPackageManifest, replaceBldrSfmcConfig, scrubBldrSfmcConfig } from "../../../_utils/bldrFileSystem";
+import { createAllDirectories, createEnv, readManifest, readPackageManifest, replaceBldrSfmcEnv, scrubBldrSfmcEnv } from "../../../_utils/bldrFileSystem";
 import axios from 'axios';
 import fs from 'fs'
 import yargsInteractive from "yargs-interactive";
@@ -27,14 +27,14 @@ export class Initiate {
             for (const c in ctxFiles) {
                 const filePath = ctxFiles[c];
                 let content = fs.readFileSync(filePath).toString();
-                content = await scrubBldrSfmcConfig(content);
+                content = await scrubBldrSfmcEnv(content);
                 fs.writeFileSync(filePath, content);
             }
 
             const manifestJSON = await readManifest();
             let manifestStr = JSON.stringify(manifestJSON);
             let updatedManifest = JSON.parse(
-                await scrubBldrSfmcConfig(manifestStr)
+                await scrubBldrSfmcEnv(manifestStr)
             );
 
 
@@ -48,7 +48,7 @@ export class Initiate {
             ) {
                 const pkgJSON = readPackageManifest();
                 let pkgStr = JSON.stringify(pkgJSON);
-                let updatedPkg = JSON.parse(await scrubBldrSfmcConfig(pkgStr));
+                let updatedPkg = JSON.parse(await scrubBldrSfmcEnv(pkgStr));
                 fs.writeFileSync(
                     `${rootPath}.package.manifest.json`,
                     JSON.stringify(updatedPkg, null, 2)
@@ -59,8 +59,8 @@ export class Initiate {
         }
     }
 
-    configOnly = () => {
-        return createAPIConfig();
+    envOnly = () => {
+        return createEnv();
     }
 
 
@@ -93,7 +93,7 @@ export class Initiate {
 
 
                     if (initResults.createConfig) {
-                        await createAPIConfig();
+                        await createEnv();
                     }
                 });
         } else {

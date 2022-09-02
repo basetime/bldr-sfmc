@@ -17,9 +17,14 @@ const getContentBuilderAssetContent = (asset: {
         case 'textonlyemail':
             content = asset && asset.views && asset.views.text && asset.views.text.content
             break;
-        case 'codesnippetblock':
         case 'htmlblock':
+        case 'codesnippetblock':
         case 'jscoderesource':
+        case 'jsoncoderesource':
+        case 'csscoderesource':
+        case 'textcoderesource':
+        case 'rsscoderesource':
+        case 'xmlcoderesource':
             content = asset.content
             break;
         default:

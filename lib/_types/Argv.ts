@@ -32,4 +32,6 @@ export interface Argv {
     ssjs?: Boolean;
     'sfmc-only'?: Boolean;
     'local-only'?: Boolean;
+    'update-env-keys'?: Boolean;
+    'env-only'?: Boolean;
 }

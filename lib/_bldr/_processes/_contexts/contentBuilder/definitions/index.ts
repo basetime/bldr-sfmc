@@ -1,9 +1,10 @@
 import { setHTMLEmail } from './HTMLEmail';
 import { SetContentBlock } from './ContentBlock';
-import { replaceBldrSfmcConfig } from '../../../../../_utils/bldrFileSystem';
+import { replaceBldrSfmcEnv } from '../../../../../_utils/bldrFileSystem';
+import { setCloudPage } from './CloudPage';
 
 const setContentBuilderDefinition = async (sfmcUpdateObject: {
-    bldrId?:string;
+    bldrId?: string;
     bldr: {
         bldrId: string;
     };
@@ -23,16 +24,25 @@ const setContentBuilderDefinition = async (sfmcUpdateObject: {
     content?: string;
     views?: any
 },
-updatedContent: string
+    updatedContent: string
 ) => {
     let assetOutput;
-    updatedContent = await replaceBldrSfmcConfig(updatedContent)
+    updatedContent = await replaceBldrSfmcEnv(updatedContent)
     switch (sfmcUpdateObject.assetType.name) {
+        case 'webpage':
+            assetOutput = updatedContent && await setCloudPage(sfmcUpdateObject, updatedContent);
+            break;
         case 'htmlemail':
             assetOutput = updatedContent && await setHTMLEmail(sfmcUpdateObject, updatedContent);
             break;
         case 'htmlblock':
         case 'codesnippetblock':
+        case 'jscoderesource':
+        case 'jsoncoderesource':
+        case 'csscoderesource':
+        case 'textcoderesource':
+        case 'rsscoderesource':
+        case 'xmlcoderesource':
             assetOutput = updatedContent && await SetContentBlock(sfmcUpdateObject, updatedContent)
             break;
         default:
@@ -52,9 +62,14 @@ const updateContentBuilderAssetContent = (asset: any, content: string) => {
         case 'htmlemail':
             asset.views.html.content = content;
             break;
-        case 'codesnippetblock':
         case 'htmlblock':
+        case 'codesnippetblock':
         case 'jscoderesource':
+        case 'jsoncoderesource':
+        case 'csscoderesource':
+        case 'textcoderesource':
+        case 'rsscoderesource':
+        case 'xmlcoderesource':
             asset.content = content;
             break;
         case 'textonlyemail':

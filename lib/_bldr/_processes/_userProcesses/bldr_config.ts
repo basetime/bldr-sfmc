@@ -1,5 +1,5 @@
 import { fileExists, getRootPath } from '../../../_utils/fileSystem';
-import { readBldrSfmcConfig } from '../../../_utils/bldrFileSystem';
+import { readBldrSfmcEnv } from '../../../_utils/bldrFileSystem';
 
 export class User_BLDR_Config {
     constructor() {}
@@ -34,7 +34,7 @@ export class User_BLDR_Config {
     updateFilesFromConfiguration = async (content: string) => {
         const rootPath = await getRootPath();
         if (fileExists(`${rootPath}.sfmc.config.json`)) {
-            const config = await readBldrSfmcConfig();
+            const config = await readBldrSfmcEnv();
             for (const c in config) {
                 const key = c;
                 const value = config[c];

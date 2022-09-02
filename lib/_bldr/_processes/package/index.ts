@@ -1,5 +1,5 @@
 import { getRootPath, fileExists } from '../../../_utils/fileSystem';
-import { readManifest, readBldrSfmcConfig, readPackageManifest } from '../../../_utils/bldrFileSystem/'
+import { readManifest, readBldrSfmcEnv, readPackageManifest } from '../../../_utils/bldrFileSystem/'
 import { package_new } from '../../../_utils/options/package_new';
 // const packageReference = require('../packageReference');
 // const coreConfigurationOptions = require('../options');
@@ -46,7 +46,7 @@ export class Package {
                             repository?: string;
                             description?: string;
                             tags?: string[];
-                            sfmcConfiguration?: any;
+                            sfmcEnv?: any;
                             contentBuilder?: any;
                             dataExtension?: any;
                             automationStudio?: any;
@@ -61,10 +61,10 @@ export class Package {
                         const tagsArray = tagsSplit?.map((tag) => tag.trim()) || [];
                         packageOut.tags = tagsArray;
 
-                        const sfmcConfig = await readBldrSfmcConfig() || null;
+                        const sfmcEnv = await readBldrSfmcEnv() || null;
 
-                        if (sfmcConfig) {
-                            packageOut['sfmcConfiguration'] = sfmcConfig;
+                        if (sfmcEnv) {
+                            packageOut['sfmcEnv'] = sfmcEnv;
                         }
 
                         const availableContexts = Object.keys(manifestJSON)
