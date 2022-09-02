@@ -1,6 +1,6 @@
 {
     "name": "@basetime/bldr-sfmc",
-    "version": "1.4.3-beta.13",
+    "version": "1.4.3-beta.14",
     "description": "CLI application for SFMC Development workflow and package deployment",
     "main": "./dist/bin/index.js",
     "scripts": {
@@ -31,7 +31,7 @@
     ],
     "license": "BSD-3-Clause",
     "dependencies": {
-        "@basetime/bldr-sfmc-sdk": "^1.0.7",
+        "@basetime/bldr-sfmc-sdk": "^1.0.8",
         "@nodelib/fs.walk": "^1.2.8",
         "axios": "^0.26.0",
         "boxen": "^4.2.0",
