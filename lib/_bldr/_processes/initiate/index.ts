@@ -8,6 +8,7 @@ import yargsInteractive from "yargs-interactive";
 import { updateManifest } from "../../../_utils/bldrFileSystem/manifestJSON";
 import { displayLine } from "../../../_utils/display";
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder')
+const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension')
 
 /**
  * Notes June 2
@@ -63,8 +64,6 @@ export class Initiate {
         return createEnv();
     }
 
-
-
     initiateContentBuilderProject = async () => {
         const rootPath = await getRootPath();
         const isDirEmpty = await !fileExists(
@@ -99,5 +98,29 @@ export class Initiate {
         } else {
             displayLine(`Root directory must be empty`, 'info')
         }
+    }
+
+    initiateDataExtension = async () => {
+        yargsInteractive()
+                .usage('$bldr init [args]')
+                .interactive(dataExtensionInitiate)
+                .then(async (initResults) => {
+                    const folderPaths = [
+                        {
+                            folderPath: initResults.dataExtensionPath || 'Data Extension',
+                        },
+                    ];
+
+                    // Create empty directories
+                    await createAllDirectories(folderPaths);
+
+                    // Update ManifestJSON file with responses
+                    await updateManifest(
+                        'dataExtension',
+                        { folders: [], assets: [] }
+                    );
+
+                    const dataExtensionInit = {}
+                });
     }
 };
