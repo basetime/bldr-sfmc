@@ -12,6 +12,7 @@
         "prebuild": "node -p \"'export const version = ' + JSON.stringify(require('./package.json').version) + ';'\" > lib/_bldr_sdk/version.ts",
         "build": "npm run prebuild && tsc",
         "clean": "npx rimraf dist",
+        "deploy": "npm run build && npm publish",
         "updateLink": "npm run clean && npm run build && npm rm @basetime/bldr-sfmc-ts -g && npm link @basetime/bldr-sfmc-sdk && npm link && cd dist/bin && chmod ugo+rwx index.js"
     },
     "bin": {
