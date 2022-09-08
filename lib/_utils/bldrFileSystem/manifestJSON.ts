@@ -153,7 +153,6 @@ const updateManifest = async (
                         } else if (assetType === 'folders') {
                             itemId = updateItem.id;
                             updateIndex = manifestContextItems.findIndex(({ id }) => id === updateItem.id);
-
                         }
 
                         if (typeof updateIndex !== 'undefined') {

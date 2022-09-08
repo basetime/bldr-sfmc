@@ -7,7 +7,7 @@ import fs from 'fs'
 import yargsInteractive from "yargs-interactive";
 import { updateManifest } from "../../../_utils/bldrFileSystem/manifestJSON";
 import { displayLine } from "../../../_utils/display";
-import { guid } from "../../_utils";
+import { guid, isDirEmpty } from "../../_utils";
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder')
 const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension')
 
@@ -67,11 +67,12 @@ export class Initiate {
 
     initiateContentBuilderProject = async () => {
         const rootPath = await getRootPath();
-        const isDirEmpty = await !fileExists(
+        const dirExists = await fileExists(`${rootPath}Content Builder`)
+        const dirEmpty = dirExists && await isDirEmpty(
             `${rootPath}Content Builder`
         );
 
-        if (isDirEmpty) {
+        if (!dirExists || dirEmpty) {
             yargsInteractive()
                 .usage('$bldr init [args]')
                 .interactive(contentBuilderInitiate)
@@ -158,7 +159,7 @@ export class Initiate {
                     description: "",
                     fields: [
                         {
-                            name: "fieldName",
+                            name: "Your Field Name",
                             defaultValue: "",
                             isRequired: false,
                             isPrimaryKey: false,

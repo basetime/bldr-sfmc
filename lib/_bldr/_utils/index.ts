@@ -1,6 +1,6 @@
 const { sfmc_context_mapping } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping');
 const { v4: uuidv4 } = require('uuid');
-
+import fs from 'fs'
 /**
  *
  * @returns GUID
@@ -75,4 +75,10 @@ const getFilePathDetails = (systemFilePath: string) => {
     };
 };
 
-export { guid, assignObject, uniqueArrayByKey, sfmc_context, getFilePathDetails };
+function isDirEmpty(dirname: string) {
+    return fs.promises.readdir(dirname).then(files => {
+        return files.length === 0;
+    });
+}
+
+export { guid, assignObject, uniqueArrayByKey, sfmc_context, getFilePathDetails, isDirEmpty };

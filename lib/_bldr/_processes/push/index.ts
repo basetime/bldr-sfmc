@@ -12,6 +12,7 @@ import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { setContentBuilderDefinition } from '../_contexts/contentBuilder/definitions';
 import { setAutomationStudioDefinition } from '../_contexts/automationStudio/definitions';
 import { createFile } from '../../../_utils/fileSystem';
+import { SFMC_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/sfmc_client';
 
 const { getCurrentInstance, isVerbose } = new State();
 const { getStashArray, removeFromStashByBldrId, clearStash } = new Stash();
@@ -175,7 +176,6 @@ export class Push {
             const sdk = await initiateBldrSDK();
             const success = [];
             const errors = [];
-
 
             // Throw Error if SDK Fails to Load
             if (!sdk) {
@@ -382,11 +382,19 @@ export class Push {
                 [...manifestAssetCategories, ...manifestFolderCategories],
                 'folderPath'
             );
+
             const createdFoldersOutput: any[] = [];
 
             let checkPath = rootContextFolder;
             let parentId;
             let createFolder;
+
+            await this.addExistingFolderToManifest(sdk, {
+                context,
+                folder: context.rootName,
+                checkPath: checkPath || context.rootName
+            })
+
             // Iterate through all folder names to see where folders need to be created
             for (const stashItemFolder in stashItemFolderArray) {
                 const folder = stashItemFolderArray[stashItemFolder];
@@ -431,7 +439,6 @@ export class Push {
                         };
 
                         await updateManifest(context.context, { folders: [parentFolderObject] });
-
                     }
 
                     // Create folder via SFMC API
@@ -441,30 +448,15 @@ export class Push {
                         parentId,
                     });
 
+
                     if (typeof createFolder === 'string' && createFolder.includes("Please select a different Name.")) {
-                        const existingFolder = await sdk.sfmc.folder.search({
-                            contentType: context.contentType,
-                            searchKey: "Name",
-                            searchTerm: folder
+
+                        await this.addExistingFolderToManifest(sdk, {
+                            context,
+                            folder,
+                            checkPath
                         })
 
-                        if (
-                            existingFolder.OverallStatus === 'OK'
-                            && Object.prototype.hasOwnProperty.call(existingFolder, "Results")
-                            && existingFolder.Results.length
-                        ) {
-                            const results = existingFolder.Results;
-                            const folderObject = results.find((folderResult: {Name: string}) => folderResult.Name === folder)
-
-                            folderObject && await updateManifest(context.context, {
-                                folders: [{
-                                    id: folderObject.ID,
-                                    name: folder,
-                                    parentId: folderObject.ParentFolder.ID,
-                                    folderPath: checkPath,
-                                }]
-                            })
-                        }
                     } else {
                         // Wait for response from folder creation and add object to manifestFolder array
                         // Folder permissions my not allow child folders, so when exception is thrown create will retry
@@ -505,5 +497,39 @@ export class Push {
             return err.message
         }
     };
+
+
+    addExistingFolderToManifest = async (sdk: BLDR_Client, request: {
+        context: {
+            contentType: string;
+            context: string;
+        },
+        folder: string;
+        checkPath: string
+    }) => {
+        const existingFolder = await sdk.sfmc.folder.search({
+            contentType: request.context.contentType,
+            searchKey: "Name",
+            searchTerm: request.folder
+        })
+
+        if (
+            existingFolder.OverallStatus === 'OK'
+            && Object.prototype.hasOwnProperty.call(existingFolder, "Results")
+            && existingFolder.Results.length
+        ) {
+            const results = existingFolder.Results;
+            const folderObject = results.find((folderResult: { Name: string }) => folderResult.Name === request.folder)
+
+            folderObject && await updateManifest(request.context.context, {
+                folders: [{
+                    id: folderObject.ID,
+                    name: request.folder,
+                    parentId: folderObject.ParentFolder.ID,
+                    folderPath: request.checkPath,
+                }]
+            })
+        }
+    }
 
 }
