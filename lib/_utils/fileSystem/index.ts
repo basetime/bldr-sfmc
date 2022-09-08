@@ -51,7 +51,7 @@ const createDirectory = async (directoryPath: string) => {
  * @param filePath
  * @param content
  */
-const createFile = async (filePath: string, content: string) => {
+const createFile = async (filePath: string, content: any) => {
     const dirPathArr = filePath.split('/');
     dirPathArr.pop();
     const directoryPath = dirPathArr.join('/');

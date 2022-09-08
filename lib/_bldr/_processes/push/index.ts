@@ -209,6 +209,9 @@ export class Push {
                 }
 
                 if (sfmcUpdateObject) {
+                    let createdFolders;
+                    let manifestContextFolders: ManifestFolder[];
+
                     switch (stashFileContext) {
                         case 'automationStudio':
 
@@ -232,8 +235,8 @@ export class Push {
                             }
                             break;
                         case 'contentBuilder':
-                            const createdFolders = await this.addNewFolders(folderPath);
-                            const manifestContextFolders: ManifestFolder[] = manifestJSON['contentBuilder'] && manifestJSON['contentBuilder']['folders']
+                            createdFolders = await this.addNewFolders(folderPath);
+                            manifestContextFolders = manifestJSON['contentBuilder'] && manifestJSON['contentBuilder']['folders']
 
                             if (typeof createdFolders === 'string' && createdFolders.includes("Please select a different Name.")) {
                                 await displayLine(createdFolders, 'error');
@@ -269,11 +272,60 @@ export class Push {
                                 errors.push(sfmcAPIObject);
                             }
                             break;
+
+
+                        case 'dataExtension':
+                            createdFolders = await this.addNewFolders(folderPath);
+                            manifestContextFolders = manifestJSON['dataExtension'] && manifestJSON['dataExtension']['folders']
+
+                            if (typeof createdFolders === 'string' && createdFolders.includes("Please select a different Name.")) {
+                                await displayLine(createdFolders, 'error');
+                                await displayLine('Clearing out the stash files', 'progress');
+                                await clearStash();
+                                await displayLine(`Please rename the folder and update the stash with [bldr add .]`, 'info');
+                                return
+                            }
+
+                            sfmcUpdateObject.assetType = {
+                                name: 'dataExtension'
+                            }
+
+                            sfmcUpdateObject.category =
+                                (createdFolders &&
+                                    createdFolders.length &&
+                                    createdFolders[createdFolders.length - 1]) ||
+                                manifestContextFolders.find(
+                                    (manifestFolder) => manifestFolder.folderPath === folderPath
+                                );
+
+                            sfmcAPIObject = JSON.parse(sfmcUpdateObject.fileContent);
+                            sfmcAPIObject.categoryId = sfmcUpdateObject.category.id;
+
+                            if (method === 'put') {
+                                // assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
+                            } else {
+                                assetResponse = await sdk.sfmc.emailStudio.postAsset(sfmcAPIObject);
+                            }
+
+                            if (
+                                assetResponse.OverallStatus === 'OK'
+                                && Object.prototype.hasOwnProperty.call(assetResponse, 'Results')
+                                && Object.prototype.hasOwnProperty.call(assetResponse.Results[0], 'Object')
+                                && Object.prototype.hasOwnProperty.call(assetResponse.Results[0]['Object'], 'CustomerKey')
+                            ) {
+                                sfmcAPIObject.customerKey = assetResponse.Results[0].Object.CustomerKey;
+                                success.push(sfmcAPIObject);
+                            } else {
+                                errors.push(sfmcAPIObject);
+                            }
+
+                            break
                     }
 
                     if (
                         Object.prototype.hasOwnProperty.call(assetResponse, 'objectId') ||
                         Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey') ||
+                        Object.prototype.hasOwnProperty.call(assetResponse, 'CustomerKey') ||
                         Object.prototype.hasOwnProperty.call(assetResponse, 'key')
                     ) {
                         await removeFromStashByBldrId(bldrId)

@@ -7,6 +7,7 @@ import fs from 'fs'
 import yargsInteractive from "yargs-interactive";
 import { updateManifest } from "../../../_utils/bldrFileSystem/manifestJSON";
 import { displayLine } from "../../../_utils/display";
+import { guid } from "../../_utils";
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder')
 const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension')
 
@@ -105,9 +106,11 @@ export class Initiate {
                 .usage('$bldr init [args]')
                 .interactive(dataExtensionInitiate)
                 .then(async (initResults) => {
+
+                    const initFolderPath = initResults.dataExtensionPath || 'Data Extensions';
                     const folderPaths = [
                         {
-                            folderPath: initResults.dataExtensionPath || 'Data Extension',
+                            folderPath: initFolderPath,
                         },
                     ];
 
@@ -120,7 +123,30 @@ export class Initiate {
                         { folders: [], assets: [] }
                     );
 
-                    const dataExtensionInit = {}
+                    const dataExtensionInit = {
+                        "name": initResults.dataExtensionName,
+                        "customerKey": guid(),
+                        "description": "",
+                        "fields": [
+                          {
+                            "partnerKey": "",
+                            "name": "fieldName",
+                            "defaultValue": "",
+                            "isRequired": false,
+                            "isPrimaryKey": false,
+                            "fieldType": "Text",
+                            "maxLength": "4000"
+                          }
+                        ],
+                        "category": {
+                          "folderPath": initFolderPath
+                        }
+                      }
+
+                      if(initResults.sendableDataExtension){}
+                      if(initResults.retentionPeriod){}
+
+                      await createFile(`${initFolderPath}/${initResults.dataExtensionName}.html`, dataExtensionInit)
                 });
     }
 };

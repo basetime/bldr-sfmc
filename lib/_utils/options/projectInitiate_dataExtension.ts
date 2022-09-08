@@ -7,8 +7,7 @@ module.exports = {
     },
     dataExtensionPath: {
         type: 'input',
-        describe: 'Data Extension Path',
-        default: 'Data Extension/',
+        describe: 'Data Extension Path: Must start with "Data Extensions"',
         prompt: 'always',
     },
     sendableDataExtension: {
