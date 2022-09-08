@@ -123,30 +123,63 @@ export class Initiate {
                         { folders: [], assets: [] }
                     );
 
-                    const dataExtensionInit = {
-                        "name": initResults.dataExtensionName,
-                        "customerKey": guid(),
-                        "description": "",
-                        "fields": [
+                    const dataExtensionInit: {
+                        name: string;
+                        customerKey: string;
+                        description: string;
+                        category: {
+                            folderPath: string;
+                        }
+                        fields: {
+                            name: string;
+                            defaultValue: string;
+                            fieldType: string;
+                            maxLength: string;
+                            isRequired: Boolean;
+                            isPrimaryKey: Boolean;
+                        }[]
+                        isSendable?: Boolean;
+                        sendableDataExtensionField?: {
+                            name: string;
+                            fieldType: string;
+                        };
+                        sendableSubscriberField?: {
+                            name: string
+                        }
+
+                    } = {
+                        name: initResults.dataExtensionName,
+                        customerKey: guid(),
+                        description: "",
+                        fields: [
                           {
-                            "partnerKey": "",
-                            "name": "fieldName",
-                            "defaultValue": "",
-                            "isRequired": false,
-                            "isPrimaryKey": false,
-                            "fieldType": "Text",
-                            "maxLength": "4000"
+                            name: "fieldName",
+                            defaultValue: "",
+                            isRequired: false,
+                            isPrimaryKey: false,
+                            fieldType: "Text",
+                            maxLength: "4000"
                           }
                         ],
-                        "category": {
-                          "folderPath": initFolderPath
+                        category: {
+                          folderPath: initFolderPath
                         }
                       }
 
-                      if(initResults.sendableDataExtension){}
+                      if(initResults.sendableDataExtension){
+                        dataExtensionInit.isSendable = true;
+                        dataExtensionInit.sendableDataExtensionField = {
+                            name: "{{ name of field to use in sendable relationship }}",
+                            fieldType: "{{ field type of field to use in sendable relationship }}"
+                        },
+                        dataExtensionInit.sendableSubscriberField = {
+                            name: "Subscriber Key"
+                        }
+
+                      }
                       if(initResults.retentionPeriod){}
 
-                      await createFile(`${initFolderPath}/${initResults.dataExtensionName}.html`, dataExtensionInit)
+                      await createFile(`${initFolderPath}/${initResults.dataExtensionName}.json`, dataExtensionInit)
                 });
     }
 };

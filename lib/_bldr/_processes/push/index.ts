@@ -11,6 +11,7 @@ import { ManifestAsset, ManifestFolder } from '../../../_types/ManifestAsset';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { setContentBuilderDefinition } from '../_contexts/contentBuilder/definitions';
 import { setAutomationStudioDefinition } from '../_contexts/automationStudio/definitions';
+import { createFile } from '../../../_utils/fileSystem';
 
 const { getCurrentInstance, isVerbose } = new State();
 const { getStashArray, removeFromStashByBldrId, clearStash } = new Stash();
@@ -313,16 +314,23 @@ export class Push {
                                 && Object.prototype.hasOwnProperty.call(assetResponse.Results[0], 'Object')
                                 && Object.prototype.hasOwnProperty.call(assetResponse.Results[0]['Object'], 'CustomerKey')
                             ) {
+                                sfmcAPIObject.bldrId = bldrId;
                                 sfmcAPIObject.customerKey = assetResponse.Results[0].Object.CustomerKey;
+                                sfmcAPIObject.category = {
+                                    id: sfmcUpdateObject.category.id,
+                                    folderPath: sfmcUpdateObject.category.folderPath
+                                };
+
+                                await createFile(`${folderPath}/${sfmcAPIObject.name}.json`, sfmcAPIObject)
                                 success.push(sfmcAPIObject);
                             } else {
                                 errors.push(sfmcAPIObject);
                             }
-
                             break
                     }
 
                     if (
+                        assetResponse.OverallStatus === 'OK' ||
                         Object.prototype.hasOwnProperty.call(assetResponse, 'objectId') ||
                         Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey') ||
                         Object.prototype.hasOwnProperty.call(assetResponse, 'CustomerKey') ||

@@ -399,7 +399,8 @@ export class Deploy {
                     displayLine(`Created [sfmc]: ${dataExtension.name}`, 'success')
                     output.push(dataExtension)
                 } else {
-                    console.log('response', createDataExtension)
+                    displayLine(`Error Creating: ${dataExtension.name}`)
+                    console.log(JSON.stringify(createDataExtension, null, 2))
                 }
             }
 

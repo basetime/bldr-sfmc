@@ -107,7 +107,7 @@ const updateManifest = async (
                         updateItem[objectIdKey];
                     manifestObj = manifestContextItems.find(({ id }) => id === itemId);
                 } else if (context === 'dataExtension') {
-                    itemId = updateItem.customerKey;
+                    itemId = updateItem.customerKey || updateItem.id;
                     manifestObj = manifestContextItems.find(({ customerKey }) => customerKey === itemId);
                 }
 

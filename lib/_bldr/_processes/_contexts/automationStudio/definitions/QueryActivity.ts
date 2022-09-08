@@ -54,7 +54,6 @@ const setQueryActivity = async (asset: {
             returnObject.queryDefinitionId = asset.queryDefinitionId;
         }
 
-        console.log('returnObject', returnObject)
         return returnObject
     }
 };
