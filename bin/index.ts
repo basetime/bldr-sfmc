@@ -63,6 +63,7 @@ const initCLI = async (req: string, argv: any) => {
             displayLine('init', 'success')
             displayObject({
                 '--cb                ': 'Initiate Content Builder Project',
+                '--de                ': 'Initiate Data Extension',
                 '--env-only          ': 'Setup Environment Variables for Project',
                 '--update-env-keys   ': 'Update .sfmc.env.json keys found in content'
             })
@@ -121,8 +122,8 @@ const initCLI = async (req: string, argv: any) => {
 
             displayLine('deploy', 'success')
             displayObject({
-                '--sfmc-only            ': 'Create files in SFMC only',
-                '--local-only           ': 'Create files in locally only',
+                '--sfmc-only            ': 'Create files in SFMC only [only recommended for flat packages]',
+                '--local-only           ': 'Create files in locally only [only recommended for flat packages]',
                 '                       ': 'Create local files and push to SFMC'
             })
         }

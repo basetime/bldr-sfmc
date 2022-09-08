@@ -40,11 +40,20 @@ const updateManifest = async (
         const state = assignObject(state_conf.get());
 
         if (state) {
+            const {
+                instance,
+                parentMID,
+                activeMID
+            } = state;
             await createFile(
                 manifestPath,
                 JSON.stringify(
                     {
-                        instanceDetails: state,
+                        instanceDetails: {
+                            instance,
+                            parentMID,
+                            activeMID
+                        }
                     },
                     null,
                     2
@@ -78,7 +87,7 @@ const updateManifest = async (
             const manifestContextObject = manifestJSON[context];
 
             const AssetTypeItems: {
-                customerKey?:string;
+                customerKey?: string;
                 id?: number;
                 assetType?: {
                     objectIdKey: ObjectIdKeys;
@@ -94,21 +103,27 @@ const updateManifest = async (
                 }[] = manifestContextObject[assetType];
 
                 let manifestObj;
-                // Content Builder assets should have have item.id
-                // Automation Studio assets get an assetType object with the key for their ID
-                if (context === 'contentBuilder') {
+
+                if (assetType === 'assets') {
+                    // Content Builder assets should have have item.id
+                    // Automation Studio assets get an assetType object with the key for their ID
+                    if (context === 'contentBuilder') {
+                        itemId = updateItem.id;
+                        manifestObj = manifestContextItems.find(({ id }) => id === itemId);
+                    } else if (context === 'automationStudio') {
+                        const objectIdKey = updateItem && updateItem.assetType && updateItem.assetType.objectIdKey;
+                        itemId =
+                            objectIdKey &&
+                            Object.prototype.hasOwnProperty.call(updateItem, objectIdKey) &&
+                            updateItem[objectIdKey];
+                        manifestObj = manifestContextItems.find(({ id }) => id === itemId);
+                    } else if (context === 'dataExtension') {
+                        itemId = updateItem.customerKey;
+                        manifestObj = manifestContextItems.find(({ customerKey }) => customerKey === itemId);
+                    }
+                } else if (assetType === 'folders') {
                     itemId = updateItem.id;
-                    manifestObj = manifestContextItems.find(({ id }) => id === itemId);
-                } else if (context === 'automationStudio') {
-                    const objectIdKey = updateItem && updateItem.assetType && updateItem.assetType.objectIdKey;
-                    itemId =
-                        objectIdKey &&
-                        Object.prototype.hasOwnProperty.call(updateItem, objectIdKey) &&
-                        updateItem[objectIdKey];
-                    manifestObj = manifestContextItems.find(({ id }) => id === itemId);
-                } else if (context === 'dataExtension') {
-                    itemId = updateItem.customerKey || updateItem.id;
-                    manifestObj = manifestContextItems.find(({ customerKey }) => customerKey === itemId);
+                    manifestObj = manifestContextItems.find(({ id }) => id === itemId)
                 }
 
 
@@ -119,22 +134,29 @@ const updateManifest = async (
                 } else {
                     if (!isEqual(updateItem, manifestObj)) {
                         let updateIndex;
-                        if (context === 'contentBuilder') {
-                            updateIndex= manifestContextItems.findIndex(({ id }) => id === updateItem.id);
-                        } else if (context === 'automationStudio') {
-                            const objectIdKey = updateItem && updateItem.assetType && updateItem.assetType.objectIdKey;
-                            let itemId =
-                                objectIdKey &&
-                                Object.prototype.hasOwnProperty.call(updateItem, objectIdKey) &&
-                                updateItem[objectIdKey];
-                                updateIndex= manifestContextItems.findIndex((item : {[key: string]: any}) => itemId && item[itemId] === updateItem[itemId]);
 
-                        } else if (context === 'dataExtension') {
-                            itemId = updateItem.customerKey;
-                            updateIndex = manifestContextItems.findIndex(({customerKey}) => customerKey === updateItem.customerKey);
+                        if (assetType === 'assets') {
+                            if (context === 'contentBuilder') {
+                                updateIndex = manifestContextItems.findIndex(({ id }) => id === updateItem.id);
+                            } else if (context === 'automationStudio') {
+                                const objectIdKey = updateItem && updateItem.assetType && updateItem.assetType.objectIdKey;
+                                let itemId =
+                                    objectIdKey &&
+                                    Object.prototype.hasOwnProperty.call(updateItem, objectIdKey) &&
+                                    updateItem[objectIdKey];
+                                updateIndex = manifestContextItems.findIndex((item: { [key: string]: any }) => itemId && item[itemId] === updateItem[itemId]);
+
+                            } else if (context === 'dataExtension') {
+                                itemId = updateItem.customerKey || updateItem.id;
+                                updateIndex = manifestContextItems.findIndex(({ customerKey }) => customerKey === updateItem.customerKey);
+                            }
+                        } else if (assetType === 'folders') {
+                            itemId = updateItem.id;
+                            updateIndex = manifestContextItems.findIndex(({ id }) => id === updateItem.id);
+
                         }
 
-                        if(typeof updateIndex !== 'undefined'){
+                        if (typeof updateIndex !== 'undefined') {
                             manifestContextItems[updateIndex] = updateItem;
                         }
 

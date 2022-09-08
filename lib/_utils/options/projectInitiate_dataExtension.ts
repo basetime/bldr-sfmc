@@ -17,8 +17,9 @@ module.exports = {
         prompt: 'always',
     },
     retentionPeriod: {
-        type: 'confirm',
-        describe: 'Retention Period?',
+        type: 'list',
+        describe: `Retention Period?`,
+        choices: ['None', 'Individual Records', 'All Records and Data Extension', 'All Records'],
         prompt: 'always',
     },
 };

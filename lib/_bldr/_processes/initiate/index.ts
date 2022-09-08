@@ -103,83 +103,109 @@ export class Initiate {
 
     initiateDataExtension = async () => {
         yargsInteractive()
-                .usage('$bldr init [args]')
-                .interactive(dataExtensionInitiate)
-                .then(async (initResults) => {
+            .usage('$bldr init [args]')
+            .interactive(dataExtensionInitiate)
+            .then(async (initResults) => {
 
-                    const initFolderPath = initResults.dataExtensionPath || 'Data Extensions';
-                    const folderPaths = [
-                        {
-                            folderPath: initFolderPath,
-                        },
-                    ];
+                const initFolderPath = initResults.dataExtensionPath || 'Data Extensions';
+                const folderPaths = [
+                    {
+                        folderPath: initFolderPath,
+                    },
+                ];
 
-                    // Create empty directories
-                    await createAllDirectories(folderPaths);
+                // Create empty directories
+                await createAllDirectories(folderPaths);
 
-                    // Update ManifestJSON file with responses
-                    await updateManifest(
-                        'dataExtension',
-                        { folders: [], assets: [] }
-                    );
+                // Update ManifestJSON file with responses
+                await updateManifest(
+                    'dataExtension',
+                    { folders: [], assets: [] }
+                );
 
-                    const dataExtensionInit: {
+                const dataExtensionInit: {
+                    name: string;
+                    customerKey: string;
+                    description: string;
+                    category: {
+                        folderPath: string;
+                    }
+                    fields: {
                         name: string;
-                        customerKey: string;
-                        description: string;
-                        category: {
-                            folderPath: string;
-                        }
-                        fields: {
-                            name: string;
-                            defaultValue: string;
-                            fieldType: string;
-                            maxLength: string;
-                            isRequired: Boolean;
-                            isPrimaryKey: Boolean;
-                        }[]
-                        isSendable?: Boolean;
-                        sendableDataExtensionField?: {
-                            name: string;
-                            fieldType: string;
-                        };
-                        sendableSubscriberField?: {
-                            name: string
-                        }
+                        defaultValue: string;
+                        fieldType: string;
+                        maxLength: string;
+                        isRequired: Boolean;
+                        isPrimaryKey: Boolean;
+                    }[]
+                    isSendable?: Boolean;
+                    sendableDataExtensionField?: {
+                        name: string;
+                        fieldType: string;
+                    };
+                    sendableSubscriberField?: {
+                        name: string
+                    }
+                    dataRetentionPeriodLength?: number;
+                    dataRetentionPeriod?: string;
+                    rowBasedRetention?: Boolean;
+                    resetRetentionPeriodOnImport?: Boolean;
+                    deleteAtEndOfRetentionPeriod?: Boolean
 
-                    } = {
-                        name: initResults.dataExtensionName,
-                        customerKey: guid(),
-                        description: "",
-                        fields: [
-                          {
+                } = {
+                    name: initResults.dataExtensionName,
+                    customerKey: guid(),
+                    description: "",
+                    fields: [
+                        {
                             name: "fieldName",
                             defaultValue: "",
                             isRequired: false,
                             isPrimaryKey: false,
                             fieldType: "Text",
                             maxLength: "4000"
-                          }
-                        ],
-                        category: {
-                          folderPath: initFolderPath
                         }
-                      }
+                    ],
+                    category: {
+                        folderPath: initFolderPath
+                    }
+                }
 
-                      if(initResults.sendableDataExtension){
-                        dataExtensionInit.isSendable = true;
-                        dataExtensionInit.sendableDataExtensionField = {
-                            name: "{{ name of field to use in sendable relationship }}",
-                            fieldType: "{{ field type of field to use in sendable relationship }}"
-                        },
-                        dataExtensionInit.sendableSubscriberField = {
-                            name: "Subscriber Key"
-                        }
+                if (initResults.sendableDataExtension) {
+                    dataExtensionInit.isSendable = true;
+                    dataExtensionInit.sendableDataExtensionField = {
+                        name: "{{ name of field to use in sendable relationship }}",
+                        fieldType: "{{ field type of field to use in sendable relationship }}"
+                    };
+                    dataExtensionInit.sendableSubscriberField = {
+                        name: "Subscriber Key"
+                    };
+                }
 
-                      }
-                      if(initResults.retentionPeriod){}
+                if (initResults.retentionPeriod !== 'None') {
+                    switch (initResults.retentionPeriod) {
+                        case 'Individual Records':
+                            dataExtensionInit.dataRetentionPeriodLength = 6
+                            dataExtensionInit.dataRetentionPeriod = "Days | Weeks | Months | Years"
+                            dataExtensionInit.rowBasedRetention = true
+                            break;
 
-                      await createFile(`${initFolderPath}/${initResults.dataExtensionName}.json`, dataExtensionInit)
-                });
+                        case 'All Records and Data Extension':
+                            dataExtensionInit.dataRetentionPeriodLength = 6
+                            dataExtensionInit.dataRetentionPeriod = "Days | Weeks | Months | Years"
+                            dataExtensionInit.rowBasedRetention = false
+                            dataExtensionInit.resetRetentionPeriodOnImport = true
+                            break;
+
+                        case 'All Records':
+                            dataExtensionInit.rowBasedRetention = false
+                            dataExtensionInit.deleteAtEndOfRetentionPeriod = true
+                            break;
+                    }
+
+                }
+
+                await createFile(`${initFolderPath}/${initResults.dataExtensionName}.json`, dataExtensionInit)
+            });
     }
 };
