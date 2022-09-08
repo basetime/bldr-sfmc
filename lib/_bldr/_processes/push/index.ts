@@ -190,7 +190,7 @@ export class Push {
                 const stashFileContext = stashFileObject.bldr && stashFileObject.bldr.context.context;
                 const method = Object.prototype.hasOwnProperty.call(stashFileObject.bldr, 'id') ? 'put' : 'post';
 
-                const manifestJSON = await readManifest();
+                let manifestJSON = await readManifest();
 
                 let sfmcUpdateObject: any;
                 let assetResponse: any;
@@ -237,6 +237,7 @@ export class Push {
                             break;
                         case 'contentBuilder':
                             createdFolders = await this.addNewFolders(folderPath);
+                            manifestJSON = await readManifest();
                             manifestContextFolders = manifestJSON['contentBuilder'] && manifestJSON['contentBuilder']['folders']
 
                             if (typeof createdFolders === 'string' && createdFolders.includes("Please select a different Name.")) {
@@ -277,6 +278,7 @@ export class Push {
 
                         case 'dataExtension':
                             createdFolders = await this.addNewFolders(folderPath);
+                            manifestJSON = await readManifest();
                             manifestContextFolders = manifestJSON['dataExtension'] && manifestJSON['dataExtension']['folders']
 
                             if (typeof createdFolders === 'string' && createdFolders.includes("Please select a different Name.")) {
@@ -298,6 +300,7 @@ export class Push {
                                 manifestContextFolders.find(
                                     (manifestFolder) => manifestFolder.folderPath === folderPath
                                 );
+
 
                             sfmcAPIObject = JSON.parse(sfmcUpdateObject.fileContent);
                             sfmcAPIObject.categoryId = sfmcUpdateObject.category.id;
@@ -439,7 +442,29 @@ export class Push {
                     });
 
                     if (typeof createFolder === 'string' && createFolder.includes("Please select a different Name.")) {
-                        throw new Error(createFolder);
+                        const existingFolder = await sdk.sfmc.folder.search({
+                            contentType: context.contentType,
+                            searchKey: "Name",
+                            searchTerm: folder
+                        })
+
+                        if (
+                            existingFolder.OverallStatus === 'OK'
+                            && Object.prototype.hasOwnProperty.call(existingFolder, "Results")
+                            && existingFolder.Results.length
+                        ) {
+                            const results = existingFolder.Results;
+                            const folderObject = results.find((folderResult: {Name: string}) => folderResult.Name === folder)
+
+                            folderObject && await updateManifest(context.context, {
+                                folders: [{
+                                    id: folderObject.ID,
+                                    name: folder,
+                                    parentId: folderObject.ParentFolder.ID,
+                                    folderPath: checkPath,
+                                }]
+                            })
+                        }
                     } else {
                         // Wait for response from folder creation and add object to manifestFolder array
                         // Folder permissions my not allow child folders, so when exception is thrown create will retry
