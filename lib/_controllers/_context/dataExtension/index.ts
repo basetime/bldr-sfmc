@@ -102,7 +102,6 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         }[]
                     } = await emailStudio.gatherAssetById(argv.a);
 
-                    console.log(JSON.stringify(cloneRequest, null, 2))
                      const { assets, folders } = cloneRequest
 
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');

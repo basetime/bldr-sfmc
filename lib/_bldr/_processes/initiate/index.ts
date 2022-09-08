@@ -7,7 +7,9 @@ import fs from 'fs'
 import yargsInteractive from "yargs-interactive";
 import { updateManifest } from "../../../_utils/bldrFileSystem/manifestJSON";
 import { displayLine } from "../../../_utils/display";
+import { guid } from "../../_utils";
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder')
+const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension')
 
 /**
  * Notes June 2
@@ -63,8 +65,6 @@ export class Initiate {
         return createEnv();
     }
 
-
-
     initiateContentBuilderProject = async () => {
         const rootPath = await getRootPath();
         const isDirEmpty = await !fileExists(
@@ -99,5 +99,87 @@ export class Initiate {
         } else {
             displayLine(`Root directory must be empty`, 'info')
         }
+    }
+
+    initiateDataExtension = async () => {
+        yargsInteractive()
+                .usage('$bldr init [args]')
+                .interactive(dataExtensionInitiate)
+                .then(async (initResults) => {
+
+                    const initFolderPath = initResults.dataExtensionPath || 'Data Extensions';
+                    const folderPaths = [
+                        {
+                            folderPath: initFolderPath,
+                        },
+                    ];
+
+                    // Create empty directories
+                    await createAllDirectories(folderPaths);
+
+                    // Update ManifestJSON file with responses
+                    await updateManifest(
+                        'dataExtension',
+                        { folders: [], assets: [] }
+                    );
+
+                    const dataExtensionInit: {
+                        name: string;
+                        customerKey: string;
+                        description: string;
+                        category: {
+                            folderPath: string;
+                        }
+                        fields: {
+                            name: string;
+                            defaultValue: string;
+                            fieldType: string;
+                            maxLength: string;
+                            isRequired: Boolean;
+                            isPrimaryKey: Boolean;
+                        }[]
+                        isSendable?: Boolean;
+                        sendableDataExtensionField?: {
+                            name: string;
+                            fieldType: string;
+                        };
+                        sendableSubscriberField?: {
+                            name: string
+                        }
+
+                    } = {
+                        name: initResults.dataExtensionName,
+                        customerKey: guid(),
+                        description: "",
+                        fields: [
+                          {
+                            name: "fieldName",
+                            defaultValue: "",
+                            isRequired: false,
+                            isPrimaryKey: false,
+                            fieldType: "Text",
+                            maxLength: "4000"
+                          }
+                        ],
+                        category: {
+                          folderPath: initFolderPath
+                        }
+                      }
+
+                      if(initResults.sendableDataExtension){
+                        dataExtensionInit.isSendable = true;
+                        dataExtensionInit.sendableDataExtensionField = {
+                            name: "{{ name of field to use in sendable relationship }}",
+                            fieldType: "{{ field type of field to use in sendable relationship }}"
+                        },
+                        dataExtensionInit.sendableSubscriberField = {
+                            name: "Subscriber Key"
+                        }
+
+                      }
+                      if(initResults.retentionPeriod){}
+
+                      await createFile(`${initFolderPath}/${initResults.dataExtensionName}.json`, dataExtensionInit)
+                });
     }
 };

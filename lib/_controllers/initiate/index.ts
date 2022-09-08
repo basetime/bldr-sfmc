@@ -20,4 +20,8 @@ export async function InitSwitch(argv: Argv) {
     if (argv.cb) {
         return initiate.initiateContentBuilderProject();
     }
+
+    if(argv.de){
+        return initiate.initiateDataExtension()
+    }
 }
