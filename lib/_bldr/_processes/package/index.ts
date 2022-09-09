@@ -1,5 +1,5 @@
 import { getRootPath, fileExists } from '../../../_utils/fileSystem';
-import { readManifest, readBldrSfmcEnv, readPackageManifest } from '../../../_utils/bldrFileSystem/'
+import { readManifest, readBldrSfmcEnv, readPackageManifest, readBldrSfmcEnvTemplate } from '../../../_utils/bldrFileSystem/'
 import { package_new } from '../../../_utils/options/package_new';
 // const packageReference = require('../packageReference');
 // const coreConfigurationOptions = require('../options');
@@ -61,7 +61,7 @@ export class Package {
                         const tagsArray = tagsSplit?.map((tag) => tag.trim()) || [];
                         packageOut.tags = tagsArray;
 
-                        const sfmcEnv = await readBldrSfmcEnv() || null;
+                        const sfmcEnv = await readBldrSfmcEnvTemplate() || null;
 
                         if (sfmcEnv) {
                             packageOut['sfmcEnv'] = sfmcEnv;

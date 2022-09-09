@@ -16,6 +16,20 @@ const readBldrSfmcEnv = async () => {
     }
 };
 
+
+/**
+ * Reads .sfmc.config.json file
+ *
+ * @returns
+ */
+ const readBldrSfmcEnvTemplate = async () => {
+    const rootPath = await getRootPath();
+    if (fileExists(`${rootPath}template.sfmc.env.json`)) {
+        const config = fs.readFileSync(`${rootPath}template.sfmc.env.json`);
+        return JSON.parse(config.toString());
+    }
+};
+
 const createEnv = async (config = null, template = true) => {
     const configTemplate = config || {
         client_id: '',
@@ -132,6 +146,7 @@ const createDirectory = async (dir: string) => {
 
 export {
     readBldrSfmcEnv,
+    readBldrSfmcEnvTemplate,
     replaceBldrSfmcEnv,
     scrubBldrSfmcEnv,
     createEnv,

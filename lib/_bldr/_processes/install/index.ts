@@ -30,9 +30,9 @@ export class Install {
             }
 
             if (
-                Object.prototype.hasOwnProperty.call(pkgData.package, 'sfmcConfig')
+                Object.prototype.hasOwnProperty.call(pkgData.package, 'sfmcEnv')
             ) {
-                await createEnv(pkgData.package.sfmcConfig, true);
+                await createEnv(pkgData.package.sfmcEnv, true);
             }
 
             if (
