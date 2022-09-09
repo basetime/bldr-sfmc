@@ -15,6 +15,7 @@ import { getFilePathDetails, uniqueArrayByKey } from "../../_utils";
 import { State } from '../state';
 import { Argv } from "../../../_types/Argv";
 const { isVerbose } = new State();
+import { packageDeployIgnore } from '../../_utils/packageDeployIgnore'
 import fs from 'fs';
 
 const add = new Add()
@@ -45,12 +46,12 @@ export class Deploy {
             })
 
             let sfmcOnly = false;
-            if(argv['sfmc-only']){
+            if (argv['sfmc-only']) {
                 sfmcOnly = true;
             }
 
             let localOnly = false;
-            if(argv['local-only']){
+            if (argv['local-only']) {
                 localOnly = true;
             }
 
@@ -169,6 +170,23 @@ export class Deploy {
             (folder: ManifestFolder) => folder.folderPath === contentFolderPath
         );
 
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                contentBuilderAsset,
+                'assetType'
+            ) &&
+            Object.prototype.hasOwnProperty.call(
+                contentBuilderAsset.assetType,
+                'name'
+            ) &&
+            packageDeployIgnore.includes(contentBuilderAsset.assetType.name)
+        ) {
+            displayLine(
+                `${contentBuilderAsset.assetType.name} asset type requires the user to create the asset manually. Create the asset, then run the [ bldr clone ] command to get the asset.`
+            );
+        } else {
+
         //Update asset content with configurations before posting
         let content = contentBuilderAsset.content;
         let buildContent = await replaceBldrSfmcEnv(content);
@@ -188,22 +206,6 @@ export class Deploy {
                 id: category.id,
             };
         }
-
-        if (
-            Object.prototype.hasOwnProperty.call(
-                contentBuilderAsset,
-                'assetType'
-            ) &&
-            Object.prototype.hasOwnProperty.call(
-                contentBuilderAsset.assetType,
-                'name'
-            ) &&
-            ignoreDeployment.includes(contentBuilderAsset.assetType.name)
-        ) {
-            displayLine(
-                `${contentBuilderAsset.assetType.name} asset type requires the user to create the asset manually. Create the asset, then run the [ bldr clone ] command to get the asset.`
-            );
-        } else {
 
 
             const createAsset = await sdk.sfmc.asset.postAsset(
@@ -237,35 +239,52 @@ export class Deploy {
         sdk: BLDR_Client,
         contentBuilderAsset: any
     ) => {
-        //Get assets dependencies
-        const assetDependencies = contentBuilderAsset.dependencies;
-        const contentFolderPath = contentBuilderAsset.category.folderPath;
-        const updatedAsset = await this.updateContentBuilderReferences(
-            contentBuilderAsset,
-            assetDependencies
-        );
 
-        const createAsset = await sdk.sfmc.asset.postAsset(
-            updatedAsset
-        );
-
-        if (createAsset.status === 'ERROR') {
-            console.log(createAsset.statusText);
+        if (
+            Object.prototype.hasOwnProperty.call(
+                contentBuilderAsset,
+                'assetType'
+            ) &&
+            Object.prototype.hasOwnProperty.call(
+                contentBuilderAsset.assetType,
+                'name'
+            ) &&
+            packageDeployIgnore.includes(contentBuilderAsset.assetType.name)
+        ) {
+            displayLine(
+                `${contentBuilderAsset.assetType.name} asset type requires the user to create the asset manually. Create the asset, then run the [ bldr clone ] command to get the asset.`
+            );
         } else {
-            displayLine(`created [sfmc]: ${contentBuilderAsset.name}`, 'success')
-            updatedAsset.id = createAsset.id;
-            updatedAsset.assetType = createAsset.assetType;
-            updatedAsset.category = createAsset.category;
-            updatedAsset.customerKey = createAsset.customerKey;
-            updatedAsset.category.folderPath = contentFolderPath;
-
-            // Update ManifestJSON file with responses
-            await updateManifest(
-                'contentBuilder',
-                { assets: [updatedAsset] }
+            //Get assets dependencies
+            const assetDependencies = contentBuilderAsset.dependencies;
+            const contentFolderPath = contentBuilderAsset.category.folderPath;
+            const updatedAsset = await this.updateContentBuilderReferences(
+                contentBuilderAsset,
+                assetDependencies
             );
 
-            await createEditableFilesBasedOnContext('contentBuilder', [updatedAsset])
+            const createAsset = await sdk.sfmc.asset.postAsset(
+                updatedAsset
+            );
+
+            if (createAsset.status === 'ERROR') {
+                console.log(createAsset.statusText);
+            } else {
+                displayLine(`created [sfmc]: ${contentBuilderAsset.name}`, 'success')
+                updatedAsset.id = createAsset.id;
+                updatedAsset.assetType = createAsset.assetType;
+                updatedAsset.category = createAsset.category;
+                updatedAsset.customerKey = createAsset.customerKey;
+                updatedAsset.category.folderPath = contentFolderPath;
+
+                // Update ManifestJSON file with responses
+                await updateManifest(
+                    'contentBuilder',
+                    { assets: [updatedAsset] }
+                );
+
+                await createEditableFilesBasedOnContext('contentBuilder', [updatedAsset])
+            }
         }
     }
 
@@ -340,6 +359,12 @@ export class Deploy {
                                     'g'
                                 )
                             )
+                            || content.match(
+                                new RegExp(
+                                    `(?<=Platform.Function.ContentBlockByName\\(")${assetDependency.bldrId}`,
+                                    'g'
+                                )
+                            )
                         ) {
                             createdId =
                                 `${findObj.category.folderPath}/${findObj.name}`.replaceAll(
@@ -409,8 +434,8 @@ export class Deploy {
             const statusMessage = err && err.JSON && err.JSON.Results && err.JSON.Results.length && err.JSON.Results[0].StatusMessage
             displayLine(statusMessage, 'error')
             statusMessage
-            && statusMessage.includes('Updating an existing Data Extension definition')
-            && displayLine("Please ensure all Data Extension names/customer keys are unique", 'error')
+                && statusMessage.includes('Updating an existing Data Extension definition')
+                && displayLine("Please ensure all Data Extension names/customer keys are unique", 'error')
 
         }
     }
