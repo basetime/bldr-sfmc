@@ -155,6 +155,8 @@ export class Config {
 
             displayLine(`Instance Details (showing first 5 characters of credentials)`, 'info');
             displayObject(configJSON);
+
+            configJSON.mids.forEach((mid) => displayObject(mid))
         }
 
         return configJSON;
