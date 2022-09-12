@@ -34,15 +34,16 @@ const initiateBldrSDK = async (
         if (authObject) {
             return new BLDR(authObject);
         }
+
         // If authObject is not passed use the current set credentials to initiate SDK
         const currentState = await getState();
         const stateInstance = currentState.instance;
+        const stateConfiguration = await getInstanceConfiguration(stateInstance);
 
-        let stateConfiguration = await getInstanceConfiguration(stateInstance);
         const sdkConfiguration = {
             client_id: stateConfiguration.apiClientId,
             client_secret: stateConfiguration.apiClientSecret,
-            account_id: account_id || stateInstance.activeMID || stateConfiguration.parentMID,
+            account_id: account_id || currentState.activeMID || stateConfiguration.parentMID,
             auth_url: stateConfiguration.authURI,
         };
 

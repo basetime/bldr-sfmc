@@ -1,3 +1,9 @@
 export const packageDeployIgnore = [
-    'webpage'
+    'webpage',
+    'jscoderesource',
+    'jsoncoderesource',
+    'csscoderesource',
+    'textcoderesource',
+    'rsscoderesource',
+    'xmlcoderesource'
 ]
