@@ -27,7 +27,6 @@ To view full BLDR documentation, visit [getting-started](https://bldr.io/documen
     - In your terminal run `npm install -g @basetime/bldr-sfmc`
         - NOTE: You must include the `-g` flag to be able to use this across multiple projects
 
-
 <br>
 
 ## Updating BLDR
@@ -36,18 +35,20 @@ To view full BLDR documentation, visit [getting-started](https://bldr.io/documen
 
 <br>
 
-
 ## Troubleshooting installation
+
 ### Permission Issues
+
 If you run into permissions issues while installing bldr, you can run the install command as `sudo npm install -g @basetime/bldr-sfmc`.
 
 ### Libsecret Issue
+
 BLDRs enhanced secrity to handle the storing of your API Credentials is handled through the [keytar library](https://www.npmjs.com/package/keytar). As such, the keytar library uses a library called `libsecret` to access the systems credential manager. Libsecret cannot be included as a dependency so you may need to install it prior to installing BLDR. Follow the instructions on the keytar npm page or try the below instructions to install the libsecret library.
 
 **MacOs**
+
 1. [Install Homebrew](https://brew.sh/)
 2. [Install Libsecret](https://formulae.brew.sh/formula/libsecret#default)
-
 
 ## Setup
 

@@ -52,24 +52,22 @@ export class State {
         }
     };
 
-
     toggleVerbose = () => {
-        const isVerbose = state_conf.get('isVerbose')
+        const isVerbose = state_conf.get('isVerbose');
         if (isVerbose !== 'undefined') {
-            isVerbose && displayLine('Verbose messaging turned off', 'info')
-            !isVerbose && displayLine('Verbose messaging turned on', 'info')
+            isVerbose && displayLine('Verbose messaging turned off', 'info');
+            !isVerbose && displayLine('Verbose messaging turned on', 'info');
             state_conf.set({
-                isVerbose: !isVerbose
+                isVerbose: !isVerbose,
             });
         } else {
             state_conf.set({
-                isVerbose: false
+                isVerbose: false,
             });
         }
-    }
+    };
 
     isVerbose = () => {
-       return state_conf.get('isVerbose') || false
-    }
-
+        return state_conf.get('isVerbose') || false;
+    };
 }

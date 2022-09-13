@@ -1,25 +1,26 @@
-const SetContentBlock = async (sfmcUpdateObject: {
-    bldrId?: any;
-    bldr: {
-        bldrId: string;
-    };
-    id?: number;
-    customerKey?: string;
-    name: string;
-    category: {
-        id: number;
+const SetContentBlock = async (
+    sfmcUpdateObject: {
+        bldrId?: any;
+        bldr: {
+            bldrId: string;
+        };
+        id?: number;
+        customerKey?: string;
         name: string;
-        parentId: number;
-        folderPath: string;
-    };
-    assetType: {
-        name: string;
-        id: number;
-    };
-    content?: string;
-},
-updatedContent: string) => {
-
+        category: {
+            id: number;
+            name: string;
+            parentId: number;
+            folderPath: string;
+        };
+        assetType: {
+            name: string;
+            id: number;
+        };
+        content?: string;
+    },
+    updatedContent: string
+) => {
     let returnObject: {
         id?: number;
         customerKey?: string;

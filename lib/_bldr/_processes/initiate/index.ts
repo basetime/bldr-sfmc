@@ -1,15 +1,21 @@
-
-import { Argv } from "../../../_types/Argv";
-import { createFile, fileExists, getAllFiles, getRootPath } from "../../../_utils/fileSystem";
-import { createAllDirectories, createEnv, readManifest, readPackageManifest, replaceBldrSfmcEnv, scrubBldrSfmcEnv } from "../../../_utils/bldrFileSystem";
+import { Argv } from '../../../_types/Argv';
+import { createFile, fileExists, getAllFiles, getRootPath } from '../../../_utils/fileSystem';
+import {
+    createAllDirectories,
+    createEnv,
+    readManifest,
+    readPackageManifest,
+    replaceBldrSfmcEnv,
+    scrubBldrSfmcEnv,
+} from '../../../_utils/bldrFileSystem';
 import axios from 'axios';
-import fs from 'fs'
-import yargsInteractive from "yargs-interactive";
-import { updateManifest } from "../../../_utils/bldrFileSystem/manifestJSON";
-import { displayLine } from "../../../_utils/display";
-import { guid, isDirEmpty } from "../../_utils";
-const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder')
-const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension')
+import fs from 'fs';
+import yargsInteractive from 'yargs-interactive';
+import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
+import { displayLine } from '../../../_utils/display';
+import { guid, isDirEmpty } from '../../_utils';
+const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder');
+const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension');
 
 /**
  * Notes June 2
@@ -18,8 +24,7 @@ const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_d
  * Plan out deploy flow
  */
 export class Initiate {
-    constructor() {
-    }
+    constructor() {}
 
     updateKeys = async () => {
         try {
@@ -35,42 +40,29 @@ export class Initiate {
 
             const manifestJSON = await readManifest();
             let manifestStr = JSON.stringify(manifestJSON);
-            let updatedManifest = JSON.parse(
-                await scrubBldrSfmcEnv(manifestStr)
-            );
+            let updatedManifest = JSON.parse(await scrubBldrSfmcEnv(manifestStr));
 
+            fs.writeFileSync(`./.local.manifest.json`, JSON.stringify(updatedManifest, null, 2));
 
-            fs.writeFileSync(
-                `./.local.manifest.json`,
-                JSON.stringify(updatedManifest, null, 2)
-            );
-
-            if (
-                await fileExists(`${rootPath}.package.manifest.json`)
-            ) {
+            if (await fileExists(`${rootPath}package.manifest.json`)) {
                 const pkgJSON = readPackageManifest();
                 let pkgStr = JSON.stringify(pkgJSON);
                 let updatedPkg = JSON.parse(await scrubBldrSfmcEnv(pkgStr));
-                fs.writeFileSync(
-                    `${rootPath}.package.manifest.json`,
-                    JSON.stringify(updatedPkg, null, 2)
-                );
+                fs.writeFileSync(`${rootPath}package.manifest.json`, JSON.stringify(updatedPkg, null, 2));
             }
         } catch (err: any) {
             console.log(err.message);
         }
-    }
+    };
 
     envOnly = () => {
         return createEnv();
-    }
+    };
 
     initiateContentBuilderProject = async () => {
         const rootPath = await getRootPath();
-        const dirExists = await fileExists(`${rootPath}Content Builder`)
-        const dirEmpty = dirExists && await isDirEmpty(
-            `${rootPath}Content Builder`
-        );
+        const dirExists = await fileExists(`${rootPath}Content Builder`);
+        const dirEmpty = dirExists && (await isDirEmpty(`${rootPath}Content Builder`));
 
         if (!dirExists || dirEmpty) {
             yargsInteractive()
@@ -87,27 +79,22 @@ export class Initiate {
                     await createAllDirectories(folderPaths);
 
                     // Update ManifestJSON file with responses
-                    await updateManifest(
-                        'contentBuilder',
-                        { folders: [], assets: [] }
-                    );
-
+                    await updateManifest('contentBuilder', { folders: [], assets: [] });
 
                     if (initResults.createConfig) {
                         await createEnv();
                     }
                 });
         } else {
-            displayLine(`Root directory must be empty`, 'info')
+            displayLine(`Root directory must be empty`, 'info');
         }
-    }
+    };
 
     initiateDataExtension = async () => {
         yargsInteractive()
             .usage('$bldr init [args]')
             .interactive(dataExtensionInitiate)
             .then(async (initResults) => {
-
                 const initFolderPath = initResults.dataExtensionPath || 'Data Extensions';
                 const folderPaths = [
                     {
@@ -119,10 +106,7 @@ export class Initiate {
                 await createAllDirectories(folderPaths);
 
                 // Update ManifestJSON file with responses
-                await updateManifest(
-                    'dataExtension',
-                    { folders: [], assets: [] }
-                );
+                await updateManifest('dataExtension', { folders: [], assets: [] });
 
                 const dataExtensionInit: {
                     name: string;
@@ -130,7 +114,7 @@ export class Initiate {
                     description: string;
                     category: {
                         folderPath: string;
-                    }
+                    };
                     fields: {
                         name: string;
                         defaultValue: string;
@@ -138,75 +122,73 @@ export class Initiate {
                         maxLength: string;
                         isRequired: Boolean;
                         isPrimaryKey: Boolean;
-                    }[]
+                    }[];
                     isSendable?: Boolean;
                     sendableDataExtensionField?: {
                         name: string;
                         fieldType: string;
                     };
                     sendableSubscriberField?: {
-                        name: string
-                    }
+                        name: string;
+                    };
                     dataRetentionPeriodLength?: number;
                     dataRetentionPeriod?: string;
                     rowBasedRetention?: Boolean;
                     resetRetentionPeriodOnImport?: Boolean;
-                    deleteAtEndOfRetentionPeriod?: Boolean
-
+                    deleteAtEndOfRetentionPeriod?: Boolean;
                 } = {
                     name: initResults.dataExtensionName,
                     customerKey: guid(),
-                    description: "",
+                    description: '',
                     fields: [
                         {
-                            name: "Your Field Name",
-                            defaultValue: "",
+                            name: 'Your Field Name',
+                            defaultValue: '',
                             isRequired: false,
                             isPrimaryKey: false,
-                            fieldType: "Text",
-                            maxLength: "4000"
-                        }
+                            fieldType: 'Text',
+                            maxLength: '4000',
+                        },
                     ],
                     category: {
-                        folderPath: initFolderPath
-                    }
-                }
+                        folderPath: initFolderPath,
+                    },
+                };
 
                 if (initResults.sendableDataExtension) {
                     dataExtensionInit.isSendable = true;
                     dataExtensionInit.sendableDataExtensionField = {
-                        name: "{{ name of field to use in sendable relationship }}",
-                        fieldType: "{{ field type of field to use in sendable relationship }}"
+                        name: '{{ name of field to use in sendable relationship }}',
+                        fieldType: '{{ field type of field to use in sendable relationship }}',
                     };
                     dataExtensionInit.sendableSubscriberField = {
-                        name: "Subscriber Key"
+                        name: 'Subscriber Key',
                     };
                 }
 
                 if (initResults.retentionPeriod !== 'None') {
                     switch (initResults.retentionPeriod) {
                         case 'Individual Records':
-                            dataExtensionInit.dataRetentionPeriodLength = 6
-                            dataExtensionInit.dataRetentionPeriod = "Days | Weeks | Months | Years"
-                            dataExtensionInit.rowBasedRetention = true
+                            dataExtensionInit.dataRetentionPeriodLength = 6;
+                            dataExtensionInit.dataRetentionPeriod = 'Days | Weeks | Months | Years';
+                            dataExtensionInit.rowBasedRetention = true;
                             break;
 
                         case 'All Records and Data Extension':
-                            dataExtensionInit.dataRetentionPeriodLength = 6
-                            dataExtensionInit.dataRetentionPeriod = "Days | Weeks | Months | Years"
-                            dataExtensionInit.rowBasedRetention = false
-                            dataExtensionInit.resetRetentionPeriodOnImport = true
+                            dataExtensionInit.dataRetentionPeriodLength = 6;
+                            dataExtensionInit.dataRetentionPeriod = 'Days | Weeks | Months | Years';
+                            dataExtensionInit.rowBasedRetention = false;
+                            dataExtensionInit.resetRetentionPeriodOnImport = true;
                             break;
 
                         case 'All Records':
-                            dataExtensionInit.rowBasedRetention = false
-                            dataExtensionInit.deleteAtEndOfRetentionPeriod = true
+                            dataExtensionInit.rowBasedRetention = false;
+                            dataExtensionInit.deleteAtEndOfRetentionPeriod = true;
                             break;
                     }
-
                 }
 
-                await createFile(`${initFolderPath}/${initResults.dataExtensionName}.json`, dataExtensionInit)
+                await createFile(`${initFolderPath}/${initResults.dataExtensionName}.json`, dataExtensionInit);
             });
-    }
-};
+    };
+}

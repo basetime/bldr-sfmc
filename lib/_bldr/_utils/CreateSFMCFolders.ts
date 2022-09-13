@@ -1,18 +1,17 @@
-
-import { initiateBldrSDK } from "../../_bldr_sdk";
-import { getFilePathDetails, uniqueArrayByKey } from ".";
-import { displayLine } from "../../_utils/display";
-import { readManifest } from "../../_utils/bldrFileSystem";
-import { updateManifest } from "../../_utils/bldrFileSystem/manifestJSON";
+import { initiateBldrSDK } from '../../_bldr_sdk';
+import { getFilePathDetails, uniqueArrayByKey } from '.';
+import { displayLine } from '../../_utils/display';
+import { readManifest } from '../../_utils/bldrFileSystem';
+import { updateManifest } from '../../_utils/bldrFileSystem/manifestJSON';
+import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
 /**
-     * Method to create new folders in SFMC when the do not exist
-     *
-     * @param {object} categoryDetails various folder/asset values from the full file path
-     * @param {string} dirPath project root folder
-     */
- const addNewFolders = async (stashItemFolderPath: string) => {
+ * Method to create new folders in SFMC when the do not exist
+ *
+ * @param {object} categoryDetails various folder/asset values from the full file path
+ * @param {string} dirPath project root folder
+ */
+const addNewFolders = async (stashItemFolderPath: string) => {
     try {
-
         let createdFolderCount = 0;
         const sdk = await initiateBldrSDK();
         const { context } = await getFilePathDetails(stashItemFolderPath);
@@ -48,8 +47,7 @@ import { updateManifest } from "../../_utils/bldrFileSystem/manifestJSON";
 
             // Check if folder path exists in .local.manifest.json
             const folderIndex = manifestFolders.findIndex(
-                (manifestFolder: { folderPath: string }) =>
-                    checkPath && manifestFolder.folderPath.includes(checkPath)
+                (manifestFolder: { folderPath: string }) => checkPath && manifestFolder.folderPath.includes(checkPath)
             );
 
             // If folder does not exist
@@ -72,6 +70,15 @@ import { updateManifest } from "../../_utils/bldrFileSystem/manifestJSON";
                         throw new Error('No Results Found for Root Folder');
                     }
 
+                    const parentFolderObject = {
+                        id: parentFolderResponse.Results[0].ID,
+                        name: rootContextFolder,
+                        parentId: parentFolderResponse.Results[0].ParentFolder.ID,
+                        folderPath: rootContextFolder,
+                    };
+
+                    await updateManifest(context.context, { folders: [parentFolderObject] });
+
                     parentId = parentFolderResponse.Results[0].ID;
                 }
 
@@ -82,7 +89,16 @@ import { updateManifest } from "../../_utils/bldrFileSystem/manifestJSON";
                     parentId,
                 });
 
-                if (createFolder.StatusCode === 'Error') {
+                if (typeof createFolder === 'string' && createFolder.includes('Please select a different Name.')) {
+                    const existingFolder: any = await addExistingFolderToManifest(sdk, {
+                        context,
+                        folder,
+                        checkPath,
+                        parentId,
+                    });
+
+                    parentId = existingFolder && existingFolder.id;
+                } else if (createFolder.StatusCode === 'Error') {
                     throw new Error(createFolder.StatusMessage);
                 } else {
                     // Wait for response from folder creation and add object to manifestFolder array
@@ -125,6 +141,53 @@ import { updateManifest } from "../../_utils/bldrFileSystem/manifestJSON";
     }
 };
 
-export {
-    addNewFolders
-}
+/**
+ *
+ * @param sdk
+ * @param request
+ * @returns
+ */
+const addExistingFolderToManifest = async (
+    sdk: BLDR_Client,
+    request: {
+        context: {
+            contentType: string;
+            context: string;
+        };
+        folder: string;
+        checkPath: string;
+        parentId: number;
+    }
+) => {
+    const existingFolder = await sdk.sfmc.folder.search({
+        contentType: request.context.contentType,
+        searchKey: 'Name',
+        searchTerm: request.folder,
+        parentId: request.parentId,
+    });
+
+    if (
+        existingFolder.OverallStatus === 'OK' &&
+        Object.prototype.hasOwnProperty.call(existingFolder, 'Results') &&
+        existingFolder.Results.length
+    ) {
+        const results = existingFolder.Results;
+        const folderObject = results.find((folderResult: { Name: string }) => folderResult.Name === request.folder);
+
+        const folderOutput = {
+            id: folderObject.ID,
+            name: request.folder,
+            parentId: folderObject.ParentFolder.ID,
+            folderPath: request.checkPath,
+        };
+
+        folderObject &&
+            (await updateManifest(request.context.context, {
+                folders: [folderOutput],
+            }));
+
+        return folderOutput;
+    }
+};
+
+export { addNewFolders };

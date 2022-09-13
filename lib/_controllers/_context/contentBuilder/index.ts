@@ -65,27 +65,29 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                  */
                 if (argv.f) {
                     const cloneRequest: {
-                        assets: SFMC_Content_Builder_Asset[],
+                        assets: SFMC_Content_Builder_Asset[];
                         folders: {
-                            ID: number,
+                            ID: number;
                             Name: string;
                             ContentType: string;
-                            ParentFolder: any,
+                            ParentFolder: any;
                             FolderPath: string;
-                        }[]
+                        }[];
                     } = await contentBuilder.gatherAssetsByCategoryId({
                         contentType: 'asset',
                         categoryId: argv.f,
                     });
 
-                    const { assets, folders } = cloneRequest
+                    const { assets, folders } = cloneRequest;
 
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
                     assets && assets.length && (await createContentBuilderEditableFiles(assets));
-                    assets && folders && await updateManifest('contentBuilder', {
-                        assets: assets,
-                        folders: isolatedFoldersUnique,
-                    });
+                    assets &&
+                        folders &&
+                        (await updateManifest('contentBuilder', {
+                            assets: assets,
+                            folders: isolatedFoldersUnique,
+                        }));
                 }
 
                 /**
@@ -93,24 +95,26 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                  */
                 if (argv.a) {
                     const cloneRequest: {
-                        assets: SFMC_Content_Builder_Asset[],
+                        assets: SFMC_Content_Builder_Asset[];
                         folders: {
-                            ID: number,
+                            ID: number;
                             Name: string;
                             ContentType: string;
-                            ParentFolder: any,
+                            ParentFolder: any;
                             FolderPath: string;
-                        }[]
+                        }[];
                     } = await contentBuilder.gatherAssetById(argv.a);
 
-                    const { assets, folders } = cloneRequest
+                    const { assets, folders } = cloneRequest;
 
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
                     assets && assets.length && (await createContentBuilderEditableFiles(assets));
-                    assets && folders && await updateManifest('contentBuilder', {
-                        assets: assets,
-                        folders: isolatedFoldersUnique,
-                    });
+                    assets &&
+                        folders &&
+                        (await updateManifest('contentBuilder', {
+                            assets: assets,
+                            folders: isolatedFoldersUnique,
+                        }));
                 }
                 break;
         }

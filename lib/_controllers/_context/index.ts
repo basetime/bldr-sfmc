@@ -15,12 +15,12 @@ const ContextSwitch = async (req: any, argv: Argv) => {
      * Configure New Instance
      */
     if (
-        !argv['content-builder']
-        && !argv.cb
-        && !argv['automation-studio']
-        && !argv.as
-        && !argv.de
-        && !argv['data-extension']
+        !argv['content-builder'] &&
+        !argv.cb &&
+        !argv['automation-studio'] &&
+        !argv.as &&
+        !argv.de &&
+        !argv['data-extension']
     ) {
         throw new Error('Please include a context flag');
     }
@@ -33,9 +33,8 @@ const ContextSwitch = async (req: any, argv: Argv) => {
         AutomationStudioSwitch(req, argv);
     }
 
-
     if (argv.de || argv['data-extension']) {
-        DataExtensionSwitch(req, argv)
+        DataExtensionSwitch(req, argv);
     }
     // /**
     //  * Get Configuration by Instance key

@@ -1,7 +1,7 @@
 //TODO figure out why sfmc_context_mapping is returning module not found
 // import { sfmc_context_mapping } from '@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping'
 const sfmcContext: {
-    sfmc_context_mapping: { name: string, rootName:string }[];
+    sfmc_context_mapping: { name: string; rootName: string }[];
 } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping');
 const getFiles = require('node-recursive-directory');
 
@@ -72,7 +72,7 @@ const createFile = async (filePath: string, content: any) => {
  * @param filePath
  * @param content
  */
-const appendFile = async (filePath:string, content:string) => {
+const appendFile = async (filePath: string, content: string) => {
     fs.readFile(filePath, function (err, fileData) {
         if (err) throw err;
         if (!fileData.includes(content)) {
@@ -81,19 +81,17 @@ const appendFile = async (filePath:string, content:string) => {
             });
         }
     });
-}
+};
 /**
  * Reads .sfmc.config.json file
  *
  * @returns
  */
- const getBldrVersion = async () => {
+const getBldrVersion = async () => {
     const { version } = require('../package.json');
 
-    return version
+    return version;
 };
-
-
 
 const getAllFiles = async () => {
     // Get the root directory for the project being worked on

@@ -1,22 +1,25 @@
-const setHTMLEmail = async (sfmcUpdateObject: {
-    bldrId?: any;
-    bldr: {
-        bldrId: string;
-    }
-    id?: number;
-    customerKey?: string;
-    name: string;
-    category: {
-        id: number;
+const setHTMLEmail = async (
+    sfmcUpdateObject: {
+        bldrId?: any;
+        bldr: {
+            bldrId: string;
+        };
+        id?: number;
+        customerKey?: string;
         name: string;
-        parentId: number;
-        folderPath: string;
-    };
-    assetType: {
-        name: string;
-    };
-    views?: any
-}, updatedContent: string) => {
+        category: {
+            id: number;
+            name: string;
+            parentId: number;
+            folderPath: string;
+        };
+        assetType: {
+            name: string;
+        };
+        views?: any;
+    },
+    updatedContent: string
+) => {
     // Update Content
     let returnObject: {
         id?: number;
@@ -53,15 +56,14 @@ const setHTMLEmail = async (sfmcUpdateObject: {
         },
         views: {
             html: {
-                content: updatedContent
-            }
+                content: updatedContent,
+            },
         },
         assetType: {
             name: 'htmlemail',
             id: 208,
         },
     };
-
 
     if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'id')) {
         returnObject.id = sfmcUpdateObject.id;
@@ -71,7 +73,7 @@ const setHTMLEmail = async (sfmcUpdateObject: {
         returnObject.customerKey = sfmcUpdateObject.customerKey;
     }
 
-    return returnObject
+    return returnObject;
 };
 
 export { setHTMLEmail };

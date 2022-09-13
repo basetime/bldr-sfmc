@@ -3,37 +3,38 @@ import { SetContentBlock } from './ContentBlock';
 import { replaceBldrSfmcEnv } from '../../../../../_utils/bldrFileSystem';
 import { setCloudPage } from './CloudPage';
 
-const setContentBuilderDefinition = async (sfmcUpdateObject: {
-    bldrId?: string;
-    bldr: {
-        bldrId: string;
-    };
-    id?: number;
-    customerKey?: string;
-    name: string;
-    category: {
-        id: number;
+const setContentBuilderDefinition = async (
+    sfmcUpdateObject: {
+        bldrId?: string;
+        bldr: {
+            bldrId: string;
+        };
+        id?: number;
+        customerKey?: string;
         name: string;
-        parentId: number;
-        folderPath: string;
-    };
-    assetType: {
-        name: string;
-        id: number;
-    };
-    content?: string;
-    views?: any
-},
+        category: {
+            id: number;
+            name: string;
+            parentId: number;
+            folderPath: string;
+        };
+        assetType: {
+            name: string;
+            id: number;
+        };
+        content?: string;
+        views?: any;
+    },
     updatedContent: string
 ) => {
     let assetOutput;
-    updatedContent = await replaceBldrSfmcEnv(updatedContent)
+    updatedContent = await replaceBldrSfmcEnv(updatedContent);
     switch (sfmcUpdateObject.assetType.name) {
         case 'webpage':
-            assetOutput = updatedContent && await setCloudPage(sfmcUpdateObject, updatedContent);
+            assetOutput = updatedContent && (await setCloudPage(sfmcUpdateObject, updatedContent));
             break;
         case 'htmlemail':
-            assetOutput = updatedContent && await setHTMLEmail(sfmcUpdateObject, updatedContent);
+            assetOutput = updatedContent && (await setHTMLEmail(sfmcUpdateObject, updatedContent));
             break;
         case 'htmlblock':
         case 'codesnippetblock':
@@ -43,13 +44,13 @@ const setContentBuilderDefinition = async (sfmcUpdateObject: {
         case 'textcoderesource':
         case 'rsscoderesource':
         case 'xmlcoderesource':
-            assetOutput = updatedContent && await SetContentBlock(sfmcUpdateObject, updatedContent)
+            assetOutput = updatedContent && (await SetContentBlock(sfmcUpdateObject, updatedContent));
             break;
         default:
             assetOutput = JSON.parse(updatedContent);
     }
 
-    return assetOutput
+    return assetOutput;
 };
 
 /**
@@ -76,7 +77,7 @@ const updateContentBuilderAssetContent = (asset: any, content: string) => {
             asset.views.text.content = content;
             break;
         default:
-            asset = content
+            asset = content;
     }
 
     return asset;

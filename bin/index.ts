@@ -11,8 +11,8 @@ import { AddSwitch } from '../lib/_controllers/add';
 import { StashSwitch } from '../lib/_controllers/stash';
 import { PushSwitch } from '../lib/_controllers/push';
 import { StatusSwitch } from '../lib/_controllers/status';
-import { PackageSwitch } from '../lib/_controllers/package'
-import { InstallSwitch } from '../lib/_controllers/install'
+import { PackageSwitch } from '../lib/_controllers/package';
+import { InstallSwitch } from '../lib/_controllers/install';
 import { displayLine, displayObject } from '../lib/_utils/display';
 import { DeploySwitch } from '../lib/_controllers/deploy';
 import { InitSwitch } from '../lib/_controllers/initiate';
@@ -32,13 +32,12 @@ const argv = userInput.argv;
  */
 const initCLI = async (req: string, argv: any) => {
     if (!req) {
-
         if (argv.v) {
-            displayLine(`bldr version: ${version}`, 'info')
+            displayLine(`bldr version: ${version}`, 'info');
         }
 
-        if(argv.h) {
-            displayLine('config', 'success')
+        if (argv.h) {
+            displayLine('config', 'success');
             displayObject({
                 '-n, --new              ': 'Create New Configuration',
                 '<instance name>        ': 'View Instance Configuration',
@@ -47,29 +46,28 @@ const initCLI = async (req: string, argv: any) => {
                 '>> -m, --mid           ': 'Set Target MID to Use',
                 '-r, --remove           ': 'Remove Configuration',
                 '--verbose              ': 'Toggle Verbose Messaging',
+            });
 
-            })
-
-            displayLine('status', 'success')
+            displayLine('status', 'success');
             displayObject({
                 '                       ': 'Show Current State and Staged Files',
-            })
+            });
 
-            displayLine('stash', 'success')
+            displayLine('stash', 'success');
             displayObject({
                 '-c                     ': 'Clear All Staged Files',
-            })
+            });
 
-            displayLine('init', 'success')
+            displayLine('init', 'success');
             displayObject({
                 '--cb                ': 'Initiate Content Builder Project',
                 '--de                ': 'Initiate Data Extension',
                 '--env-only          ': 'Setup Environment Variables for Project',
-                '--update-env-keys   ': 'Update .sfmc.env.json keys found in content'
-            })
+                '--update-env-keys   ': 'Update .sfmc.env.json keys found in content',
+            });
 
-            displayLine('search', 'success')
-            displayLine('Search requires the use of context flags.', 'progress')
+            displayLine('search', 'success');
+            displayLine('Search requires the use of context flags.', 'progress');
             displayObject({
                 '--cb -f <search term>      ': 'Content Builder Folders',
                 '--cb -a <search term>      ': 'Content Builder Assets',
@@ -81,10 +79,10 @@ const initCLI = async (req: string, argv: any) => {
                 '--as -a:ssjs <search term> ': 'SSJS Activity Assets',
                 '--de -f <search term>      ': 'Data Extension Folders',
                 '--de -a <search term>      ': 'Data Extension Assets',
-            })
+            });
 
-            displayLine('clone', 'success')
-            displayLine('Clone requires the use of context flags.', 'progress')
+            displayLine('clone', 'success');
+            displayLine('Clone requires the use of context flags.', 'progress');
             displayObject({
                 '--cb -f <folder id>            ': 'Content Builder Folder ID to Clone',
                 '--cb -a <asset id>             ': 'Content Builder Asset ID to Clone',
@@ -96,36 +94,36 @@ const initCLI = async (req: string, argv: any) => {
                 '--as -a:ssjs <definition id>   ': 'SSJS Activity Assets',
                 '--de -f <folder id>            ': 'Data Extension Folder Id to Clone',
                 '--de -a <customer key>         ': 'Data Extension Customer Key to Clone',
-            })
+            });
 
-            displayLine('add', 'success')
+            displayLine('add', 'success');
             displayObject({
                 '.            ': 'Add All Assets to the Stash to be Pushed into SFMC',
                 '<file path>  ': 'Add One or Multiple Assets to the Stash to be Pushed into SFMC',
                 '             ': 'New Assets to be created will prompt for selection of asset type',
-            })
+            });
 
-            displayLine('push', 'success')
+            displayLine('push', 'success');
             displayObject({
-                '                       ': 'Update or Create Assets/Folders in SFMC'
-            })
+                '                       ': 'Update or Create Assets/Folders in SFMC',
+            });
 
-            displayLine('package', 'success')
+            displayLine('package [beta]', 'success');
             displayObject({
-                '                       ': 'Package cloned files'
-            })
+                '                       ': 'Package cloned files',
+            });
 
-            displayLine('install', 'success')
+            displayLine('install [beta]', 'success');
             displayObject({
-                '<github url>            ': 'Download package files from repository'
-            })
+                '<github url>            ': 'Download package files from repository',
+            });
 
-            displayLine('deploy', 'success')
+            displayLine('deploy [beta]', 'success');
             displayObject({
                 '--sfmc-only            ': 'Create files in SFMC only [only recommended for flat packages]',
                 '--local-only           ': 'Create files in locally only [only recommended for flat packages]',
-                '                       ': 'Create local files and push to SFMC'
-            })
+                '                       ': 'Create local files and push to SFMC',
+            });
         }
     } else {
         switch (req) {
@@ -179,7 +177,7 @@ const initCLI = async (req: string, argv: any) => {
                 break;
 
             case 'deploy':
-               DeploySwitch(argv);
+                DeploySwitch(argv);
                 break;
 
             // case 'patch':

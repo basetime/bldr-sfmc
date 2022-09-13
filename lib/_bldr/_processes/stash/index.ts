@@ -80,14 +80,11 @@ export class Stash {
         const stashIndex = stashArr.findIndex((stashItem: StashItem) => stashItem.bldr.bldrId === bldrId);
 
         if (stashIndex === -1) {
-
         } else {
             stashArr.splice(stashArr[stashIndex], 1);
             await stash_conf.set({ [instance]: { stash: stashArr } });
         }
-    }
-
-
+    };
 
     getStashArray = async () => {
         const instance = await getCurrentInstance();

@@ -22,7 +22,7 @@ const { getState } = new State();
  * @property {object} stateConfiguration
  */
 export class Config {
-    constructor() { }
+    constructor() {}
     /**
      * Initiate the setting of a Configuration
      * Prompts user input
@@ -156,7 +156,7 @@ export class Config {
             displayLine(`Instance Details (showing first 5 characters of credentials)`, 'info');
             displayObject(configJSON);
 
-            configJSON.mids.forEach((mid) => displayObject(mid))
+            configJSON.mids.forEach((mid) => displayObject(mid));
         }
 
         return configJSON;
@@ -279,5 +279,4 @@ export class Config {
             displayLine(err.message, 'error');
         }
     };
-
 }

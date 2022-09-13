@@ -65,26 +65,28 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                  */
                 if (argv.f) {
                     const cloneRequest: {
-                        assets: SFMC_Data_Extension_Asset[],
+                        assets: SFMC_Data_Extension_Asset[];
                         folders: {
-                            ID: number,
+                            ID: number;
                             Name: string;
                             ContentType: string;
-                            ParentFolder: any,
+                            ParentFolder: any;
                             FolderPath: string;
-                        }[]
+                        }[];
                     } = await emailStudio.gatherAssetsByCategoryId({
                         contentType: 'dataextension',
                         categoryId: argv.f,
                     });
 
-                    const { assets, folders } = cloneRequest
+                    const { assets, folders } = cloneRequest;
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
                     assets && assets.length && (await createEmailStudioEditableFiles(assets));
-                    assets && folders && await updateManifest('dataExtension', {
-                        assets: assets,
-                        folders: isolatedFoldersUnique,
-                    });
+                    assets &&
+                        folders &&
+                        (await updateManifest('dataExtension', {
+                            assets: assets,
+                            folders: isolatedFoldersUnique,
+                        }));
                 }
 
                 /**
@@ -92,24 +94,26 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                  */
                 if (argv.a) {
                     const cloneRequest: {
-                        assets: SFMC_Data_Extension_Asset[],
+                        assets: SFMC_Data_Extension_Asset[];
                         folders: {
-                            ID: number,
+                            ID: number;
                             Name: string;
                             ContentType: string;
-                            ParentFolder: any,
+                            ParentFolder: any;
                             FolderPath: string;
-                        }[]
+                        }[];
                     } = await emailStudio.gatherAssetById(argv.a);
 
-                     const { assets, folders } = cloneRequest
+                    const { assets, folders } = cloneRequest;
 
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
                     assets && assets.length && (await createEmailStudioEditableFiles(assets));
-                    assets && folders && await updateManifest('dataExtension', {
-                        assets: assets,
-                        folders: isolatedFoldersUnique,
-                    });
+                    assets &&
+                        folders &&
+                        (await updateManifest('dataExtension', {
+                            assets: assets,
+                            folders: isolatedFoldersUnique,
+                        }));
                 }
                 break;
         }

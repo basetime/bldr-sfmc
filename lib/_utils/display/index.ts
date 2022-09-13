@@ -20,7 +20,7 @@ const displayLine = (message: string, status?: string) => {
         case 'progress':
             statusOutput = chalk.yellow;
             break;
-            case 'warn':
+        case 'warn':
             statusOutput = chalk.magenta;
             break;
         default:

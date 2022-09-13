@@ -11,7 +11,6 @@ const { addFiles, addAllFiles } = new Add();
  *
  */
 const AddSwitch = async (req: any, argv: Argv) => {
-
     /**
      * Configure New Instance
      */

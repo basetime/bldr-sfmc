@@ -1,6 +1,6 @@
-import { Install } from '../../_bldr/_processes/install'
+import { Install } from '../../_bldr/_processes/install';
 import { Argv } from '../../_types/Argv';
-const {installPackage} = new Install();
+const { installPackage } = new Install();
 
 /**
  * Flag routing for init command
@@ -10,5 +10,5 @@ const {installPackage} = new Install();
  * @param {object} blueprint
  */
 export async function InstallSwitch(argv: Argv) {
-    return installPackage(argv)
+    return installPackage(argv);
 }

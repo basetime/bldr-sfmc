@@ -5,5 +5,5 @@ export const packageDeployIgnore = [
     'csscoderesource',
     'textcoderesource',
     'rsscoderesource',
-    'xmlcoderesource'
-]
+    'xmlcoderesource',
+];

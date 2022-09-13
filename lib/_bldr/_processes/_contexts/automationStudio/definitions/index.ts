@@ -1,23 +1,24 @@
-import { setScriptActivity } from "./ScriptActivity";
-import { setQueryActivity } from "./QueryActivity";
+import { setScriptActivity } from './ScriptActivity';
+import { setQueryActivity } from './QueryActivity';
 
-const setAutomationStudioDefinition = async (sfmcUpdateObject: {
-    ssjsActivityId?: string;
-    name: string;
-    key?: string;
-    description: string;
-    script: string;
-    categoryId: number;
-    status: string;
-    assetType: {
-        api: string;
+const setAutomationStudioDefinition = async (
+    sfmcUpdateObject: {
+        ssjsActivityId?: string;
         name: string;
-        objectIdKey: string;
-        folder: string;
+        key?: string;
+        description: string;
+        script: string;
+        categoryId: number;
+        status: string;
+        assetType: {
+            api: string;
+            name: string;
+            objectIdKey: string;
+            folder: string;
+        };
+        category: { folderPath: string };
+        bldrId: string;
     },
-    category: { folderPath: string; },
-    bldrId: string
-},
     updatedContent: string
 ) => {
     const assetType = sfmcUpdateObject.assetType.name;
@@ -25,15 +26,15 @@ const setAutomationStudioDefinition = async (sfmcUpdateObject: {
 
     switch (assetType) {
         case 'ssjsactivity':
-            assetOutput = await setScriptActivity(sfmcUpdateObject, updatedContent)
+            assetOutput = await setScriptActivity(sfmcUpdateObject, updatedContent);
             break;
         case 'queryactivity':
-            assetOutput = await setQueryActivity(sfmcUpdateObject, updatedContent)
+            assetOutput = await setQueryActivity(sfmcUpdateObject, updatedContent);
             break;
         default:
             assetOutput = JSON.parse(updatedContent);
     }
-    return assetOutput
+    return assetOutput;
 };
 
 /**

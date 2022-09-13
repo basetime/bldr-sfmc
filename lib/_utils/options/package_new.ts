@@ -1,4 +1,3 @@
-
 const package_new = (manifestJSON: any) => {
     return {
         interactive: { default: true },
@@ -35,6 +34,4 @@ const package_new = (manifestJSON: any) => {
     };
 };
 
-export {
-    package_new
-}
+export { package_new };

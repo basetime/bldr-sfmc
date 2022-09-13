@@ -1,4 +1,4 @@
-import {Initiate} from '../../_bldr/_processes/initiate'
+import { Initiate } from '../../_bldr/_processes/initiate';
 import { Argv } from '../../_types/Argv';
 const initiate = new Initiate();
 /**
@@ -21,7 +21,7 @@ export async function InitSwitch(argv: Argv) {
         return initiate.initiateContentBuilderProject();
     }
 
-    if(argv.de){
-        return initiate.initiateDataExtension()
+    if (argv.de) {
+        return initiate.initiateDataExtension();
     }
 }

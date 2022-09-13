@@ -36,7 +36,7 @@ const createEmailStudioEditableFiles = async (assets: any[]) => {
             content = await updateFilesFromConfiguration(content);
             await createFile(dirPath, content);
 
-             displayLine(`created [local]: ${asset.name}`, 'success');
+            displayLine(`created [local]: ${asset.name}`, 'success');
         }
     } catch (err: any) {
         displayLine(`ERROR: ${err.message}`);

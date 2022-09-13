@@ -9,7 +9,6 @@ import { SFMC_Automation } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_asse
 import { createAutomationStudioEditableFiles } from '../../../_utils/bldrFileSystem/_context/automationStudio/CreateLocalFiles';
 import { createContentBuilderEditableFiles } from '../../../_utils/bldrFileSystem/_context/contentBuilder/CreateLocalFiles';
 
-
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { findPassword } from 'keytar-sync';
 import { update } from 'lodash';
@@ -38,19 +37,19 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                  */
                 if (argv.f) {
                     if (typeof argv.f === 'string' && argv.f.includes(':')) {
-                        const activity = argv.f.split(":")[1]
-                        const searchTerm = argv._ && argv._[1]
+                        const activity = argv.f.split(':')[1];
+                        const searchTerm = argv._ && argv._[1];
 
-                        let contentType: string = ''
+                        let contentType: string = '';
                         switch (activity) {
                             case 'ssjs':
-                                contentType = 'ssjsactivity'
+                                contentType = 'ssjsactivity';
                                 break;
                             case 'sql':
-                                contentType = 'queryactivity'
+                                contentType = 'queryactivity';
                                 break;
                             case 'esd':
-                                contentType = 'userinitiatedsends'
+                                contentType = 'userinitiatedsends';
                                 break;
                         }
 
@@ -64,9 +63,8 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         searchRequest.forEach((obj: any) => {
                             displayObject(flatten(obj));
                         });
-
                     } else {
-                        console.log(argv.f)
+                        console.log(argv.f);
                         const searchRequest = await automationStudio.searchFolders({
                             contentType: 'automations',
                             searchKey: 'Name',
@@ -78,9 +76,6 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                             displayObject(flatten(obj));
                         });
                     }
-
-
-
                 }
 
                 /**
@@ -88,17 +83,22 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                  */
                 if (argv.a) {
                     if (typeof argv.a === 'string' && argv.a.includes(':')) {
-                        const activity = argv.a.split(":")[1]
-                        const searchTerm = argv._ && argv._[1]
+                        const activity = argv.a.split(':')[1];
+                        const searchTerm = argv._ && argv._[1];
 
-                        const searchRequest = await automationStudio.searchActivity(activity, searchTerm)
-                        searchRequest && searchRequest.length && searchRequest.forEach((item: {
-                            Name: string;
-                            queryDefinitionId: string;
-                            CategoryID: number,
-                            ModifiedDate: string;
-                        }[]) => displayObject(item))
-
+                        const searchRequest = await automationStudio.searchActivity(activity, searchTerm);
+                        searchRequest &&
+                            searchRequest.length &&
+                            searchRequest.forEach(
+                                (
+                                    item: {
+                                        Name: string;
+                                        queryDefinitionId: string;
+                                        CategoryID: number;
+                                        ModifiedDate: string;
+                                    }[]
+                                ) => displayObject(item)
+                            );
                     } else {
                         const searchRequest = await automationStudio.searchAssets({
                             searchKey: 'Name',
@@ -119,57 +119,56 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                  * Search for Content Builder Folders
                  */
                 if (typeof argv.f === 'string' && argv.f.includes(':')) {
-                    const activity = argv.f.split(":")[1]
-                    const categoryId = argv._ && argv._[1]
+                    const activity = argv.f.split(':')[1];
+                    const categoryId = argv._ && argv._[1];
 
-                    let contentType: string = ''
+                    let contentType: string = '';
                     switch (activity) {
                         case 'ssjs':
-                            contentType = 'ssjsactivity'
+                            contentType = 'ssjsactivity';
                             break;
                         case 'sql':
-                            contentType = 'queryactivity'
+                            contentType = 'queryactivity';
                             break;
                         case 'esd':
-                            contentType = 'userinitiatedsends'
+                            contentType = 'userinitiatedsends';
                             break;
                     }
 
                     const searchRequest = await automationStudio.gatherAutomationDefinitionsByCategoryId({
                         contentType,
-                        categoryId
-                    })
+                        categoryId,
+                    });
 
-                    const { assets, folders } = searchRequest
+                    const { assets, folders } = searchRequest;
 
                     const formattedAssetResponse = await assets.map((asset: any) => {
-                        const category = folders.find((folder: { ID: number }) => folder.ID === asset.categoryId)
-                        asset.assetType = MappingByActivityType(contentType)
-                            asset.category = {
-                                id: category.ID,
-                                name: category.Name,
-                                parentId: category.ParentFolder.ID,
-                                folderPath: category.FolderPath
-                            }
+                        const category = folders.find((folder: { ID: number }) => folder.ID === asset.categoryId);
+                        asset.assetType = MappingByActivityType(contentType);
+                        asset.category = {
+                            id: category.ID,
+                            name: category.Name,
+                            parentId: category.ParentFolder.ID,
+                            folderPath: category.FolderPath,
+                        };
 
-                        return asset
-                    })
+                        return asset;
+                    });
 
                     const formattedAssetCategories = folders.map((category: any) => {
                         return {
                             id: category.ID,
                             name: category.Name,
                             parentId: category.ParentFolder.ID,
-                            folderPath: category.FolderPath
-                        }
-                    })
+                            folderPath: category.FolderPath,
+                        };
+                    });
 
-                    await createAutomationStudioEditableFiles(formattedAssetResponse)
+                    await createAutomationStudioEditableFiles(formattedAssetResponse);
                     await updateManifest('automationStudio', {
                         assets: formattedAssetResponse,
-                        folders: formattedAssetCategories
-                    })
-
+                        folders: formattedAssetCategories,
+                    });
                 } else {
                     const cloneAutomationRequest: {
                         formattedAssetResponse: any[];

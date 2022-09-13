@@ -26,7 +26,7 @@ const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_As
             switch (assetType) {
                 case 'webpage':
                 case 'htmlemail':
-                    content = asset && asset.views && asset.views.html && asset.views.html.content || asset.content;
+                    content = (asset && asset.views && asset.views.html && asset.views.html.content) || asset.content;
                     ext = '.html';
                     dirPath = `${folderPath}/${fileName}${ext}`;
                     break;

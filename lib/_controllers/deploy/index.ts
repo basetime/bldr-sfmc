@@ -1,6 +1,6 @@
-import { Deploy } from '../../_bldr/_processes/deploy'
+import { Deploy } from '../../_bldr/_processes/deploy';
 import { Argv } from '../../_types/Argv';
-const {deployPackage} = new Deploy();
+const { deployPackage } = new Deploy();
 
 /**
  * Flag routing for init command
@@ -10,5 +10,5 @@ const {deployPackage} = new Deploy();
  * @param {object} blueprint
  */
 export async function DeploySwitch(argv: Argv) {
-    return deployPackage(argv)
+    return deployPackage(argv);
 }

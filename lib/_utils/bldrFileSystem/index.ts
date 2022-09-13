@@ -16,13 +16,12 @@ const readBldrSfmcEnv = async () => {
     }
 };
 
-
 /**
  * Reads .sfmc.config.json file
  *
  * @returns
  */
- const readBldrSfmcEnvTemplate = async () => {
+const readBldrSfmcEnvTemplate = async () => {
     const rootPath = await getRootPath();
     if (fileExists(`${rootPath}template.sfmc.env.json`)) {
         const config = fs.readFileSync(`${rootPath}template.sfmc.env.json`);
@@ -39,32 +38,18 @@ const createEnv = async (config = null, template = true) => {
     };
 
     const dirPath = await getRootPath();
-    await createFile(
-        `${dirPath}.sfmc.env.json`,
-        JSON.stringify(configTemplate, null, 2)
-    );
+    await createFile(`${dirPath}.sfmc.env.json`, JSON.stringify(configTemplate, null, 2));
 
     if (template) {
-        await createFile(
-            `${dirPath}template.sfmc.env.json`,
-            JSON.stringify(configTemplate, null, 2)
-        );
+        await createFile(`${dirPath}template.sfmc.env.json`, JSON.stringify(configTemplate, null, 2));
     }
 
     if (fileExists(`${dirPath}.gitignore`)) {
-        await appendFile(
-            `${dirPath}.gitignore`,
-            `\n#sfmc env \n.sfmc.env.json`
-        );
+        await appendFile(`${dirPath}.gitignore`, `\n#sfmc env \n.sfmc.env.json`);
     } else {
-        await createFile(
-            `${dirPath}.gitignore`,
-            `\n#sfmc env \n.sfmc.env.json`
-        );
+        await createFile(`${dirPath}.gitignore`, `\n#sfmc env \n.sfmc.env.json`);
     }
 };
-
-
 
 const scrubBldrSfmcEnv = async (content: string) => {
     const dirPath = await getRootPath();
@@ -75,7 +60,7 @@ const scrubBldrSfmcEnv = async (content: string) => {
         for (const c in config) {
             const key = c;
             const value = config[c];
-            if (value !=="" && content.match(value)) {
+            if (value !== '' && content.match(value)) {
                 content = content.replace(value, `{{${key}}}`);
             }
         }
@@ -93,7 +78,7 @@ const replaceBldrSfmcEnv = async (content: string) => {
             const key = c;
             const value = config[c];
             if (content.match(key)) {
-                content = value && value !== "" && content.replace(`{{${key}}}`, value) || content;
+                content = (value && value !== '' && content.replace(`{{${key}}}`, value)) || content;
             }
         }
     }
@@ -120,13 +105,11 @@ const readManifest = async () => {
  */
 const readPackageManifest = async () => {
     const rootPath = await getRootPath();
-    if (fileExists(`${rootPath}.package.manifest.json`)) {
-        const config = fs.readFileSync(`${rootPath}.package.manifest.json`);
+    if (fileExists(`${rootPath}package.manifest.json`)) {
+        const config = fs.readFileSync(`${rootPath}package.manifest.json`);
         return JSON.parse(config.toString());
     }
 };
-
-
 
 const createAllDirectories = (folderPaths: { folderPath: string }[]) => {
     const directories = folderPaths.map(({ folderPath }) => folderPath);
@@ -134,7 +117,7 @@ const createAllDirectories = (folderPaths: { folderPath: string }[]) => {
         const dir = directories[f];
         createDirectory(dir);
     }
-}
+};
 
 const createDirectory = async (dir: string) => {
     try {
@@ -142,7 +125,7 @@ const createDirectory = async (dir: string) => {
     } catch (e) {
         await fsPromises.mkdir(dir, { recursive: true });
     }
-}
+};
 
 export {
     readBldrSfmcEnv,
@@ -153,5 +136,5 @@ export {
     readManifest,
     readPackageManifest,
     createAllDirectories,
-    createDirectory
+    createDirectory,
 };

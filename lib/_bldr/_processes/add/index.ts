@@ -29,7 +29,7 @@ const { saveStash, displayStashStatus } = new Stash();
  * @property {object} stateConfiguration
  */
 export class Add {
-    constructor() { }
+    constructor() {}
     /**
      * Handles all file functionality
      * Works with Stash backend file
@@ -63,7 +63,7 @@ export class Add {
 
             const { putFiles, postFiles, postFileOptions } = organizedFiles;
 
-            putFiles && putFiles.length && await saveStash(putFiles);
+            putFiles && putFiles.length && (await saveStash(putFiles));
             await this.buildNewAssetObjects({
                 postFileOptions,
                 postFiles,
@@ -118,7 +118,7 @@ export class Add {
             if (!packageJSON) {
                 const organizedFiles = await this.gatherAllFiles(contextFiles, rootPath);
                 const { putFiles, postFiles, postFileOptions } = organizedFiles;
-                putFiles && putFiles.length && await saveStash(putFiles);
+                putFiles && putFiles.length && (await saveStash(putFiles));
                 await this.buildNewAssetObjects({
                     postFileOptions,
                     postFiles,
@@ -128,7 +128,7 @@ export class Add {
             } else {
                 const organizedFiles = await this.gatherAllFilesFromPackage(contextFiles);
                 const { postFiles } = organizedFiles;
-                postFiles && postFiles.length && await saveStash(postFiles);
+                postFiles && postFiles.length && (await saveStash(postFiles));
             }
 
             await displayStashStatus();
@@ -164,19 +164,20 @@ export class Add {
         } = {};
 
         // Get all available contexts to check for files
-        const availableContexts = contextFiles.map(filePath => {
+        const availableContexts = contextFiles.map((filePath) => {
             const { context } = getFilePathDetails(filePath);
-            return filePath.includes(context.name) && context
+            return filePath.includes(context.name) && context;
         });
 
         for (const context in availableContexts) {
-            const contextPaths = contextFiles.filter(file => file.includes(availableContexts[context].name))
+            const contextPaths = contextFiles.filter((file) => file.includes(availableContexts[context].name));
             const bldrContext = availableContexts[context].context;
 
             // Retrieve Manifest JSON file and get the assets for the specific context
-            type ManifestContext = any
+            type ManifestContext = any;
 
-            const manifestContextAssets: ManifestContext[] = manifestJSON[bldrContext] && manifestJSON[bldrContext]['assets'];
+            const manifestContextAssets: ManifestContext[] =
+                manifestJSON[bldrContext] && manifestJSON[bldrContext]['assets'];
 
             // If the Manifest JSON file has an assets Array process files
             if (manifestContextAssets) {
@@ -198,10 +199,10 @@ export class Add {
                     if (existingAsset) {
                         const fileContentRaw = await readFile(systemFilePath);
                         const fileContent = fileContentRaw.toString();
-                        const objectIdKey = existingAsset.assetType?.objectIdKey
+                        const objectIdKey = existingAsset.assetType?.objectIdKey;
 
                         const existingSchema: {
-                            [key: string]: any
+                            [key: string]: any;
                         } = {
                             path: systemFilePath,
                             bldr: {
@@ -210,19 +211,19 @@ export class Add {
                                 folderPath: existingAsset.category && existingAsset.category.folderPath,
                             },
                             fileContent,
-                        }
+                        };
 
                         if (existingAsset.id) {
-                            existingSchema.bldr.id = existingAsset.id
+                            existingSchema.bldr.id = existingAsset.id;
                         } else if (objectIdKey) {
-                            existingSchema.bldr.id = existingAsset[objectIdKey]
+                            existingSchema.bldr.id = existingAsset[objectIdKey];
                         }
 
                         // If the file exists build the stash object for a put request
                         putFiles.push(existingSchema);
 
                         // Once stash file is processed remove the filepath from items waiting for processing
-                        remove(contextFiles, (contextFilePath) => contextFilePath === systemFilePath)
+                        remove(contextFiles, (contextFilePath) => contextFilePath === systemFilePath);
                     } else {
                         // If the file does not exist build the stash object for a post request
                         // Also Build the options for CLI prompt
@@ -241,7 +242,7 @@ export class Add {
                                 folderPath,
                                 bldrId,
                             },
-                            fileContent
+                            fileContent,
                         });
 
                         if (availableContexts[context]['context'] === 'contentBuilder') {
@@ -253,7 +254,7 @@ export class Add {
                             };
                         }
                         // Once stash file is processed remove the filepath from items waiting for processing
-                        remove(contextFiles, (contextFilePath) => contextFilePath === systemFilePath)
+                        remove(contextFiles, (contextFilePath) => contextFilePath === systemFilePath);
                     }
                 }
             }
@@ -271,34 +272,35 @@ export class Add {
         };
     };
     /**
-         *
-         * @param contextFiles
-         * @param rootPath
-         */
+     *
+     * @param contextFiles
+     * @param rootPath
+     */
     gatherAllFilesFromPackage = async (contextFiles: string[]) => {
         // Store all complete objects for Stash
         const postFiles = [];
-        const rootPath = getRootPath()
+        const rootPath = getRootPath();
         // Get manifest JSON file
-        const packagePath = rootPath ? `${rootPath}.package.manifest.json` : `./.package.manifest.json`;
+        const packagePath = rootPath ? `${rootPath}package.manifest.json` : `./package.manifest.json`;
         // Read ManifestJSON file from root dir
         const packageFile: any = await readFile(packagePath);
         const packageJSON = JSON.parse(packageFile);
 
         // Get all available contexts to check for files
-        const availableContexts = contextFiles.map(filePath => {
+        const availableContexts = contextFiles.map((filePath) => {
             const { context } = getFilePathDetails(filePath);
-            return filePath.includes(context.name) && context
+            return filePath.includes(context.name) && context;
         });
 
         for (const context in availableContexts) {
-            const contextPaths = contextFiles.filter(file => file.includes(availableContexts[context].name))
+            const contextPaths = contextFiles.filter((file) => file.includes(availableContexts[context].name));
             const bldrContext = availableContexts[context].context;
 
             // Retrieve Manifest JSON file and get the assets for the specific context
-            type ManifestContext = any
+            type ManifestContext = any;
 
-            const manifestContextAssets: ManifestContext[] = packageJSON[bldrContext] && packageJSON[bldrContext]['assets'];
+            const manifestContextAssets: ManifestContext[] =
+                packageJSON[bldrContext] && packageJSON[bldrContext]['assets'];
 
             // If the Manifest JSON file has an assets Array process files
             if (manifestContextAssets) {
@@ -330,20 +332,20 @@ export class Add {
                             folderPath: packageAsset.category && packageAsset.category.folderPath,
                         },
                         fileContent,
-                        assetType: packageAsset.assetType
-                    }
+                        assetType: packageAsset.assetType,
+                    };
 
                     // If the file exists build the stash object for a put request
                     postFiles.push(existingSchema);
 
                     // Once stash file is processed remove the filepath from items waiting for processing
-                    remove(contextFiles, (contextFilePath) => contextFilePath === systemFilePath)
+                    remove(contextFiles, (contextFilePath) => contextFilePath === systemFilePath);
                 }
             }
         }
 
         return {
-            postFiles
+            postFiles,
         };
     };
     /**
@@ -363,7 +365,6 @@ export class Add {
     }) => {
         const options = request && request.postFileOptions;
 
-
         return yargsInteractive()
             .usage('$0 <command> [args]')
             .interactive(options)
@@ -378,24 +379,24 @@ export class Add {
 
                         if (postFile) {
                             // Get Asset Type from user input
-                            if(optionsResult[resultBldrId]){
-                             postFile.assetType = MappingByAssetType(optionsResult[resultBldrId]);
+                            if (optionsResult[resultBldrId]) {
+                                postFile.assetType = MappingByAssetType(optionsResult[resultBldrId]);
                             }
 
                             await saveStash(postFile);
                         }
                     }
 
-                    const noOptionFiles = request.postFiles.filter((noOptionPost: any) => !Object.keys(optionsResult).includes(noOptionPost.bldr.bldrId))
-                    for(const noOpt in noOptionFiles){
-                        const postFile = noOptionFiles[noOpt]
-                        await saveStash(postFile)
+                    const noOptionFiles = request.postFiles.filter(
+                        (noOptionPost: any) => !Object.keys(optionsResult).includes(noOptionPost.bldr.bldrId)
+                    );
+                    for (const noOpt in noOptionFiles) {
+                        const postFile = noOptionFiles[noOpt];
+                        await saveStash(postFile);
                     }
-
                 } catch (err: any) {
                     displayLine(`Create Asset Error: ${err.message}`);
                 }
             });
     };
-
 }

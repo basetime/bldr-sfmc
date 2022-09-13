@@ -1,27 +1,28 @@
-import { number } from "yargs";
+import { number } from 'yargs';
 
-import { MappingByActivityType } from "../../../../../_utils/bldrFileSystem/_context/automationStudio/automationActivities";
+import { MappingByActivityType } from '../../../../../_utils/bldrFileSystem/_context/automationStudio/automationActivities';
 
-const setQueryActivity = async (asset: {
-    queryDefinitionId?: string;
-    name: string;
-    key?: string;
-    description: string;
-    script: string;
-    categoryId: number;
-    status: string;
-    assetType: {
-        api: string;
+const setQueryActivity = async (
+    asset: {
+        queryDefinitionId?: string;
         name: string;
-        objectIdKey: string;
-        folder: string;
+        key?: string;
+        description: string;
+        script: string;
+        categoryId: number;
+        status: string;
+        assetType: {
+            api: string;
+            name: string;
+            objectIdKey: string;
+            folder: string;
+        };
+        category: { folderPath: string };
+        bldrId: string;
     },
-    category: { folderPath: string; },
-    bldrId: string
-},
-    updatedContent: string) => {
-
-    const assetType = await MappingByActivityType(asset.assetType.name)
+    updatedContent: string
+) => {
+    const assetType = await MappingByActivityType(asset.assetType.name);
 
     if (assetType) {
         let returnObject: {
@@ -32,12 +33,12 @@ const setQueryActivity = async (asset: {
             categoryId: number;
             queryText: string;
             assetType: {
-                objectTypeId: number,
+                objectTypeId: number;
                 api: string;
                 name: string;
                 objectIdKey: string;
                 folder: string;
-            }
+            };
         } = {
             name: asset.name,
             description: asset.description,
@@ -54,10 +55,8 @@ const setQueryActivity = async (asset: {
             returnObject.queryDefinitionId = asset.queryDefinitionId;
         }
 
-        return returnObject
+        return returnObject;
     }
 };
 
-export {
-    setQueryActivity
-}
+export { setQueryActivity };

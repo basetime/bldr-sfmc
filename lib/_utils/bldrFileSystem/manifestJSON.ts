@@ -40,11 +40,7 @@ const updateManifest = async (
         const state = assignObject(state_conf.get());
 
         if (state) {
-            const {
-                instance,
-                parentMID,
-                activeMID
-            } = state;
+            const { instance, parentMID, activeMID } = state;
             await createFile(
                 manifestPath,
                 JSON.stringify(
@@ -52,8 +48,8 @@ const updateManifest = async (
                         instanceDetails: {
                             instance,
                             parentMID,
-                            activeMID
-                        }
+                            activeMID,
+                        },
                     },
                     null,
                     2
@@ -99,7 +95,7 @@ const updateManifest = async (
                 const updateItem = AssetTypeItems[i];
                 let itemId: number | string | undefined;
                 let manifestContextItems: {
-                    [key: string]: any
+                    [key: string]: any;
                 }[] = manifestContextObject[assetType];
 
                 let manifestObj;
@@ -123,9 +119,8 @@ const updateManifest = async (
                     }
                 } else if (assetType === 'folders') {
                     itemId = updateItem.id;
-                    manifestObj = manifestContextItems.find(({ id }) => id === itemId)
+                    manifestObj = manifestContextItems.find(({ id }) => id === itemId);
                 }
-
 
                 // If the item is not found based on the ID add it to the Context Items Array
                 // If the item is found check that the items are equal
@@ -139,16 +134,20 @@ const updateManifest = async (
                             if (context === 'contentBuilder') {
                                 updateIndex = manifestContextItems.findIndex(({ id }) => id === updateItem.id);
                             } else if (context === 'automationStudio') {
-                                const objectIdKey = updateItem && updateItem.assetType && updateItem.assetType.objectIdKey;
+                                const objectIdKey =
+                                    updateItem && updateItem.assetType && updateItem.assetType.objectIdKey;
                                 let itemId =
                                     objectIdKey &&
                                     Object.prototype.hasOwnProperty.call(updateItem, objectIdKey) &&
                                     updateItem[objectIdKey];
-                                updateIndex = manifestContextItems.findIndex((item: { [key: string]: any }) => itemId && item[itemId] === updateItem[itemId]);
-
+                                updateIndex = manifestContextItems.findIndex(
+                                    (item: { [key: string]: any }) => itemId && item[itemId] === updateItem[itemId]
+                                );
                             } else if (context === 'dataExtension') {
                                 itemId = updateItem.customerKey || updateItem.id;
-                                updateIndex = manifestContextItems.findIndex(({ customerKey }) => customerKey === updateItem.customerKey);
+                                updateIndex = manifestContextItems.findIndex(
+                                    ({ customerKey }) => customerKey === updateItem.customerKey
+                                );
                             }
                         } else if (assetType === 'folders') {
                             itemId = updateItem.id;
@@ -158,7 +157,6 @@ const updateManifest = async (
                         if (typeof updateIndex !== 'undefined') {
                             manifestContextItems[updateIndex] = updateItem;
                         }
-
                     }
                 }
 
@@ -176,7 +174,7 @@ const updateManifest = async (
     }
 
     let manifestStr = JSON.stringify(manifestJSON);
-    manifestStr = await scrubBldrSfmcEnv(manifestStr)
+    manifestStr = await scrubBldrSfmcEnv(manifestStr);
     let updatedManifest = JSON.parse(manifestStr);
 
     await fs.writeFileSync(manifestPath, JSON.stringify(updatedManifest, null, 2));

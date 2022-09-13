@@ -1,22 +1,25 @@
-const setCloudPage = async (sfmcUpdateObject: {
-    bldrId?: any;
-    bldr: {
-        bldrId: string;
-    }
-    id?: number;
-    customerKey?: string;
-    name: string;
-    category: {
-        id: number;
+const setCloudPage = async (
+    sfmcUpdateObject: {
+        bldrId?: any;
+        bldr: {
+            bldrId: string;
+        };
+        id?: number;
+        customerKey?: string;
         name: string;
-        parentId: number;
-        folderPath: string;
-    };
-    assetType: {
-        name: string;
-    };
-    views?: any
-}, updatedContent: string) => {
+        category?: {
+            id: number;
+            name: string;
+            parentId: number;
+            folderPath: string;
+        };
+        assetType: {
+            name: string;
+        };
+        views?: any;
+    },
+    updatedContent: string
+) => {
     // Update Content
     let returnObject: {
         id?: number;
@@ -27,26 +30,20 @@ const setCloudPage = async (sfmcUpdateObject: {
             name: string;
             id: number;
         };
-        category: {
-            id: number;
-            name: string;
-            parentId: number;
-            folderPath: string;
+        category?: {
+            id?: number;
+            name?: string;
+            parentId?: number;
+            folderPath?: string;
         };
         views: any;
     } = {
         bldrId: sfmcUpdateObject.bldr.bldrId || sfmcUpdateObject.bldrId,
         name: sfmcUpdateObject.name,
-        category: {
-            id: sfmcUpdateObject.category.id,
-            name: sfmcUpdateObject.category.name,
-            parentId: sfmcUpdateObject.category.parentId,
-            folderPath: sfmcUpdateObject.category.folderPath,
-        },
         views: {
             html: {
-                content: updatedContent
-            }
+                content: updatedContent,
+            },
         },
         assetType: {
             name: 'webpage',
@@ -54,6 +51,14 @@ const setCloudPage = async (sfmcUpdateObject: {
         },
     };
 
+    if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'category')) {
+        returnObject.category = {
+            id: sfmcUpdateObject && sfmcUpdateObject.category && sfmcUpdateObject.category.id,
+            name: sfmcUpdateObject && sfmcUpdateObject.category && sfmcUpdateObject.category.name,
+            parentId: sfmcUpdateObject && sfmcUpdateObject.category && sfmcUpdateObject.category.parentId,
+            folderPath: sfmcUpdateObject && sfmcUpdateObject.category && sfmcUpdateObject.category.folderPath,
+        };
+    }
 
     if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'id')) {
         returnObject.id = sfmcUpdateObject.id;
@@ -63,7 +68,7 @@ const setCloudPage = async (sfmcUpdateObject: {
         returnObject.customerKey = sfmcUpdateObject.customerKey;
     }
 
-    return returnObject
+    return returnObject;
 };
 
 export { setCloudPage };
