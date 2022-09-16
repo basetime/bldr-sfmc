@@ -50,6 +50,8 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                 (manifestFolder: { folderPath: string }) => checkPath && manifestFolder.folderPath.includes(checkPath)
             );
 
+            console.log('folderIndex', folderIndex)
+
             // If folder does not exist
             if (folderIndex === -1) {
                 if (typeof parentId === 'undefined') {
@@ -82,12 +84,15 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                     parentId = parentFolderResponse.Results[0].ID;
                 }
 
+
                 // Create folder via SFMC API
                 createFolder = await sdk.sfmc.folder.createFolder({
                     contentType: context.contentType,
                     name: folder,
                     parentId,
                 });
+
+            console.log('createFolder', createFolder)
 
                 if (typeof createFolder === 'string' && createFolder.includes('Please select a different Name.')) {
                     const existingFolder: any = await addExistingFolderToManifest(sdk, {

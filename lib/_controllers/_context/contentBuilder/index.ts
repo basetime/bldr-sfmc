@@ -6,6 +6,9 @@ import { uniqueArrayByKey } from '../../../_bldr/_utils';
 import flatten from 'flat';
 import { createContentBuilderEditableFiles } from '../../../_utils/bldrFileSystem/_context/contentBuilder/CreateLocalFiles';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
+import yargsInteractive from 'yargs-interactive';
+const delete_confirm = require('../../../_utils/options/delete_confirm')
+
 /**
  * Flag routing for Config command
  *
@@ -115,6 +118,21 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             assets: assets,
                             folders: isolatedFoldersUnique,
                         }));
+                }
+                break;
+
+            case 'delete':
+                if (argv.f) { }
+
+                if (argv.a) {
+                    yargsInteractive()
+                        .usage('$bldr init [args]')
+                        .interactive(delete_confirm)
+                        .then(async (initResults) => {
+
+
+
+                        })
                 }
                 break;
         }
