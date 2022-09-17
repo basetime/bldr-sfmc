@@ -122,17 +122,63 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                 break;
 
             case 'delete':
-                if (argv.f) { }
+                if (argv.f) {
+                    // TODO: need to use only supplied folder and subfolders, not foldersFromMiddle function
+                    const deleteRequest: {
+                        assets: SFMC_Content_Builder_Asset[];
+                        folders: {
+                            ID: number;
+                            Name: string;
+                            ContentType: string;
+                            ParentFolder: any;
+                            FolderPath: string;
+                        }[];
+                    } = await contentBuilder.gatherAssetsByCategoryId({
+                        contentType: 'asset',
+                        categoryId: argv.f,
+                    });
+
+                    const { assets, folders } = deleteRequest;
+                    console.log(JSON.stringify(deleteRequest, null, 2))
+                    const assetIds = assets && assets.length && assets.map((asset) => asset.id)
+                    let folderIds = folders && folders.length && folders.map((folder) => folder.ID)
+                    //folderIds = folderIds && folderIds.sort((a, b) => b.ID - a.ID)
+
+                    if (assetIds && assetIds.length) {
+                        for (const a in assetIds) {
+                            const assetId = assetIds[a];
+                            const deleteRequest = await bldr.sfmc.asset.deleteAsset(assetId)
+                            if (deleteRequest === 'OK') {
+                                displayLine(`AssetId ${assetId} has been deleted`, 'success')
+                            }
+                        }
+                    }
+
+
+                }
 
                 if (argv.a) {
-                    yargsInteractive()
-                        .usage('$bldr init [args]')
-                        .interactive(delete_confirm)
-                        .then(async (initResults) => {
 
+                    if (argv['force']) {
+                        const deleteRequest = await bldr.sfmc.asset.deleteAsset(argv.a)
+                        if (deleteRequest === 'OK') {
+                            displayLine(`AssetId ${argv.a} has been deleted`, 'success')
+                        }
+                    } else {
 
+                        yargsInteractive()
+                            .usage('$bldr init [args]')
+                            .interactive(delete_confirm)
+                            .then(async (initResults) => {
+                                if (initResults.confirmDelete) {
+                                    const deleteRequest = await bldr.sfmc.asset.deleteAsset(argv.a)
+                                    if (deleteRequest === 'OK') {
+                                        displayLine(`AssetId ${argv.a} has been deleted`, 'success')
+                                    }
+                                }
+                            })
+                    }
 
-                        })
                 }
                 break;
         }
