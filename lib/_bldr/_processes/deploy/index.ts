@@ -14,9 +14,10 @@ import { setContentBuilderDefinition } from '../_contexts/contentBuilder/definit
 import { getFilePathDetails, uniqueArrayByKey } from '../../_utils';
 import { State } from '../state';
 import { Argv } from '../../../_types/Argv';
-const { isVerbose } = new State();
+const { isVerbose, allowTracking } = new State();
 import { packageDeployIgnore } from '../../_utils/packageDeployIgnore';
 import fs from 'fs';
+import { incrementMetric } from '../../../_utils/metrics';
 
 const add = new Add();
 const push = new Push();
@@ -42,6 +43,7 @@ export class Deploy {
      */
     deployPackage = async (argv: Argv) => {
         try {
+            allowTracking() && incrementMetric('req_command_deploy');
             const packageJSON = await readPackageManifest();
             const availableContexts: string[] = sfmcContext.sfmc_context_mapping.map((ctx) => ctx.context);
 

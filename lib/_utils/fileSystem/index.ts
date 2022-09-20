@@ -1,5 +1,3 @@
-//TODO figure out why sfmc_context_mapping is returning module not found
-// import { sfmc_context_mapping } from '@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping'
 const sfmcContext: {
     sfmc_context_mapping: { name: string; rootName: string }[];
 } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping');

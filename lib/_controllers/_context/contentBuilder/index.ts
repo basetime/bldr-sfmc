@@ -7,6 +7,10 @@ import flatten from 'flat';
 import { createContentBuilderEditableFiles } from '../../../_utils/bldrFileSystem/_context/contentBuilder/CreateLocalFiles';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import yargsInteractive from 'yargs-interactive';
+import { State } from '../../../_bldr/_processes/state';
+import { incrementMetric } from '../../../_utils/metrics';
+const { allowTracking} = new State();
+
 const delete_confirm = require('../../../_utils/options/delete_confirm')
 
 /**
@@ -33,6 +37,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                  * Search for Content Builder Folders
                  */
                 if (argv.f) {
+
                     const searchRequest = await contentBuilder.searchFolders({
                         contentType: 'asset',
                         searchKey: 'Name',
@@ -43,6 +48,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     searchRequest.forEach((obj: any) => {
                         displayObject(flatten(obj));
                     });
+
+                    allowTracking() && incrementMetric('req_searches_contentBuilder_folders');
                 }
 
                 /**
@@ -58,6 +65,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     searchRequest.forEach((obj: any) => {
                         displayObject(flatten(obj));
                     });
+
+                    allowTracking() && incrementMetric('req_searches_contentBuilder_assets');
                 }
                 break;
 
@@ -91,6 +100,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             assets: assets,
                             folders: isolatedFoldersUnique,
                         }));
+
+                    allowTracking() && incrementMetric('req_clones_contentBuilder_folders');
                 }
 
                 /**
@@ -118,6 +129,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             assets: assets,
                             folders: isolatedFoldersUnique,
                         }));
+
+                    allowTracking() && incrementMetric('req_clones_contentBuilder_assets');
                 }
                 break;
 
@@ -154,7 +167,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         }
                     }
 
-
+                    allowTracking() && incrementMetric('req_clones_contentBuilder_assets');
                 }
 
                 if (argv.a) {
@@ -163,9 +176,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         const deleteRequest = await bldr.sfmc.asset.deleteAsset(argv.a)
                         if (deleteRequest === 'OK') {
                             displayLine(`AssetId ${argv.a} has been deleted`, 'success')
+                            allowTracking() && incrementMetric('req_deletes_contentBuilder_assets');
                         }
                     } else {
-
                         yargsInteractive()
                             .usage('$bldr init [args]')
                             .interactive(delete_confirm)
@@ -174,6 +187,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                                     const deleteRequest = await bldr.sfmc.asset.deleteAsset(argv.a)
                                     if (deleteRequest === 'OK') {
                                         displayLine(`AssetId ${argv.a} has been deleted`, 'success')
+                                        allowTracking() && incrementMetric('req_deletes_contentBuilder_assets');
                                     }
                                 }
                             })

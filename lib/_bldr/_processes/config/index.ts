@@ -9,12 +9,12 @@ import { displayLine, displayObject, displayArrayOfStrings } from '../../../_uti
 import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
 import { InstanceConfiguration } from '../../../_types/InstanceConfiguration';
 import { Argv } from '../../../_types/Argv';
-
+import { incrementMetric } from '../../../_utils/metrics'
 import { getPassword, setPassword, findCredentials, deletePasswordSync, getPasswordSync } from 'keytar-sync';
 
 const { setEncryption, encrypt, decrypt } = new Crypto();
 
-const { getState } = new State();
+const { getState, allowTracking } = new State();
 
 /**
  * Handles all Configuration commands
@@ -22,7 +22,7 @@ const { getState } = new State();
  * @property {object} stateConfiguration
  */
 export class Config {
-    constructor() {}
+    constructor() { }
     /**
      * Initiate the setting of a Configuration
      * Prompts user input
@@ -108,6 +108,7 @@ export class Config {
                     });
 
                     displayLine(`${configured.instance} Configuration Saved`, 'success');
+                    allowTracking() && incrementMetric('req_command_config');
                 });
         } catch (err) {
             return handleError(err);

@@ -1,5 +1,6 @@
 import { state_conf } from '../../../_bldr_sdk/store';
 import { displayLine, displayObject } from '../../../_utils/display';
+import { incrementMetric } from '../../../_utils/metrics';
 import { assignObject } from '../../_utils';
 
 // const Config = require('./Config');
@@ -70,4 +71,33 @@ export class State {
     isVerbose = () => {
         return state_conf.get('isVerbose') || false;
     };
+
+
+    toggleTracking = () => {
+        const allowTracking = state_conf.get('allowTracking');
+        if (allowTracking !== 'undefined') {
+            allowTracking && displayLine('allowTracking turned off', 'info');
+            !allowTracking && displayLine('allowTracking turned on', 'info');
+            state_conf.set({
+                allowTracking: !allowTracking,
+            });
+        } else {
+            state_conf.set({
+                allowTracking: false,
+            });
+        }
+    };
+
+    allowTracking = () => {
+        return state_conf.get('allowTracking') || false;
+    };
+
+    checkForTracking = async () => {
+        const hasAllowTracking = state_conf.has('allowTracking');
+        if(!hasAllowTracking) {
+            state_conf.set({
+                allowTracking: true
+            })
+        }
+    }
 }

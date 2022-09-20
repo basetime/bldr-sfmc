@@ -7,6 +7,7 @@ import {
     replaceBldrSfmcEnv,
     scrubBldrSfmcEnv,
 } from '../../../_utils/bldrFileSystem/';
+
 import { package_new } from '../../../_utils/options/package_new';
 // const packageReference = require('../packageReference');
 // const coreConfigurationOptions = require('../options');
@@ -18,6 +19,10 @@ import { initiateBldrSDK } from '../../../_bldr_sdk';
 import { createEditableFilesBasedOnContext } from '../../../_utils/bldrFileSystem/_context/CreateFilesBasedOnContext';
 import { displayLine } from '../../../_utils/display';
 import { assignObject, uniqueArrayByKey } from '../../_utils';
+
+import { State } from '../state';
+import { incrementMetric } from '../../../_utils/metrics';
+const { allowTracking} = new State();
 
 /**
  */
@@ -174,6 +179,7 @@ export class Package {
                             packageOutRendered = JSON.parse(packageOutRendered);
 
                             await createFile('./package.manifest.json', JSON.stringify(packageOutRendered, null, 2));
+                            allowTracking() && incrementMetric('req_command_package');
                         } catch (err) {
                             console.log(err);
                         }

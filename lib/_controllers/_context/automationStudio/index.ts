@@ -12,6 +12,10 @@ import { createContentBuilderEditableFiles } from '../../../_utils/bldrFileSyste
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { findPassword } from 'keytar-sync';
 import { update } from 'lodash';
+import { State } from '../../../_bldr/_processes/state';
+import { incrementMetric } from '../../../_utils/metrics';
+const { allowTracking} = new State();
+
 /**
  * Flag routing for Config command
  *
@@ -23,7 +27,6 @@ import { update } from 'lodash';
 const AutomationStudioSwitch = async (req: any, argv: Argv) => {
     try {
         const bldr = await initiateBldrSDK();
-        //@ts-ignore //TODO figure out why contentBuilder is throwing TS error
         const { automationStudio } = bldr.cli;
 
         if (!bldr) {
@@ -63,6 +66,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         searchRequest.forEach((obj: any) => {
                             displayObject(flatten(obj));
                         });
+                    allowTracking() && incrementMetric(`req_searches_automationStudio_${contentType}_folders`);
                     } else {
                         console.log(argv.f);
                         const searchRequest = await automationStudio.searchFolders({
@@ -76,10 +80,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                             displayObject(flatten(obj));
                         });
                     }
+                    allowTracking() && incrementMetric(`req_searches_automationStudio_automations_folders`);
                 }
 
                 /**
-                 * Search for Content Builder Assets
+                 * Search for AutomationStudio Assets
                  */
                 if (argv.a) {
                     if (typeof argv.a === 'string' && argv.a.includes(':')) {
@@ -169,6 +174,8 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         assets: formattedAssetResponse,
                         folders: formattedAssetCategories,
                     });
+
+                    allowTracking() && incrementMetric(`req_clones_automationStudio_${contentType}_folders`);
                 } else {
                     const cloneAutomationRequest: {
                         formattedAssetResponse: any[];
