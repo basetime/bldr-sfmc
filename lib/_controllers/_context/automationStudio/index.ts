@@ -238,7 +238,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         assets: formattedAssetResponse,
                         folders: formattedAssetCategories,
                     });
-                } else if (argv.a && !argv.a.includes(':')) {
+                } else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                     const cloneAutomationRequest: {
                         formattedAssetResponse: SFMC_Automation[];
                         formattedAutomationDefinitions: any[];
