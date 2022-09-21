@@ -95,9 +95,15 @@ export class State {
     checkForTracking = async () => {
         const hasAllowTracking = state_conf.has('allowTracking');
         if(!hasAllowTracking) {
+            await incrementMetric('downloads')
             state_conf.set({
                 allowTracking: true
             })
+
+            await displayLine(`BLDR is configured to collect basic analytics`, 'info')
+            await displayLine(`Visit --- for more information on what is being captured`, 'info')
+            await displayLine(`If you wish to opt-out of analytics, run [ bldr config --analytics ] to disable this functionality`, 'info')
+
         }
     }
 }

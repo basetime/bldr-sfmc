@@ -152,7 +152,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     });
 
                     const { assets, folders } = deleteRequest;
-                    console.log(JSON.stringify(deleteRequest, null, 2))
                     const assetIds = assets && assets.length && assets.map((asset) => asset.id)
                     let folderIds = folders && folders.length && folders.map((folder) => folder.ID)
                     //folderIds = folderIds && folderIds.sort((a, b) => b.ID - a.ID)
@@ -167,11 +166,11 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         }
                     }
 
+                    displayLine(`Please Note: folders have not been deleted. Working on it though!`, 'info')
                     allowTracking() && incrementMetric('req_clones_contentBuilder_assets');
                 }
 
                 if (argv.a) {
-
                     if (argv['force']) {
                         const deleteRequest = await bldr.sfmc.asset.deleteAsset(argv.a)
                         if (deleteRequest === 'OK') {
@@ -187,6 +186,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                                     const deleteRequest = await bldr.sfmc.asset.deleteAsset(argv.a)
                                     if (deleteRequest === 'OK') {
                                         displayLine(`AssetId ${argv.a} has been deleted`, 'success')
+                                        displayLine(`Please Note: folders have not been deleted. Working on it though!`, 'info')
                                         allowTracking() && incrementMetric('req_deletes_contentBuilder_assets');
                                     }
                                 }
