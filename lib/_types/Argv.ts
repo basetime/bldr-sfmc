@@ -27,8 +27,8 @@ export interface Argv {
     as?: Boolean;
     'automation-studio'?: Boolean;
     // Context Types
-    f?: Boolean | string;
-    a?: Boolean | string;
+    f?: string;
+    a?: string;
     sql?: Boolean;
     ssjs?: Boolean;
     'sfmc-only'?: Boolean;

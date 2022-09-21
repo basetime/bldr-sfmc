@@ -21,14 +21,14 @@ const addNewFolders = async (stashItemFolderPath: string) => {
         const rootContextFolder = stashItemFolderArray.shift();
 
         // Get .local.manifest.json file
-        const manifestJSON = await readManifest();
+        let manifestJSON = await readManifest();
         const manifestAssetCategories = manifestJSON[context.context]['assets'].map(
             (manifestAsset: { category: { folderPath: string } }) => manifestAsset && manifestAsset.category
         );
-        const manifestFolderCategories = manifestJSON[context.context]['folders'].map(
+        let manifestFolderCategories = manifestJSON[context.context]['folders'].map(
             (manifestFolder: { folderPath: string }) => manifestFolder
         );
-        const manifestFolders = await uniqueArrayByKey(
+        let manifestFolders = await uniqueArrayByKey(
             [...manifestAssetCategories, ...manifestFolderCategories],
             'folderPath'
         );
@@ -45,12 +45,19 @@ const addNewFolders = async (stashItemFolderPath: string) => {
             // Compile path to check against
             checkPath = `${checkPath}/${folder}`;
 
+            manifestJSON = await readManifest();
+            manifestFolderCategories = manifestJSON[context.context]['folders'].map(
+                       (manifestFolder: { folderPath: string }) => manifestFolder
+                   );
+            manifestFolders = await uniqueArrayByKey(
+                       [...manifestAssetCategories, ...manifestFolderCategories],
+                       'folderPath'
+                   );
+
             // Check if folder path exists in .local.manifest.json
             const folderIndex = manifestFolders.findIndex(
                 (manifestFolder: { folderPath: string }) => checkPath && manifestFolder.folderPath.includes(checkPath)
             );
-
-            console.log('folderIndex', folderIndex)
 
             // If folder does not exist
             if (folderIndex === -1) {
@@ -92,9 +99,7 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                     parentId,
                 });
 
-            console.log('createFolder', createFolder)
-
-                if (typeof createFolder === 'string' && createFolder.includes('Please select a different Name.')) {
+                if (!createFolder || typeof createFolder === 'string' && createFolder.includes('Please select a different Name.')) {
                     const existingFolder: any = await addExistingFolderToManifest(sdk, {
                         context,
                         folder,
