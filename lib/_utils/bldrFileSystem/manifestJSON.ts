@@ -116,9 +116,6 @@ const updateManifest = async (
                         //@ts-ignore
                         manifestObj = manifestContextItems.find((item) => item[objectIdKey] === itemId);
 
-                        console.log(manifestObj)
-                        console.log(updateItem)
-
                     } else if (context === 'dataExtension') {
                         itemId = updateItem.customerKey;
                         manifestObj = manifestContextItems.find(({ customerKey }) => customerKey === itemId);
