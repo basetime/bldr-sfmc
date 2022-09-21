@@ -151,7 +151,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                             id: category.ID,
                             name: category.Name,
                             parentId: category.ParentFolder.ID,
-                            folderPath: category.FolderPath,
+                            folderPath: `Automation Studio/${category.FolderPath}`,
                         };
 
                         return asset;
@@ -162,7 +162,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                             id: category.ID,
                             name: category.Name,
                             parentId: category.ParentFolder.ID,
-                            folderPath: category.FolderPath,
+                            folderPath: `Automation Studio/${category.FolderPath}`,
                         };
                     });
 
@@ -220,7 +220,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                             id: category.ID,
                             name: category.Name,
                             parentId: category.ParentFolder.ID,
-                            folderPath: category.FolderPath,
+                            folderPath: `Automation Studio/${category.FolderPath}`,
                         };
 
                         return asset;
