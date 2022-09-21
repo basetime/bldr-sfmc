@@ -67,7 +67,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     });
 
                     allowTracking() && incrementMetric(`req_searches_automationStudio_${contentType}_folders`);
-                } else if (typeof argv.f === 'string' && !argv.f.includes(':')){
+                } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
                     const searchRequest = await automationStudio.searchFolders({
                         contentType: 'automations',
                         searchKey: 'Name',
@@ -81,10 +81,9 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
 
                     allowTracking() && incrementMetric(`req_searches_automationStudio_automations_folders`);
                 }
-
                 /**
-                 * Search for AutomationStudio Assets
-                 */
+                                * Search for AutomationStudio Assets
+                                */
                 if (typeof argv.a === 'string' && argv.a.includes(':')) {
                     const activity = argv.a.split(':')[1];
                     const searchTerm = argv._ && argv._[1];
@@ -102,7 +101,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                                 }[]
                             ) => displayObject(item)
                         );
-                } else if (typeof argv.a === 'string' && !argv.a.includes(':')){
+                } else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                     const searchRequest = await automationStudio.searchAssets({
                         searchKey: 'Name',
                         searchTerm: argv.a,
