@@ -97,4 +97,29 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 You and your organizations security are important. We've taken steps to ensure that the credentials you use for configurations are encrypted and stored securely. Credentials are stored using your machines default password storage (OSX Keychain Access or Windows Credential Manager).
 
 For more information, visit [security](https://bldr.io/documentation/sfmc/v1/security/).
+
+<br>
+
+# Analytics
+
+The goal of BLDR is to put effort and focus into the most used features and areas of SFMC that users are working in. CLI applications are a black-hole regarding understanding it's users and use-cases. We have implemented a basic analytics functionality that simply increments counts as various actions are taken. This functionality does not record any PII, User Data, or Configuration Data of any kind; it is simply a way to understand what parts of BLDR are being leveraged.
+
+If you do not wish to have these metrics gathered as you use BLDR please run `bldr config --analytics` to turn this functionality off. It can be toggled on/off at any time.
+
+Analytics Gathered:
+  - Initial Download
+  - New Configuration
+  - Push To SFMC
+  - Package
+  - Package Deploy
+  - Content Builder Project Initiate
+  - Data Extension Initiate
+  - Content Builder Search Folders
+  - Content Builder Search Assets
+  - Data Extension Search Folders
+  - Data Extension Search Assets
+  - Content Builder Clone Folders
+  - Content Builder Clone Assets
+  - Data Extension Clone Folders
+  - Data Extension Clone Assets
 <br>

@@ -15,8 +15,11 @@ import { createFile } from '../../../_utils/fileSystem';
 import { SFMC_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/sfmc_client';
 import { addNewFolders } from '../../_utils/CreateSFMCFolders';
 
-const { getCurrentInstance, isVerbose } = new State();
+const { getCurrentInstance, isVerbose, allowTracking } = new State();
 const { getStashArray, removeFromStashByBldrId, clearStash } = new Stash();
+
+import { incrementMetric } from '../../../_utils/metrics';
+
 
 export class Push {
     constructor() {}
@@ -165,6 +168,8 @@ export class Push {
                 postResults.errors &&
                 postResults.errors.length &&
                 displayLine(`>> ${postResults.errors.length} Assets Errored`);
+
+            allowTracking() && incrementMetric('req_command_push');
         }
     };
 

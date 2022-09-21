@@ -16,6 +16,9 @@ import { displayLine } from '../../../_utils/display';
 import { guid, isDirEmpty } from '../../_utils';
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder');
 const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension');
+import { State } from '../state';
+const { isVerbose, allowTracking } = new State();
+import { incrementMetric } from '../../../_utils/metrics';
 
 /**
  * Notes June 2
@@ -85,6 +88,8 @@ export class Initiate {
                         await createEnv();
                     }
                 });
+
+            allowTracking() && incrementMetric('req_project_initiates_contentBuilder');
         } else {
             displayLine(`Root directory must be empty`, 'info');
         }
@@ -189,6 +194,8 @@ export class Initiate {
                 }
 
                 await createFile(`${initFolderPath}/${initResults.dataExtensionName}.json`, dataExtensionInit);
+                allowTracking() && incrementMetric('req_project_initiates_dataExtension');
+
             });
     };
 }

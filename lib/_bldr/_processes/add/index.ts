@@ -200,7 +200,6 @@ export class Add {
                         const fileContentRaw = await readFile(systemFilePath);
                         const fileContent = fileContentRaw.toString();
                         const objectIdKey = existingAsset.assetType?.objectIdKey;
-
                         const existingSchema: {
                             [key: string]: any;
                         } = {

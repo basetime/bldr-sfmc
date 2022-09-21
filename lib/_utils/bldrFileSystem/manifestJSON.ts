@@ -87,7 +87,8 @@ const updateManifest = async (
                 id?: number;
                 assetType?: {
                     objectIdKey: ObjectIdKeys;
-                };
+                }
+                category?: any;
                 // @ts-ignore
             }[] = content[assetType];
 
@@ -112,7 +113,9 @@ const updateManifest = async (
                             objectIdKey &&
                             Object.prototype.hasOwnProperty.call(updateItem, objectIdKey) &&
                             updateItem[objectIdKey];
-                        manifestObj = manifestContextItems.find(({ id }) => id === itemId);
+                        //@ts-ignore
+                        manifestObj = manifestContextItems.find((item) => item[objectIdKey] === itemId);
+
                     } else if (context === 'dataExtension') {
                         itemId = updateItem.customerKey;
                         manifestObj = manifestContextItems.find(({ customerKey }) => customerKey === itemId);
@@ -143,6 +146,9 @@ const updateManifest = async (
                                 updateIndex = manifestContextItems.findIndex(
                                     (item: { [key: string]: any }) => itemId && item[itemId] === updateItem[itemId]
                                 );
+
+                                updateItem.category = manifestObj.category
+
                             } else if (context === 'dataExtension') {
                                 itemId = updateItem.customerKey || updateItem.id;
                                 updateIndex = manifestContextItems.findIndex(

@@ -12,6 +12,10 @@ import { createContentBuilderEditableFiles } from '../../../_utils/bldrFileSyste
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { findPassword } from 'keytar-sync';
 import { update } from 'lodash';
+import { State } from '../../../_bldr/_processes/state';
+import { incrementMetric } from '../../../_utils/metrics';
+const { allowTracking } = new State();
+
 /**
  * Flag routing for Config command
  *
@@ -23,93 +27,91 @@ import { update } from 'lodash';
 const AutomationStudioSwitch = async (req: any, argv: Argv) => {
     try {
         const bldr = await initiateBldrSDK();
-        //@ts-ignore //TODO figure out why contentBuilder is throwing TS error
         const { automationStudio } = bldr.cli;
 
         if (!bldr) {
             throw new Error('unable to load sdk');
         }
 
-
         switch (req) {
             case 'search':
                 /**
                  * Search for Content Builder Folders
                  */
-                if (argv.f) {
-                    if (typeof argv.f === 'string' && argv.f.includes(':')) {
-                        const activity = argv.f.split(':')[1];
-                        const searchTerm = argv._ && argv._[1];
+                if (typeof argv.f === 'string' && argv.f.includes(':')) {
+                    const activity = argv.f.split(':')[1];
+                    const searchTerm = argv._ && argv._[1];
 
-                        let contentType: string = '';
-                        switch (activity) {
-                            case 'ssjs':
-                                contentType = 'ssjsactivity';
-                                break;
-                            case 'sql':
-                                contentType = 'queryactivity';
-                                break;
-                            case 'esd':
-                                contentType = 'userinitiatedsends';
-                                break;
-                        }
-
-                        const searchRequest = await automationStudio.searchFolders({
-                            contentType,
-                            searchKey: 'Name',
-                            searchTerm: searchTerm,
-                        });
-
-                        displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                        searchRequest.forEach((obj: any) => {
-                            displayObject(flatten(obj));
-                        });
-                    } else {
-                        const searchRequest = await automationStudio.searchFolders({
-                            contentType: 'automations',
-                            searchKey: 'Name',
-                            searchTerm: argv.f,
-                        });
-
-                        displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                        searchRequest.forEach((obj: any) => {
-                            displayObject(flatten(obj));
-                        });
+                    let contentType: string = '';
+                    switch (activity) {
+                        case 'ssjs':
+                            contentType = 'ssjsactivity';
+                            break;
+                        case 'sql':
+                            contentType = 'queryactivity';
+                            break;
+                        case 'esd':
+                            contentType = 'userinitiatedsends';
+                            break;
                     }
+
+                    const searchRequest = await automationStudio.searchFolders({
+                        contentType,
+                        searchKey: 'Name',
+                        searchTerm: searchTerm,
+                    });
+
+                    displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
+                    searchRequest.forEach((obj: any) => {
+                        displayObject(flatten(obj));
+                    });
+
+                    allowTracking() && incrementMetric(`req_searches_automationStudio_${contentType}_folders`);
+                } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                    const searchRequest = await automationStudio.searchFolders({
+                        contentType: 'automations',
+                        searchKey: 'Name',
+                        searchTerm: argv.f,
+                    });
+
+                    displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
+                    searchRequest.forEach((obj: any) => {
+                        displayObject(flatten(obj));
+                    });
+
+                    allowTracking() && incrementMetric(`req_searches_automationStudio_automations_folders`);
                 }
-
                 /**
-                 * Search for Content Builder Assets
-                 */
-                if (argv.a) {
-                    if (typeof argv.a === 'string' && argv.a.includes(':')) {
-                        const activity = argv.a.split(':')[1];
-                        const searchTerm = argv._ && argv._[1];
+                                * Search for AutomationStudio Assets
+                                */
+                if (typeof argv.a === 'string' && argv.a.includes(':')) {
+                    const activity = argv.a.split(':')[1];
+                    const searchTerm = argv._ && argv._[1];
+                    const searchRequest = await automationStudio.searchActivity(activity, searchTerm);
 
-                        const searchRequest = await automationStudio.searchActivity(activity, searchTerm);
-                        searchRequest &&
-                            searchRequest.length &&
-                            searchRequest.forEach(
-                                (
-                                    item: {
-                                        Name: string;
-                                        queryDefinitionId: string;
-                                        CategoryID: number;
-                                        ModifiedDate: string;
-                                    }[]
-                                ) => displayObject(item)
-                            );
-                    } else {
-                        const searchRequest = await automationStudio.searchAssets({
-                            searchKey: 'Name',
-                            searchTerm: argv.a,
-                        });
+                    searchRequest &&
+                        searchRequest.length &&
+                        searchRequest.forEach(
+                            (
+                                item: {
+                                    Name: string;
+                                    queryDefinitionId: string;
+                                    CategoryID: number;
+                                    ModifiedDate: string;
+                                }[]
+                            ) => displayObject(item)
+                        );
+                } else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
+                    const searchRequest = await automationStudio.searchAssets({
+                        searchKey: 'Name',
+                        searchTerm: argv.a,
+                    });
 
-                        displayLine(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
-                        searchRequest.forEach((obj: any) => {
-                            displayObject(flatten(obj));
-                        });
-                    }
+                    displayLine(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
+                    searchRequest.forEach((obj: any) => {
+                        displayObject(flatten(obj));
+                    });
+
                 }
                 break;
 
@@ -149,7 +151,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                             id: category.ID,
                             name: category.Name,
                             parentId: category.ParentFolder.ID,
-                            folderPath: category.FolderPath,
+                            folderPath: `Automation Studio/${category.FolderPath}`,
                         };
 
                         return asset;
@@ -160,7 +162,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                             id: category.ID,
                             name: category.Name,
                             parentId: category.ParentFolder.ID,
-                            folderPath: category.FolderPath,
+                            folderPath: `Automation Studio/${category.FolderPath}`,
                         };
                     });
 
@@ -169,6 +171,8 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         assets: formattedAssetResponse,
                         folders: formattedAssetCategories,
                     });
+
+                    allowTracking() && incrementMetric(`req_clones_automationStudio_${contentType}_folders`);
                 } else if (typeof argv.f === 'number') {
                     const cloneAutomationRequest: {
                         formattedAssetResponse: any[];
@@ -207,7 +211,6 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         assetId,
                     });
 
-
                     const { assets, folders } = searchRequest;
 
                     const formattedAssetResponse = await assets && Array.isArray(assets) && assets.map((asset: any) => {
@@ -217,7 +220,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                             id: category.ID,
                             name: category.Name,
                             parentId: category.ParentFolder.ID,
-                            folderPath: category.FolderPath,
+                            folderPath: `Automation Studio/${category.FolderPath}`,
                         };
 
                         return asset;
@@ -253,7 +256,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
 
         return;
     } catch (err: any) {
-        console.log('ERR', err);
+        console.log(err);
     }
 };
 

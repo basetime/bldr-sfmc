@@ -1,6 +1,7 @@
 import { string } from 'yargs';
 
 export interface Argv {
+    analytics: Boolean;
     de: any;
     'data-extension'?: Boolean;
     verbose: Boolean;
@@ -34,4 +35,5 @@ export interface Argv {
     'local-only'?: Boolean;
     'update-env-keys'?: Boolean;
     'env-only'?: Boolean;
+    'force'?: Boolean;
 }

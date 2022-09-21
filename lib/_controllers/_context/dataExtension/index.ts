@@ -6,6 +6,9 @@ import { guid, uniqueArrayByKey } from '../../../_bldr/_utils';
 import flatten from 'flat';
 import { createEmailStudioEditableFiles } from '../../../_utils/bldrFileSystem/_context/dataExtension/CreateLocalFiles';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
+import { State } from '../../../_bldr/_processes/state';
+import { incrementMetric } from '../../../_utils/metrics';
+const { allowTracking} = new State();
 /**
  * Flag routing for Config command
  *
@@ -40,6 +43,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                     searchRequest.forEach((obj: any) => {
                         displayObject(flatten(obj));
                     });
+                    allowTracking() && incrementMetric('req_searches_dataExtension_folders');
                 }
 
                 /**
@@ -55,6 +59,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                     searchRequest.forEach((obj: any) => {
                         displayObject(flatten(obj));
                     });
+                    allowTracking() && incrementMetric('req_searches_dataExtension_assets');
                 }
                 break;
 
@@ -87,6 +92,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                             assets: assets,
                             folders: isolatedFoldersUnique,
                         }));
+                    allowTracking() && incrementMetric('req_clones_dataExtension_folders');
                 }
 
                 /**
@@ -114,6 +120,8 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                             assets: assets,
                             folders: isolatedFoldersUnique,
                         }));
+
+                    allowTracking() && incrementMetric('req_clones_dataExtension_assets');
                 }
                 break;
         }
