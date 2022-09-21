@@ -101,7 +101,7 @@ export class State {
             })
 
             await displayLine(`BLDR is configured to collect basic analytics`, 'info')
-            await displayLine(`Visit --- for more information on what is being captured`, 'info')
+            await displayLine(`Visit https://github.com/basetime/bldr-sfmc for more information on what is being captured`, 'info')
             await displayLine(`If you wish to opt-out of analytics, run [ bldr config --analytics ] to disable this functionality`, 'info')
 
         }
