@@ -60,13 +60,11 @@ export class Config {
                     };
 
                     const sdk = await initiateBldrSDK({
-                            client_id: configured.apiClientId,
-                            client_secret: configured.apiClientSecret,
-                            account_id: configured.parentMID,
-                            auth_url: configured.authURI,
-                        }, configured.configurationType);
-
-                        console.log(sdk)
+                        client_id: configured.apiClientId,
+                        client_secret: configured.apiClientSecret,
+                        account_id: configured.parentMID,
+                        auth_url: configured.authURI,
+                    }, configured.configurationType);
 
                     // Throw Error if SDK Fails to Load
                     if (!sdk) {

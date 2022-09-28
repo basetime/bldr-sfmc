@@ -11,7 +11,7 @@ import { State } from '../_bldr/_processes/state';
 import { Config } from '../_bldr/_processes/config';
 import { SFMC_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/sfmc_client';
 import { CLI_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/cli_client';
-import { getPassword, setPassword, findCredentials, deletePasswordSync, getPasswordSync } from 'keytar-sync';
+import { getPassword, setPassword, deletePassword } from 'keytar-sync';
 
 const { getState } = new State();
 const { getInstanceConfiguration } = new Config();
@@ -49,6 +49,7 @@ const initiateBldrSDK = async (
                 ...oAuthJSON,
                 ...authObject
             }
+            await deletePassword('bldr', 'oAuthTemp')
             return oAuthObject && new BLDR(oAuthJSON)
         }
 
@@ -92,6 +93,7 @@ const verifyChallengeCode = async (authObject: any, code:string) => {
         authObjectResponse.scope = authObjectResponse.scope.split(' ');
         authObjectResponse.expiration = process.hrtime()[0] + authObjectResponse.expires_in;
         authObjectResponse.account_id = authObject.account_id;
+        authObjectResponse && await setPassword('bldr', 'oAuthTemp', JSON.stringify(authObjectResponse))
         return authObjectResponse;
       }
 
@@ -116,15 +118,15 @@ const verifyChallengeCode = async (authObject: any, code:string) => {
       const code = req.query.code
       code && console.log('BLDR Received Challenge Code...')
       const verified = code && await verifyChallengeCode(authObject, code)
-    console.log('verified', verified)
-      verified && console.log('Finishing oAuthentication...')
-      verified && await setPassword('bldr', 'oAuthTemp', JSON.stringify(verified))
+      verified && console.log('Finishing oAuthentication...');
       !verified && console.log('Authentication Failed...')
-      code && httpServer.close()
+      verified && httpServer.close()
       res.end('');
     });
 
     httpServer.listen(port, () => {});
+
+    return
   };
 
 
