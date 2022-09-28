@@ -45,24 +45,28 @@ export class Config {
                     // Build Configuration Object based on user inputs
                     const configured: {
                         instance: string;
+                        configurationType: string;
                         parentMID: number;
                         apiClientId: string;
                         apiClientSecret: string;
                         authURI: string;
                     } = {
                         instance: configResults.instance,
+                        configurationType: configResults.configurationType,
                         parentMID: Number(configResults.parentMID),
                         apiClientId: configResults.apiClientId,
                         apiClientSecret: configResults.apiClientSecret,
                         authURI: configResults.authURI,
                     };
 
-                    const sdk: BLDR_Client = await initiateBldrSDK({
-                        client_id: configured.apiClientId,
-                        client_secret: configured.apiClientSecret,
-                        account_id: configured.parentMID,
-                        auth_url: configured.authURI,
-                    });
+                    const sdk = await initiateBldrSDK({
+                            client_id: configured.apiClientId,
+                            client_secret: configured.apiClientSecret,
+                            account_id: configured.parentMID,
+                            auth_url: configured.authURI,
+                        }, configured.configurationType);
+
+                        console.log(sdk)
 
                     // Throw Error if SDK Fails to Load
                     if (!sdk) {
@@ -79,6 +83,7 @@ export class Config {
                         throw new Error('Unable to get Instance Details. Please review credentials.');
                     }
 
+                    console.log('getAllBusinessUnitDetails', getAllBusinessUnitDetails)
                     // Isolate each Business Unit Name and MID for stored configuration
                     const instanceBusinessUnits = getAllBusinessUnitDetails.map((bu: { Name: string; ID: number }) => {
                         return {

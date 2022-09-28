@@ -5,6 +5,12 @@ module.exports = {
         describe: 'SFMC Instance Name',
         prompt: 'always',
     },
+    configurationType: {
+        type: 'list',
+        describe: `Installed Package/Authentication Type`,
+        choices: ['Server-to-Server', 'Web App'],
+        prompt: 'always',
+    },
     parentMID: {
         type: 'input',
         describe: 'Parent MID',
