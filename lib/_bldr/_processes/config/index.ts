@@ -81,7 +81,6 @@ export class Config {
                         throw new Error('Unable to get Instance Details. Please review credentials.');
                     }
 
-                    console.log('getAllBusinessUnitDetails', getAllBusinessUnitDetails)
                     // Isolate each Business Unit Name and MID for stored configuration
                     const instanceBusinessUnits = getAllBusinessUnitDetails.map((bu: { Name: string; ID: number }) => {
                         return {
@@ -133,6 +132,7 @@ export class Config {
         parentMID: number;
         mids: any[];
         authURI: string;
+        configurationType: string;
     }> => {
         if (!instance) {
             displayLine('Please provide an instance name', 'error');

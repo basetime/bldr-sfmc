@@ -42,15 +42,23 @@ const initiateBldrSDK = async (
             return new BLDR(authObject);
         } else if (authObject && configurationType && configurationType === 'Web App') {
             await oAuthInitiator(authObject)
-            let oAuthObject = await getPassword('bldr', 'oAuthTemp')
-            let oAuthJSON = oAuthObject && JSON.parse(oAuthObject)
 
-            oAuthJSON = {
-                ...oAuthJSON,
-                ...authObject
+            let oAuthObject
+            do {
+                oAuthObject = await getPassword('bldr', 'oAuthTemp')
+            } while (!oAuthObject)
+
+            if (oAuthObject) {
+                let oAuthJSON = oAuthObject && JSON.parse(oAuthObject)
+
+                oAuthJSON = {
+                    ...oAuthJSON,
+                    ...authObject
+                }
+                await setPassword('bldr', 'currentSession', JSON.stringify(oAuthJSON))
+                await deletePassword('bldr', 'oAuthTemp')
+                return oAuthObject && new BLDR(oAuthJSON)
             }
-            await deletePassword('bldr', 'oAuthTemp')
-            return oAuthObject && new BLDR(oAuthJSON)
         }
 
         // If authObject is not passed use the current set credentials to initiate SDK
@@ -58,12 +66,26 @@ const initiateBldrSDK = async (
         const stateInstance = currentState.instance;
         const stateConfiguration = await getInstanceConfiguration(stateInstance);
 
-        const sdkConfiguration = {
-            client_id: stateConfiguration.apiClientId,
-            client_secret: stateConfiguration.apiClientSecret,
-            account_id: account_id || currentState.activeMID || stateConfiguration.parentMID,
-            auth_url: stateConfiguration.authURI,
-        };
+        console.log(stateConfiguration)
+
+        let sdkConfiguration;
+        if (
+            Object.prototype.hasOwnProperty.call(stateConfiguration, 'configurationType')
+            && stateConfiguration.configurationType === 'Server-to-Server'
+        ) {
+            sdkConfiguration = {
+                client_id: stateConfiguration.apiClientId,
+                client_secret: stateConfiguration.apiClientSecret,
+                account_id: account_id || currentState.activeMID || stateConfiguration.parentMID,
+                auth_url: stateConfiguration.authURI,
+            };
+        } else if (
+            Object.prototype.hasOwnProperty.call(stateConfiguration, 'configurationType')
+            && stateConfiguration.configurationType === 'Web App'
+        ) {
+            const currentSession = await getPassword('bldr', 'currentSession')
+
+        }
 
         const bldrClient = new BLDR(sdkConfiguration);
         return bldrClient
@@ -73,37 +95,37 @@ const initiateBldrSDK = async (
 };
 
 
-const verifyChallengeCode = async (authObject: any, code:string) => {
+const verifyChallengeCode = async (authObject: any, code: string) => {
     try {
-      console.log('Verifying Challenge Code...')
-      const challengePayload = {
-        grant_type: "authorization_code",
-        client_id: authObject.client_id,
-        client_secret: authObject.client_secret,
-        redirect_uri: "https://us-central1-bldr-io.cloudfunctions.net/sfmc_oauth/",
-        account_id: authObject.account_id,
-        code: code
-      }
+        console.log('Verifying Challenge Code...')
+        const challengePayload = {
+            grant_type: "authorization_code",
+            client_id: authObject.client_id,
+            client_secret: authObject.client_secret,
+            redirect_uri: "https://us-central1-bldr-io.cloudfunctions.net/sfmc_oauth/",
+            account_id: authObject.account_id,
+            code: code
+        }
 
-      const tokenRequest = await axios.post(`${authObject.auth_url}v2/token`, challengePayload)
+        const tokenRequest = await axios.post(`${authObject.auth_url}v2/token`, challengePayload)
 
-      if(tokenRequest.status === 200){
-        console.log('Challenge Code verified...')
-        let authObjectResponse = tokenRequest.data;
-        authObjectResponse.scope = authObjectResponse.scope.split(' ');
-        authObjectResponse.expiration = process.hrtime()[0] + authObjectResponse.expires_in;
-        authObjectResponse.account_id = authObject.account_id;
-        authObjectResponse && await setPassword('bldr', 'oAuthTemp', JSON.stringify(authObjectResponse))
-        return authObjectResponse;
-      }
+        if (tokenRequest.status === 200) {
+            console.log('Challenge Code verified...')
+            let authObjectResponse = tokenRequest.data;
+            authObjectResponse.scope = authObjectResponse.scope.split(' ');
+            authObjectResponse.expiration = process.hrtime()[0] + authObjectResponse.expires_in;
+            authObjectResponse.account_id = authObject.account_id;
+            authObjectResponse && await setPassword('bldr', 'oAuthTemp', JSON.stringify(authObjectResponse))
+            return authObjectResponse;
+        }
 
-      return false
+        return false
     } catch (err) {
-      console.log(err)
+        console.log(err)
     }
-  }
+}
 
-  const oAuthInitiator = async (authObject: any) => {
+const oAuthInitiator = async (authObject: any) => {
     const express = require('express')
     const app = express();
 
@@ -115,19 +137,17 @@ const verifyChallengeCode = async (authObject: any, code:string) => {
 
     app.use(bodyParser.json());
     app.get('/oauth', async function (req: any, res: any) {
-      const code = req.query.code
-      code && console.log('BLDR Received Challenge Code...')
-      const verified = code && await verifyChallengeCode(authObject, code)
-      verified && console.log('Finishing oAuthentication...');
-      !verified && console.log('Authentication Failed...')
-      verified && httpServer.close()
-      res.end('');
+        const code = req.query.code
+        code && console.log('BLDR Received Challenge Code...')
+        const verified = code && await verifyChallengeCode(authObject, code)
+        verified && console.log('Finishing oAuthentication...');
+        !verified && console.log('Authentication Failed...')
+        httpServer.close()
+        res.end()
     });
 
-    httpServer.listen(port, () => {});
-
-    return
-  };
+    httpServer.listen(port, () => { });
+};
 
 
 export { initiateBldrSDK };
