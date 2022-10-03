@@ -37,7 +37,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                  * Search for Content Builder Folders
                  */
                 if (argv.f) {
-
                     const searchRequest = await contentBuilder.searchFolders({
                         contentType: 'asset',
                         searchKey: 'Name',
@@ -91,7 +90,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     });
 
                     const { assets, folders } = cloneRequest;
-
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
                     assets && assets.length && (await createContentBuilderEditableFiles(assets));
                     assets &&
@@ -120,8 +118,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     } = await contentBuilder.gatherAssetById(argv.a);
 
                     const { assets, folders } = cloneRequest;
-
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
+                    console.log('folders', assets)
+
                     assets && assets.length && (await createContentBuilderEditableFiles(assets));
                     assets &&
                         folders &&

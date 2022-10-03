@@ -64,7 +64,9 @@ export class Config {
                         client_secret: configured.apiClientSecret,
                         account_id: configured.parentMID,
                         auth_url: configured.authURI,
-                    }, configured.configurationType);
+                    },
+                    configured.instance,
+                    configured.configurationType);
 
                     // Throw Error if SDK Fails to Load
                     if (!sdk) {
