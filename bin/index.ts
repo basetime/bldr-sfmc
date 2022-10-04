@@ -17,7 +17,9 @@ import { displayLine, displayObject } from '../lib/_utils/display';
 import { DeploySwitch } from '../lib/_controllers/deploy';
 import { InitSwitch } from '../lib/_controllers/initiate';
 import { State } from '../lib/_bldr/_processes/state';
+import { Crypto } from '../lib/_bldr/_utils/crypto';
 
+const { setEncryption } = new Crypto()
 const { checkForTracking } = new State()
 
 // Parse requests and input arguments
