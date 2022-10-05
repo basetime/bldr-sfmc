@@ -193,7 +193,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     const activity = argv.a.split(':')[1];
                     const assetId = argv._ && argv._[1];
 
-                    let contentType: string = '';
+                    let contentType: string = ''; 
                     switch (activity) {
                         case 'ssjs':
                             contentType = 'ssjsactivity';
