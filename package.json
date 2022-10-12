@@ -1,6 +1,6 @@
 {
     "name": "@basetime/bldr-sfmc",
-    "version": "1.5.14",
+    "version": "1.5.16",
     "description": "CLI application for SFMC Development workflow and package deployment",
     "main": "./dist/bin/index.js",
     "scripts": {
@@ -39,9 +39,7 @@
         "chalk": "^2.4.1",
         "cli-format": "^3.0.9",
         "conf": "^10.1.1",
-        "cors": "^2.8.5",
         "dotenv": "16.0.1",
-        "express": "^4.18.1",
         "flat": "^5.0.2",
         "keytar-sync": "7.7.1",
         "lodash.find": "^4.6.0",
@@ -50,7 +48,6 @@
         "lodash.uniq": "^4.5.0",
         "node-html-parser": "^5.2.0",
         "node-recursive-directory": "^1.2.0",
-        "open": "^8.4.0",
         "sfmc-sdk": "^0.5.0",
         "sfmc-soap-object-reference": "1.0.0",
         "uuid": "^8.3.2",

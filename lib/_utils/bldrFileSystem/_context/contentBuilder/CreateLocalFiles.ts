@@ -16,7 +16,6 @@ const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_As
             const assetType = (asset.assetType && asset.assetType.name) || null;
             const folderPath =
                 (Object.prototype.hasOwnProperty.call(asset.category, 'folderPath') && asset.category.folderPath) || '';
-            console.log(asset.category)
             const id = asset.id;
             const fileName = asset.name;
 

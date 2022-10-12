@@ -73,8 +73,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         searchTerm: argv.a,
                     });
 
-                    console.log(JSON.stringify(searchRequest, null, 2))
-
                     displayLine(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
                     searchRequest.forEach((obj: any) => {
                         displayObject(flatten(obj));
