@@ -9,7 +9,7 @@ import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import yargsInteractive from 'yargs-interactive';
 import { State } from '../../../_bldr/_processes/state';
 import { incrementMetric } from '../../../_utils/metrics';
-const { allowTracking} = new State();
+const { allowTracking } = new State();
 
 const delete_confirm = require('../../../_utils/options/delete_confirm')
 
@@ -36,13 +36,30 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                 /**
                  * Search for Content Builder Folders
                  */
+                let searchRequest;
                 if (argv.f) {
+                    if (typeof argv.f === 'string' && argv.f.includes(':')) {
+                        const searchFlag = argv.f.split(':')[1];
+                        const searchTerm = argv._ && argv._[1];
 
-                    const searchRequest = await contentBuilder.searchFolders({
-                        contentType: 'asset',
-                        searchKey: 'Name',
-                        searchTerm: argv.f,
-                    });
+                        switch (searchFlag) {
+                            case 'shared':
+                                searchRequest = await contentBuilder.searchFolders({
+                                    contentType: 'asset-shared',
+                                    searchKey: 'Name',
+                                    searchTerm: searchTerm,
+                                });
+                                break;
+                        }
+
+
+                    } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                        searchRequest = await contentBuilder.searchFolders({
+                            contentType: 'asset',
+                            searchKey: 'Name',
+                            searchTerm: argv.f,
+                        });
+                    }
 
                     displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
                     searchRequest.forEach((obj: any) => {
@@ -91,7 +108,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     });
 
                     const { assets, folders } = cloneRequest;
-
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
                     assets && assets.length && (await createContentBuilderEditableFiles(assets));
                     assets &&
@@ -120,8 +136,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     } = await contentBuilder.gatherAssetById(argv.a);
 
                     const { assets, folders } = cloneRequest;
-
                     const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
+
                     assets && assets.length && (await createContentBuilderEditableFiles(assets));
                     assets &&
                         folders &&

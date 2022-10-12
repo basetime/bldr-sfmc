@@ -4,4 +4,5 @@ export interface InstanceConfiguration {
     parentMID: number;
     mids: any[];
     authURI: string;
+    configurationType: string;
 }

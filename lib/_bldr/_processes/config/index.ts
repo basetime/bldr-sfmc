@@ -34,6 +34,9 @@ export class Config {
      */
     initiateConfiguration = async (argv: Argv) => {
         try {
+            displayLine('For Web App Configurations, use the following as the Redirect URI in your Installed Package', 'info')
+            displayLine('https://bldr.io/cli/sfmc/authenticate/', 'progress')
+
             yargsInteractive()
                 .usage('$bldr config [args]')
                 .interactive(config_new)
@@ -45,24 +48,28 @@ export class Config {
                     // Build Configuration Object based on user inputs
                     const configured: {
                         instance: string;
+                        configurationType: string;
                         parentMID: number;
                         apiClientId: string;
                         apiClientSecret: string;
                         authURI: string;
                     } = {
                         instance: configResults.instance,
+                        configurationType: configResults.configurationType,
                         parentMID: Number(configResults.parentMID),
                         apiClientId: configResults.apiClientId,
                         apiClientSecret: configResults.apiClientSecret,
                         authURI: configResults.authURI,
                     };
 
-                    const sdk: BLDR_Client = await initiateBldrSDK({
+                    const sdk = await initiateBldrSDK({
                         client_id: configured.apiClientId,
                         client_secret: configured.apiClientSecret,
                         account_id: configured.parentMID,
                         auth_url: configured.authURI,
-                    });
+                    },
+                    configured.instance,
+                    configured.configurationType);
 
                     // Throw Error if SDK Fails to Load
                     if (!sdk) {
@@ -130,6 +137,7 @@ export class Config {
         parentMID: number;
         mids: any[];
         authURI: string;
+        configurationType: string;
     }> => {
         if (!instance) {
             displayLine('Please provide an instance name', 'error');
