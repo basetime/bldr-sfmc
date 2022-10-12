@@ -34,6 +34,9 @@ export class Config {
      */
     initiateConfiguration = async (argv: Argv) => {
         try {
+            displayLine('For Web App Configurations, use the following as the Redirect URI in your Installed Package', 'info')
+            displayLine('https://bldr.io/cli/sfmc/authenticate/', 'progress')
+
             yargsInteractive()
                 .usage('$bldr config [args]')
                 .interactive(config_new)

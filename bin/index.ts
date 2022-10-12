@@ -45,6 +45,7 @@ const initCLI = async (req: string, argv: any) => {
             displayLine('config', 'success');
             displayObject({
                 '-n, --new                          ': 'Create New Configuration',
+                '>> Web App Redirect URI            ': 'https://bldr.io/cli/sfmc/authenticate/',
                 '<instance name>                    ': 'View Instance Configuration',
                 '-l, --list                         ': 'List all Configurations',
                 '-s --set                           ': 'Set Target Configuration to Use',

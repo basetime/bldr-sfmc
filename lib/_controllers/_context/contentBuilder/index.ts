@@ -42,11 +42,16 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         const searchFlag = argv.f.split(':')[1];
                         const searchTerm = argv._ && argv._[1];
 
-                        searchRequest = await contentBuilder.searchFolders({
-                            contentType: 'asset-shared',
-                            searchKey: 'Name',
-                            searchTerm: searchTerm,
-                        });
+                        switch (searchFlag) {
+                            case 'shared':
+                                searchRequest = await contentBuilder.searchFolders({
+                                    contentType: 'asset-shared',
+                                    searchKey: 'Name',
+                                    searchTerm: searchTerm,
+                                });
+                                break;
+                        }
+
 
                     } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
                         searchRequest = await contentBuilder.searchFolders({
