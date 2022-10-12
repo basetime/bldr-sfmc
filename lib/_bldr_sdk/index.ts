@@ -1,7 +1,7 @@
 // import BLDR from '@basetime/bldr-sfmc-sdk';
 const BLDR = require('@basetime/bldr-sfmc-sdk');
 const axios = require('axios').default
-const port = 3000;
+
 const redirectURL = 'https://bldr.io/cli/sfmc/authenticate/';
 const redirect = encodeURIComponent(redirectURL);
 const open = require('open')
@@ -80,6 +80,7 @@ const oAuthInitiator = async (authObject: any) => {
         const express = require('express')
         const cors = require('cors')
         const app = express();
+        const port = 3000;
 
         displayLine('Initiating Authentication', 'info')
         displayLine('Opening Browser for Authentication, action may be required', 'info')
