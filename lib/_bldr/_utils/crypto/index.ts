@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-
 import { getPassword, setPassword } from 'keytar-sync';
 
 const algorithm = 'aes-256-ctr';
@@ -41,27 +40,15 @@ export class Crypto {
         let decryptedStr = decrypted.toString();
         return decryptedStr.substring(0, decryptedStr.length - SALT.length);
     }
-    /**
-     * Create required entries for bldr's encryption
-     */
-    async setEncryption() {
-        let envExists = await getPassword('bldr', 'io');
 
-        if (!envExists) {
-            const hex = await this.#generateHexString(32);
-            const salt = await this.#generateHexString(12);
-            await setPassword('bldr', 'io', hex);
-            await setPassword('bldr', 'salty', salt);
-        }
-    }
     /**
      * Generate encryption hex keys
      *
      * @param length
      * @returns
      */
-    #generateHexString(length: number) {
-        // Use crypto.getRandomValues if available
+    generateHexString = (length: number) => {
+        //Use crypto.getRandomValues if available
         if (typeof crypto.getRandomValues === 'function') {
             var tmp = new Uint8Array(Math.max(~~length / 2));
             crypto.getRandomValues(tmp);
@@ -76,6 +63,20 @@ export class Crypto {
         while (ret.length < length) {
             ret += Math.random().toString(16).substring(2);
         }
+
         return ret.substring(0, length);
+    }
+     /**
+     * Create required entries for bldr's encryption
+     */
+    setEncryption = async () => {
+        let envExists = await getPassword('bldr', 'io');
+
+        if (!envExists) {
+            const hex = await this.generateHexString(32);
+            const salt = await this.generateHexString(12);
+            await setPassword('bldr', 'io', hex);
+            await setPassword('bldr', 'salty', salt);
+        }
     }
 }
