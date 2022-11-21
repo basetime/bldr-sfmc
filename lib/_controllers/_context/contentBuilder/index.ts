@@ -61,6 +61,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         });
                     }
 
+
+
                     displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
                     searchRequest.forEach((obj: any) => {
                         displayObject(flatten(obj));

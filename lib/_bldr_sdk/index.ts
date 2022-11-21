@@ -194,6 +194,7 @@ const initiateBldrSDK = async (
             auth_url: stateConfiguration.authURI
         };
 
+
         if (
             Object.prototype.hasOwnProperty.call(stateConfiguration, 'configurationType')
             && stateConfiguration.configurationType === 'Server-to-Server'
