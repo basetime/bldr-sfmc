@@ -1,17 +1,22 @@
 {
     "name": "@basetime/bldr-sfmc",
-    "version": "1.3.4",
+    "version": "1.5.23",
     "description": "CLI application for SFMC Development workflow and package deployment",
-    "main": "bin/index.js",
+    "main": "./dist/bin/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "format:check": "prettier --check .",
         "format:write": "prettier --write .",
         "lint": "eslint ./lib",
-        "lint:fix": "eslint ./lib --fix ."
+        "lint:fix": "eslint ./lib --fix .",
+        "prebuild": "node -p \"'export const version = ' + JSON.stringify(require('./package.json').version) + ';'\" > lib/_bldr_sdk/version.ts",
+        "build": "npm run prebuild && tsc",
+        "clean": "npx rimraf dist",
+        "deploy": "npm run build && npm publish",
+        "updateLink": "npm run clean && npm run build && npm rm @basetime/bldr-sfmc-ts -g && npm link @basetime/bldr-sfmc-sdk && npm link && cd dist/bin && chmod ugo+rwx index.js"
     },
     "bin": {
-        "bldr": "./bin/index.js"
+        "bldr": "./dist/bin/index.js"
     },
     "author": "Basetime.io",
     "repository": {
@@ -27,13 +32,17 @@
     ],
     "license": "BSD-3-Clause",
     "dependencies": {
+        "@basetime/bldr-sfmc-sdk": "^1.0.21",
         "@nodelib/fs.walk": "^1.2.8",
         "axios": "^0.26.0",
         "boxen": "^4.2.0",
         "chalk": "^2.4.1",
         "cli-format": "^3.0.9",
         "conf": "^10.1.1",
+        "cors": "^2.8.5",
         "dotenv": "16.0.1",
+        "express": "^4.18.1",
+        "flat": "^5.0.2",
         "keytar-sync": "7.7.1",
         "lodash.find": "^4.6.0",
         "lodash.isequal": "^4.5.0",
@@ -41,6 +50,7 @@
         "lodash.uniq": "^4.5.0",
         "node-html-parser": "^5.2.0",
         "node-recursive-directory": "^1.2.0",
+        "open": "^8.4.0",
         "sfmc-sdk": "^0.5.0",
         "sfmc-soap-object-reference": "1.0.0",
         "uuid": "^8.3.2",
@@ -48,8 +58,15 @@
         "yargs-interactive": "^3.0.0"
     },
     "devDependencies": {
+        "@types/flat": "^5.0.2",
+        "@types/lodash.isequal": "^4.5.6",
+        "@types/lodash.remove": "^4.7.7",
+        "@types/lodash.uniq": "^4.5.7",
+        "@types/yargs": "^17.0.10",
+        "@types/yargs-interactive": "^2.1.3",
         "eslint": "^8.12.0",
         "eslint-config-prettier": "^8.5.0",
-        "prettier": "^2.6.2"
+        "prettier": "^2.6.2",
+        "typescript": "4.7.4"
     }
 }
