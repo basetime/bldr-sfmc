@@ -32,7 +32,7 @@
     ],
     "license": "BSD-3-Clause",
     "dependencies": {
-        "@basetime/bldr-sfmc-sdk": "^1.0.19",
+        "@basetime/bldr-sfmc-sdk": "^1.0.20",
         "@nodelib/fs.walk": "^1.2.8",
         "axios": "^0.26.0",
         "boxen": "^4.2.0",
