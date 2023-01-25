@@ -196,8 +196,12 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         categoryId: searchTerm,
                     });
 
-                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && uniqueArrayByKey(cloneRequest.folders, 'id') || [];
+                    if(!cloneRequest.folders || !cloneRequest.assets){
+                        displayLine(`Could not find ${searchTerm}. If it's a shared item, update your command with '-a:shared'`, 'info')
+                        return
+                    }
 
+                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && uniqueArrayByKey(cloneRequest.folders, 'id') || [];
                     cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (await createEmailStudioEditableFiles(cloneRequest.assets));
 
                     cloneRequest.assets &&
@@ -208,6 +212,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         }));
                     allowTracking() && incrementMetric('req_clones_dataExtension_folders');
                 } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+
                     const cloneRequest: {
                         assets: SFMC_Data_Extension_Asset[];
                         folders: {
@@ -222,7 +227,10 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         categoryId: argv.f,
                     });
 
-
+                    if(!cloneRequest.folders || !cloneRequest.assets){
+                        displayLine(`Could not find ${argv.f}. If it's a shared item, update your command with '-f:shared'`, 'info')
+                        return
+                    }
                     const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && uniqueArrayByKey(cloneRequest.folders, 'id') || [];
                     cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (await createEmailStudioEditableFiles(cloneRequest.assets));
 
@@ -255,6 +263,11 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         }[];
                     } = await emailStudio.gatherAssetById(customerKey, completeResponse, shared);
 
+                    if(!cloneRequest.folders || !cloneRequest.assets){
+                        displayLine(`Could not find ${customerKey}. If it's a shared item, update your command with '-a:shared'`, 'info')
+                        return
+                    }
+
                     const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && uniqueArrayByKey(cloneRequest.folders, 'id') || [];
                     cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (await createEmailStudioEditableFiles(cloneRequest.assets));
 
@@ -278,6 +291,10 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         }[];
                     } = await emailStudio.gatherAssetById(argv.a);
 
+                    if(!cloneRequest.folders || !cloneRequest.assets){
+                        displayLine(`Could not find ${argv.a}. If it's a shared item, update your command with '-a:shared'`, 'info')
+                        return
+                    }
 
                     const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && uniqueArrayByKey(cloneRequest.folders, 'id') || [];
                     cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (await createEmailStudioEditableFiles(cloneRequest.assets));
@@ -296,7 +313,8 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
 
         return;
     } catch (err) {
-        console.log(err);
+        console.log('err', err)
+        displayLine('error', 'error')
     }
 };
 

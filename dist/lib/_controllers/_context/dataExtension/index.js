@@ -155,6 +155,10 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         contentType: shared ? 'shared_dataextension' : 'dataextension',
                         categoryId: searchTerm,
                     });
+                    if (!cloneRequest.folders || !cloneRequest.assets) {
+                        (0, display_1.displayLine)(`Could not find ${searchTerm}. If it's a shared item, update your command with '-a:shared'`, 'info');
+                        return;
+                    }
                     const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
                     cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
                     cloneRequest.assets &&
@@ -170,6 +174,10 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         contentType: 'dataextension',
                         categoryId: argv.f,
                     });
+                    if (!cloneRequest.folders || !cloneRequest.assets) {
+                        (0, display_1.displayLine)(`Could not find ${argv.f}. If it's a shared item, update your command with '-f:shared'`, 'info');
+                        return;
+                    }
                     const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
                     cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
                     cloneRequest.assets &&
@@ -189,6 +197,10 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                     const completeResponse = false;
                     const customerKey = argv._ && argv._[1];
                     const cloneRequest = yield emailStudio.gatherAssetById(customerKey, completeResponse, shared);
+                    if (!cloneRequest.folders || !cloneRequest.assets) {
+                        (0, display_1.displayLine)(`Could not find ${customerKey}. If it's a shared item, update your command with '-a:shared'`, 'info');
+                        return;
+                    }
                     const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
                     cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
                     cloneRequest.assets &&
@@ -201,6 +213,10 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                 }
                 else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                     const cloneRequest = yield emailStudio.gatherAssetById(argv.a);
+                    if (!cloneRequest.folders || !cloneRequest.assets) {
+                        (0, display_1.displayLine)(`Could not find ${argv.a}. If it's a shared item, update your command with '-a:shared'`, 'info');
+                        return;
+                    }
                     const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
                     cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
                     cloneRequest.assets &&
@@ -216,7 +232,8 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
         return;
     }
     catch (err) {
-        console.log(err);
+        console.log('err', err);
+        (0, display_1.displayLine)('error', 'error');
     }
 });
 exports.DataExtensionSwitch = DataExtensionSwitch;
