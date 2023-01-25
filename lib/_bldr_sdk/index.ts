@@ -6,13 +6,11 @@ const redirectURL = 'https://bldr.io/cli/sfmc/authenticate/';
 const redirect = encodeURIComponent(redirectURL);
 const open = require('open')
 
-import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
-import { handleError } from '../_utils/handleError';
-import { State } from '../_bldr/_processes/state';
-import { Config } from '../_bldr/_processes/config';
-import { SFMC_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/sfmc_client';
 import { CLI_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/cli_client';
-import { getPassword, setPassword, deletePassword } from 'keytar-sync';
+import { SFMC_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/sfmc_client';
+import { getPassword, setPassword } from 'keytar-sync';
+import { Config } from '../_bldr/_processes/config';
+import { State } from '../_bldr/_processes/state';
 import { isExpired } from '../_utils';
 import { displayLine } from '../_utils/display';
 

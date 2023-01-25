@@ -13,16 +13,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Config = void 0;
+const keytar_sync_1 = require("keytar-sync");
 const yargs_interactive_1 = __importDefault(require("yargs-interactive"));
+const _bldr_sdk_1 = require("../../../_bldr_sdk");
 const store_1 = require("../../../_bldr_sdk/store");
-const state_1 = require("../state");
+const display_1 = require("../../../_utils/display");
+const handleError_1 = require("../../../_utils/handleError");
+const metrics_1 = require("../../../_utils/metrics");
 const options_1 = require("../../../_utils/options");
 const crypto_1 = require("../../_utils/crypto");
-const _bldr_sdk_1 = require("../../../_bldr_sdk");
-const handleError_1 = require("../../../_utils/handleError");
-const display_1 = require("../../../_utils/display");
-const metrics_1 = require("../../../_utils/metrics");
-const keytar_sync_1 = require("keytar-sync");
+const state_1 = require("../state");
 const { setEncryption, encrypt, decrypt } = new crypto_1.Crypto();
 const { getState, allowTracking } = new state_1.State();
 /**
@@ -61,26 +61,29 @@ class Config {
                         apiClientSecret: configResults.apiClientSecret,
                         authURI: configResults.authURI,
                     };
+                    (0, display_1.displayLine)('Testing Configuration...');
                     const sdk = yield (0, _bldr_sdk_1.initiateBldrSDK)({
                         client_id: configured.apiClientId,
                         client_secret: configured.apiClientSecret,
                         account_id: configured.parentMID,
                         auth_url: configured.authURI,
                     }, configured.instance, configured.configurationType);
+                    console.log({ sdk });
                     // Throw Error if SDK Fails to Load
                     if (!sdk) {
                         (0, display_1.displayLine)('Unable to test configuration. Please review and retry.', 'error');
                         return;
                     }
+                    (0, display_1.displayLine)('Gathering Business Unit Details...');
                     // Get All Business Unit Details from provided credentials
-                    //@ts-ignore //TODO figure out why getAllBusinessUnitDetails is throwing TS error
                     const getAllBusinessUnitDetails = yield sdk.sfmc.account.getAllBusinessUnitDetails();
+                    console.log({ getAllBusinessUnitDetails });
                     // Throw Error if there are issues with getting Business Unit Details
-                    if (!getAllBusinessUnitDetails) {
+                    if (!Array.isArray(getAllBusinessUnitDetails) || Array.isArray(getAllBusinessUnitDetails) && !getAllBusinessUnitDetails.length) {
                         throw new Error('Unable to get Instance Details. Please review credentials.');
                     }
                     // Isolate each Business Unit Name and MID for stored configuration
-                    const instanceBusinessUnits = getAllBusinessUnitDetails.map((bu) => {
+                    const instanceBusinessUnits = Array.isArray(getAllBusinessUnitDetails) && getAllBusinessUnitDetails.length && getAllBusinessUnitDetails.map((bu) => {
                         return {
                             name: bu.Name,
                             mid: bu.ID,
@@ -103,7 +106,8 @@ class Config {
                 }));
             }
             catch (err) {
-                return (0, handleError_1.handleError)(err);
+                err.message && (0, display_1.displayLine)(err.message, 'error');
+                return err;
             }
         });
         /**

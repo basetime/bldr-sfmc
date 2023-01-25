@@ -1,16 +1,15 @@
+import { deletePasswordSync, findCredentials, getPassword, getPasswordSync, setPassword } from 'keytar-sync';
 import yargsInteractive from 'yargs-interactive';
+import { initiateBldrSDK } from '../../../_bldr_sdk';
 import { state_conf } from '../../../_bldr_sdk/store';
-import { State } from '../state';
+import { Argv } from '../../../_types/Argv';
+import { InstanceConfiguration } from '../../../_types/InstanceConfiguration';
+import { displayArrayOfStrings, displayLine, displayObject } from '../../../_utils/display';
+import { handleError } from '../../../_utils/handleError';
+import { incrementMetric } from '../../../_utils/metrics';
 import { config_new, config_remove } from '../../../_utils/options';
 import { Crypto } from '../../_utils/crypto';
-import { initiateBldrSDK } from '../../../_bldr_sdk';
-import { handleError } from '../../../_utils/handleError';
-import { displayLine, displayObject, displayArrayOfStrings } from '../../../_utils/display';
-import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
-import { InstanceConfiguration } from '../../../_types/InstanceConfiguration';
-import { Argv } from '../../../_types/Argv';
-import { incrementMetric } from '../../../_utils/metrics'
-import { getPassword, setPassword, findCredentials, deletePasswordSync, getPasswordSync } from 'keytar-sync';
+import { State } from '../state';
 
 const { setEncryption, encrypt, decrypt } = new Crypto();
 
@@ -62,6 +61,8 @@ export class Config {
                         authURI: configResults.authURI,
                     };
 
+                    displayLine('Testing Configuration...')
+
                     const sdk = await initiateBldrSDK({
                         client_id: configured.apiClientId,
                         client_secret: configured.apiClientSecret,
@@ -71,23 +72,27 @@ export class Config {
                     configured.instance,
                     configured.configurationType);
 
+
+                    console.log({sdk})
                     // Throw Error if SDK Fails to Load
                     if (!sdk) {
                         displayLine('Unable to test configuration. Please review and retry.', 'error');
                         return;
                     }
 
+                    displayLine('Gathering Business Unit Details...')
+
                     // Get All Business Unit Details from provided credentials
-                    //@ts-ignore //TODO figure out why getAllBusinessUnitDetails is throwing TS error
                     const getAllBusinessUnitDetails = await sdk.sfmc.account.getAllBusinessUnitDetails();
+                    console.log({getAllBusinessUnitDetails})
 
                     // Throw Error if there are issues with getting Business Unit Details
-                    if (!getAllBusinessUnitDetails) {
+                    if (!Array.isArray(getAllBusinessUnitDetails) || Array.isArray(getAllBusinessUnitDetails) && !getAllBusinessUnitDetails.length) {
                         throw new Error('Unable to get Instance Details. Please review credentials.');
                     }
 
                     // Isolate each Business Unit Name and MID for stored configuration
-                    const instanceBusinessUnits = getAllBusinessUnitDetails.map((bu: { Name: string; ID: number }) => {
+                    const instanceBusinessUnits = Array.isArray(getAllBusinessUnitDetails) && getAllBusinessUnitDetails.length && getAllBusinessUnitDetails.map((bu: { Name: string; ID: number }) => {
                         return {
                             name: bu.Name,
                             mid: bu.ID,
@@ -117,8 +122,9 @@ export class Config {
                     displayLine(`${configured.instance} Configuration Saved`, 'success');
                     allowTracking() && incrementMetric('req_command_config');
                 });
-        } catch (err) {
-            return handleError(err);
+        } catch (err:any) {
+            err.message && displayLine(err.message, 'error')
+            return err;
         }
     };
     /**

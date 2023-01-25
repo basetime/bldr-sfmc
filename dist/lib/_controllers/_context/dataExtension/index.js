@@ -13,15 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DataExtensionSwitch = void 0;
-const _bldr_sdk_1 = require("../../../_bldr_sdk");
-const display_1 = require("../../../_utils/display");
-const _utils_1 = require("../../../_bldr/_utils");
 const flat_1 = __importDefault(require("flat"));
-const CreateLocalFiles_1 = require("../../../_utils/bldrFileSystem/_context/dataExtension/CreateLocalFiles");
-const manifestJSON_1 = require("../../../_utils/bldrFileSystem/manifestJSON");
+const config_1 = require("../../../_bldr/_processes/config");
 const state_1 = require("../../../_bldr/_processes/state");
+const _utils_1 = require("../../../_bldr/_utils");
+const _bldr_sdk_1 = require("../../../_bldr_sdk");
+const manifestJSON_1 = require("../../../_utils/bldrFileSystem/manifestJSON");
+const CreateLocalFiles_1 = require("../../../_utils/bldrFileSystem/_context/dataExtension/CreateLocalFiles");
+const display_1 = require("../../../_utils/display");
 const metrics_1 = require("../../../_utils/metrics");
-const { allowTracking } = new state_1.State();
+const { getInstanceConfiguration } = new config_1.Config();
+const { allowTracking, getState } = new state_1.State();
 /**
  * Flag routing for Config command
  *
@@ -38,71 +40,173 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
         if (!bldr) {
             throw new Error('unable to load sdk');
         }
+        // If authObject is not passed use the current set credentials to initiate SDK
+        const currentState = yield getState();
+        const stateInstance = currentState.instance;
+        const activeMID = currentState.activeMID;
+        const stateConfiguration = yield getInstanceConfiguration(stateInstance);
         switch (req) {
             case 'search':
                 /**
-                 * Search for Content Builder Folders
+                 * Search for Data Extension Folders
                  */
-                if (argv.f) {
+                if (typeof argv.f === 'string' && argv.f.includes(':')) {
+                    const flag = argv.f.split(':')[1];
+                    const shared = flag && flag === 'shared' ? true : false;
+                    const searchTerm = argv._ && argv._[1];
+                    if (activeMID &&
+                        stateConfiguration &&
+                        stateConfiguration.parentMID &&
+                        stateConfiguration.parentMID !== activeMID) {
+                        (0, display_1.displayLine)('Shared searches must be done from Parent Business Unit', 'info');
+                        (0, display_1.displayLine)(`Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`, 'info');
+                        return;
+                    }
+                    const searchRequest = yield emailStudio.searchFolders({
+                        contentType: shared ? 'shared_dataextension' : 'dataextension',
+                        searchKey: 'Name',
+                        searchTerm: searchTerm,
+                    });
+                    (0, display_1.displayLine)(`${searchTerm} Search Results | ${searchRequest.length} Results`, 'info');
+                    searchRequest &&
+                        searchRequest.length &&
+                        searchRequest.forEach((obj) => {
+                            (0, display_1.displayObject)((0, flat_1.default)(obj));
+                        });
+                    allowTracking() && (0, metrics_1.incrementMetric)('req_searches_dataExtension_folders');
+                }
+                else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
                     const searchRequest = yield emailStudio.searchFolders({
                         contentType: 'dataextension',
                         searchKey: 'Name',
                         searchTerm: argv.f,
                     });
                     (0, display_1.displayLine)(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj) => {
-                        (0, display_1.displayObject)((0, flat_1.default)(obj));
-                    });
+                    searchRequest &&
+                        searchRequest.length === 0 &&
+                        (0, display_1.displayLine)(`Search returned no results. If you're searching for a shared item update command to '-f:shared'`, 'info');
+                    searchRequest &&
+                        searchRequest.length &&
+                        searchRequest.forEach((obj) => {
+                            (0, display_1.displayObject)((0, flat_1.default)(obj));
+                        });
                     allowTracking() && (0, metrics_1.incrementMetric)('req_searches_dataExtension_folders');
                 }
                 /**
-                 * Search for Content Builder Assets
+                 * Search for Data Extension Assets
                  */
-                if (argv.a) {
+                if (typeof argv.a === 'string' && argv.a.includes(':')) {
+                    if (activeMID &&
+                        stateConfiguration &&
+                        stateConfiguration.parentMID &&
+                        stateConfiguration.parentMID !== activeMID) {
+                        (0, display_1.displayLine)('Shared searches must be done from Parent Business Unit', 'info');
+                        (0, display_1.displayLine)(`Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`, 'info');
+                        return;
+                    }
+                    const flag = argv.a.split(':')[1];
+                    const shared = flag && flag === 'shared' ? true : false;
+                    const searchTerm = argv._ && argv._[1];
+                    const searchRequest = yield emailStudio.searchDataExtensions({
+                        searchKey: 'Name',
+                        searchTerm: searchTerm,
+                        shared,
+                    });
+                    (0, display_1.displayLine)(`${searchTerm} Search Results | ${searchRequest.length} Results`, 'info');
+                    searchRequest &&
+                        searchRequest.length === 0 &&
+                        (0, display_1.displayLine)(`Search returned no results. If you're searching for a shared item update command to '-a:shared'`, 'info');
+                    searchRequest &&
+                        searchRequest.length &&
+                        searchRequest.forEach((item) => (0, display_1.displayObject)(item));
+                }
+                else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                     const searchRequest = yield emailStudio.searchDataExtensions({
                         searchKey: 'Name',
                         searchTerm: argv.a,
                     });
                     (0, display_1.displayLine)(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj) => {
-                        (0, display_1.displayObject)((0, flat_1.default)(obj));
-                    });
+                    searchRequest &&
+                        searchRequest.length &&
+                        searchRequest.forEach((obj) => {
+                            (0, display_1.displayObject)((0, flat_1.default)(obj));
+                        });
                     allowTracking() && (0, metrics_1.incrementMetric)('req_searches_dataExtension_assets');
                 }
                 break;
             case 'clone':
                 (0, display_1.displayLine)(`Starting Clone`, 'info');
                 /**
-                 * Clone Content Builder Folders
+                 * Clone Data Extension Folders
                  */
-                if (argv.f) {
+                if (typeof argv.f === 'string' && argv.f.includes(':')) {
+                    const flag = argv.f.split(':')[1];
+                    const shared = flag && flag === 'shared' ? true : false;
+                    const searchTerm = argv._ && argv._[1];
+                    if (activeMID &&
+                        stateConfiguration &&
+                        stateConfiguration.parentMID &&
+                        stateConfiguration.parentMID !== activeMID) {
+                        (0, display_1.displayLine)('Shared clones must be done from Parent Business Unit', 'info');
+                        (0, display_1.displayLine)(`Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`, 'info');
+                        return;
+                    }
+                    const cloneRequest = yield emailStudio.gatherAssetsByCategoryId({
+                        contentType: shared ? 'shared_dataextension' : 'dataextension',
+                        categoryId: searchTerm,
+                    });
+                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
+                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
+                    cloneRequest.assets &&
+                        isolatedFoldersUnique &&
+                        (yield (0, manifestJSON_1.updateManifest)('dataExtension', {
+                            assets: cloneRequest.assets,
+                            folders: isolatedFoldersUnique,
+                        }));
+                    allowTracking() && (0, metrics_1.incrementMetric)('req_clones_dataExtension_folders');
+                }
+                else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
                     const cloneRequest = yield emailStudio.gatherAssetsByCategoryId({
                         contentType: 'dataextension',
                         categoryId: argv.f,
                     });
-                    const { assets, folders } = cloneRequest;
-                    const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
-                    assets && assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(assets));
-                    assets &&
-                        folders &&
+                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
+                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
+                    cloneRequest.assets &&
+                        isolatedFoldersUnique &&
                         (yield (0, manifestJSON_1.updateManifest)('dataExtension', {
-                            assets: assets,
+                            assets: cloneRequest.assets,
                             folders: isolatedFoldersUnique,
                         }));
                     allowTracking() && (0, metrics_1.incrementMetric)('req_clones_dataExtension_folders');
                 }
                 /**
-                 * Search for Content Builder Assets
+                 * Search for Data Extension Assets
                  */
-                if (argv.a) {
-                    const cloneRequest = yield emailStudio.gatherAssetById(argv.a);
-                    const { assets, folders } = cloneRequest;
-                    const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
-                    assets && assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(assets));
-                    assets &&
-                        folders &&
+                if (typeof argv.a === 'string' && argv.a.includes(':')) {
+                    const flag = argv.a.split(':')[1];
+                    const shared = flag && flag === 'shared' ? true : false;
+                    const completeResponse = false;
+                    const customerKey = argv._ && argv._[1];
+                    const cloneRequest = yield emailStudio.gatherAssetById(customerKey, completeResponse, shared);
+                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
+                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
+                    cloneRequest.assets &&
+                        isolatedFoldersUnique &&
                         (yield (0, manifestJSON_1.updateManifest)('dataExtension', {
-                            assets: assets,
+                            assets: cloneRequest.assets,
+                            folders: isolatedFoldersUnique,
+                        }));
+                    allowTracking() && (0, metrics_1.incrementMetric)('req_clones_dataExtension_assets');
+                }
+                else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
+                    const cloneRequest = yield emailStudio.gatherAssetById(argv.a);
+                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
+                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
+                    cloneRequest.assets &&
+                        isolatedFoldersUnique &&
+                        (yield (0, manifestJSON_1.updateManifest)('dataExtension', {
+                            assets: cloneRequest.assets,
                             folders: isolatedFoldersUnique,
                         }));
                     allowTracking() && (0, metrics_1.incrementMetric)('req_clones_dataExtension_assets');
