@@ -11,7 +11,7 @@ import { displayLine, displayObject } from '../../../_utils/display';
 import { incrementMetric } from '../../../_utils/metrics';
 const { allowTracking } = new State();
 
-const delete_confirm = require('../../../_utils/options/delete_confirm')
+const delete_confirm = require('../../../_utils/options/delete_confirm');
 
 /**
  * Flag routing for Config command
@@ -51,8 +51,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                                 });
                                 break;
                         }
-
-
                     } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
                         searchRequest = await contentBuilder.searchFolders({
                             contentType: 'asset',
@@ -60,8 +58,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             searchTerm: argv.f,
                         });
                     }
-
-
 
                     displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
                     searchRequest.forEach((obj: any) => {
@@ -95,60 +91,97 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                  * Clone Content Builder Folders
                  */
                 if (argv.f) {
-                    const cloneRequest: {
-                        assets: SFMC_Content_Builder_Asset[];
-                        folders: {
-                            ID: number;
-                            Name: string;
-                            ContentType: string;
-                            ParentFolder: any;
-                            FolderPath: string;
-                        }[];
-                    } = await contentBuilder.gatherAssetsByCategoryId({
-                        contentType: 'asset',
-                        categoryId: argv.f,
-                    });
+                    if (typeof argv.f === 'string' && argv.f.includes(':')) {
+                        const shared = argv.f.split(':')[1] === 'shared' ? true : false;
+                        const searchTerm = argv._ && argv._[1];
 
-                    const { assets, folders } = cloneRequest;
-                    const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
-                    assets && assets.length && (await createContentBuilderEditableFiles(assets));
-                    assets &&
-                        folders &&
-                        (await updateManifest('contentBuilder', {
-                            assets: assets,
-                            folders: isolatedFoldersUnique,
-                        }));
+                        const cloneRequest: {
+                            assets: SFMC_Content_Builder_Asset[];
+                            folders: {
+                                ID: number;
+                                Name: string;
+                                ContentType: string;
+                                ParentFolder: any;
+                                FolderPath: string;
+                            }[];
+                        } = await contentBuilder.gatherAssetsByCategoryId(
+                            {
+                                contentType: 'asset',
+                                categoryId: searchTerm,
+                            },
+                            shared
+                        );
 
-                    allowTracking() && incrementMetric('req_clones_contentBuilder_folders');
+                        const { assets, folders } = cloneRequest;
+                        const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
+                        assets && assets.length && (await createContentBuilderEditableFiles(assets));
+                        assets &&
+                            folders &&
+                            (await updateManifest('sharedContent', {
+                                assets: assets,
+                                folders: isolatedFoldersUnique,
+                            }));
+                    } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                        const cloneRequest: {
+                            assets: SFMC_Content_Builder_Asset[];
+                            folders: {
+                                ID: number;
+                                Name: string;
+                                ContentType: string;
+                                ParentFolder: any;
+                                FolderPath: string;
+                            }[];
+                        } = await contentBuilder.gatherAssetsByCategoryId({
+                            contentType: 'asset',
+                            categoryId: argv.f,
+                        });
+
+                        const { assets, folders } = cloneRequest;
+                        const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
+                        assets && assets.length && (await createContentBuilderEditableFiles(assets));
+                        assets &&
+                            folders &&
+                            (await updateManifest('contentBuilder', {
+                                assets: assets,
+                                folders: isolatedFoldersUnique,
+                            }));
+
+                        allowTracking() && incrementMetric('req_clones_contentBuilder_folders');
+                    }
                 }
 
                 /**
                  * Search for Content Builder Assets
                  */
                 if (argv.a) {
-                    const cloneRequest: {
-                        assets: SFMC_Content_Builder_Asset[];
-                        folders: {
-                            ID: number;
-                            Name: string;
-                            ContentType: string;
-                            ParentFolder: any;
-                            FolderPath: string;
-                        }[];
-                    } = await contentBuilder.gatherAssetById(argv.a);
+                    if (typeof argv.a === 'string' && argv.a.includes(':')) {
 
-                    const { assets, folders } = cloneRequest;
-                    const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
 
-                    assets && assets.length && (await createContentBuilderEditableFiles(assets));
-                    assets &&
-                        folders &&
-                        (await updateManifest('contentBuilder', {
-                            assets: assets,
-                            folders: isolatedFoldersUnique,
-                        }));
+                    } else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
+                        const cloneRequest: {
+                            assets: SFMC_Content_Builder_Asset[];
+                            folders: {
+                                ID: number;
+                                Name: string;
+                                ContentType: string;
+                                ParentFolder: any;
+                                FolderPath: string;
+                            }[];
+                        } = await contentBuilder.gatherAssetById(argv.a);
 
-                    allowTracking() && incrementMetric('req_clones_contentBuilder_assets');
+                        const { assets, folders } = cloneRequest;
+                        const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
+
+                        assets && assets.length && (await createContentBuilderEditableFiles(assets));
+                        assets &&
+                            folders &&
+                            (await updateManifest('contentBuilder', {
+                                assets: assets,
+                                folders: isolatedFoldersUnique,
+                            }));
+
+                        allowTracking() && incrementMetric('req_clones_contentBuilder_assets');
+                    }
                 }
                 break;
 
@@ -170,29 +203,29 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     });
 
                     const { assets, folders } = deleteRequest;
-                    const assetIds = assets && assets.length && assets.map((asset) => asset.id)
-                    let folderIds = folders && folders.length && folders.map((folder) => folder.ID)
+                    const assetIds = assets && assets.length && assets.map((asset) => asset.id);
+                    let folderIds = folders && folders.length && folders.map((folder) => folder.ID);
                     //folderIds = folderIds && folderIds.sort((a, b) => b.ID - a.ID)
 
                     if (assetIds && assetIds.length) {
                         for (const a in assetIds) {
                             const assetId = assetIds[a];
-                            const deleteRequest = await bldr.sfmc.asset.deleteAsset(assetId)
+                            const deleteRequest = await bldr.sfmc.asset.deleteAsset(assetId);
                             if (deleteRequest === 'OK') {
-                                displayLine(`AssetId ${assetId} has been deleted`, 'success')
+                                displayLine(`AssetId ${assetId} has been deleted`, 'success');
                             }
                         }
                     }
 
-                    displayLine(`Please Note: folders have not been deleted. Working on it though!`, 'info')
+                    displayLine(`Please Note: folders have not been deleted. Working on it though!`, 'info');
                     allowTracking() && incrementMetric('req_clones_contentBuilder_assets');
                 }
 
                 if (argv.a) {
                     if (argv['force']) {
-                        const deleteRequest = await bldr.sfmc.asset.deleteAsset(argv.a)
+                        const deleteRequest = await bldr.sfmc.asset.deleteAsset(argv.a);
                         if (deleteRequest === 'OK') {
-                            displayLine(`AssetId ${argv.a} has been deleted`, 'success')
+                            displayLine(`AssetId ${argv.a} has been deleted`, 'success');
                             allowTracking() && incrementMetric('req_deletes_contentBuilder_assets');
                         }
                     } else {
@@ -201,16 +234,18 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             .interactive(delete_confirm)
                             .then(async (initResults) => {
                                 if (initResults.confirmDelete) {
-                                    const deleteRequest = await bldr.sfmc.asset.deleteAsset(argv.a)
+                                    const deleteRequest = await bldr.sfmc.asset.deleteAsset(argv.a);
                                     if (deleteRequest === 'OK') {
-                                        displayLine(`AssetId ${argv.a} has been deleted`, 'success')
-                                        displayLine(`Please Note: folders have not been deleted. Working on it though!`, 'info')
+                                        displayLine(`AssetId ${argv.a} has been deleted`, 'success');
+                                        displayLine(
+                                            `Please Note: folders have not been deleted. Working on it though!`,
+                                            'info'
+                                        );
                                         allowTracking() && incrementMetric('req_deletes_contentBuilder_assets');
                                     }
                                 }
-                            })
+                            });
                     }
-
                 }
                 break;
         }

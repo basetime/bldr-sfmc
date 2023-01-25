@@ -94,20 +94,39 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                  * Clone Content Builder Folders
                  */
                 if (argv.f) {
-                    const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
-                        contentType: 'asset',
-                        categoryId: argv.f,
-                    });
-                    const { assets, folders } = cloneRequest;
-                    const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
-                    assets && assets.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assets));
-                    assets &&
-                        folders &&
-                        (yield (0, manifestJSON_1.updateManifest)('contentBuilder', {
-                            assets: assets,
-                            folders: isolatedFoldersUnique,
-                        }));
-                    allowTracking() && (0, metrics_1.incrementMetric)('req_clones_contentBuilder_folders');
+                    if (typeof argv.f === 'string' && argv.f.includes(':')) {
+                        const shared = argv.f.split(':')[1] === 'shared' ? true : false;
+                        const searchTerm = argv._ && argv._[1];
+                        const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
+                            contentType: 'asset',
+                            categoryId: searchTerm,
+                        }, shared);
+                        const { assets, folders } = cloneRequest;
+                        const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
+                        assets && assets.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assets));
+                        assets &&
+                            folders &&
+                            (yield (0, manifestJSON_1.updateManifest)('sharedContent', {
+                                assets: assets,
+                                folders: isolatedFoldersUnique,
+                            }));
+                    }
+                    else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                        const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
+                            contentType: 'asset',
+                            categoryId: argv.f,
+                        });
+                        const { assets, folders } = cloneRequest;
+                        const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
+                        assets && assets.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assets));
+                        assets &&
+                            folders &&
+                            (yield (0, manifestJSON_1.updateManifest)('contentBuilder', {
+                                assets: assets,
+                                folders: isolatedFoldersUnique,
+                            }));
+                        allowTracking() && (0, metrics_1.incrementMetric)('req_clones_contentBuilder_folders');
+                    }
                 }
                 /**
                  * Search for Content Builder Assets
