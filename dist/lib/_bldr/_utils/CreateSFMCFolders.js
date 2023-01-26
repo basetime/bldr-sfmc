@@ -53,6 +53,11 @@ const addNewFolders = (stashItemFolderPath) => __awaiter(void 0, void 0, void 0,
             // If folder does not exist
             if (folderIndex === -1) {
                 if (typeof parentId === 'undefined') {
+                    console.log('parent request', {
+                        contentType: context.contentType,
+                        searchKey: 'Name',
+                        searchTerm: context.name,
+                    });
                     const parentFolderResponse = yield sdk.sfmc.folder.search({
                         contentType: context.contentType,
                         searchKey: 'Name',

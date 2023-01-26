@@ -42,7 +42,7 @@ exports.uniqueArrayByKey = uniqueArrayByKey;
  * ```
  *
  */
-const sfmc_context = (systemFilePath) => sfmc_context_mapping.find((context) => systemFilePath.includes(`/${context.name}/`));
+const sfmc_context = (systemFilePath) => sfmc_context_mapping.filter((context) => new RegExp(context.name).test(systemFilePath));
 exports.sfmc_context = sfmc_context;
 /**
  *
@@ -70,7 +70,14 @@ const getFilePathDetails = (systemFilePath) => {
     const fileExtension = fileName && fileName.substring(fileName.indexOf('.') + 1);
     fileName = fileName && fileName.substring(0, fileName.indexOf('.'));
     const folderName = systemFilePathArray && systemFilePathArray.slice(-1).pop();
-    const projectPath = systemFilePath.substring(systemFilePath.indexOf(contextDetails.name));
+    const context = (contextDetails &&
+        contextDetails.length &&
+        contextDetails.length > 1 &&
+        contextDetails
+            .map((context) => systemFilePathArray.includes(context.name) && context)
+            .filter(Boolean)) ||
+        contextDetails;
+    const projectPath = context && context.length && systemFilePath.substring(systemFilePath.indexOf(context[0].name));
     const projectPathArray = projectPath.split('/');
     projectPathArray.pop();
     const folderPath = projectPathArray.join('/');
@@ -79,7 +86,7 @@ const getFilePathDetails = (systemFilePath) => {
         fileExtension,
         folderPath,
         folderName,
-        context: contextDetails,
+        context: context[0],
     };
 };
 exports.getFilePathDetails = getFilePathDetails;
