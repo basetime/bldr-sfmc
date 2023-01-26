@@ -24,7 +24,7 @@ const options_1 = require("../../../_utils/options");
 const crypto_1 = require("../../_utils/crypto");
 const state_1 = require("../state");
 const { setEncryption, encrypt, decrypt } = new crypto_1.Crypto();
-const { getState, allowTracking } = new state_1.State();
+const { getState, allowTracking, debug } = new state_1.State();
 /**
  * Handles all Configuration commands
  * @property {object} coreConfiguration
@@ -68,7 +68,6 @@ class Config {
                         account_id: configured.parentMID,
                         auth_url: configured.authURI,
                     }, configured.instance, configured.configurationType);
-                    console.log({ sdk });
                     // Throw Error if SDK Fails to Load
                     if (!sdk) {
                         (0, display_1.displayLine)('Unable to test configuration. Please review and retry.', 'error');
@@ -77,7 +76,7 @@ class Config {
                     (0, display_1.displayLine)('Gathering Business Unit Details...');
                     // Get All Business Unit Details from provided credentials
                     const getAllBusinessUnitDetails = yield sdk.sfmc.account.getAllBusinessUnitDetails();
-                    console.log({ getAllBusinessUnitDetails });
+                    debug('Business Unit Return', 'info', getAllBusinessUnitDetails);
                     // Throw Error if there are issues with getting Business Unit Details
                     if (!Array.isArray(getAllBusinessUnitDetails) || Array.isArray(getAllBusinessUnitDetails) && !getAllBusinessUnitDetails.length) {
                         throw new Error('Unable to get Instance Details. Please review credentials.');
@@ -91,10 +90,13 @@ class Config {
                     });
                     // Encrypt Configuration object
                     const encryptedConfiguration = Object.assign(Object.assign({}, configured), { mids: instanceBusinessUnits, apiClientId: yield encrypt(configResults.apiClientId), apiClientSecret: yield encrypt(configResults.apiClientSecret) });
+                    debug('Encrypted Configuration', 'info', encryptedConfiguration);
                     // Store credentials in users PSW Management
                     // OSX Keychain Access
                     // Windows Credential Manager
                     yield (0, keytar_sync_1.setPassword)('bldr', configured.instance, JSON.stringify(encryptedConfiguration));
+                    const credentialCheck = yield (0, keytar_sync_1.getPassword)('bldr', configured.instance);
+                    debug('Check Credentials Saved', 'info', credentialCheck);
                     // Set newly configured instance to Current State
                     yield store_1.state_conf.set({
                         instance: configured.instance,

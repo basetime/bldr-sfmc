@@ -13,7 +13,7 @@ import { State } from '../state';
 
 const { setEncryption, encrypt, decrypt } = new Crypto();
 
-const { getState, allowTracking } = new State();
+const { getState, allowTracking, debug} = new State();
 
 /**
  * Handles all Configuration commands
@@ -72,8 +72,6 @@ export class Config {
                     configured.instance,
                     configured.configurationType);
 
-
-                    console.log({sdk})
                     // Throw Error if SDK Fails to Load
                     if (!sdk) {
                         displayLine('Unable to test configuration. Please review and retry.', 'error');
@@ -84,7 +82,7 @@ export class Config {
 
                     // Get All Business Unit Details from provided credentials
                     const getAllBusinessUnitDetails = await sdk.sfmc.account.getAllBusinessUnitDetails();
-                    console.log({getAllBusinessUnitDetails})
+                    debug('Business Unit Return', 'info', getAllBusinessUnitDetails)
 
                     // Throw Error if there are issues with getting Business Unit Details
                     if (!Array.isArray(getAllBusinessUnitDetails) || Array.isArray(getAllBusinessUnitDetails) && !getAllBusinessUnitDetails.length) {
@@ -107,10 +105,15 @@ export class Config {
                         apiClientSecret: await encrypt(configResults.apiClientSecret),
                     };
 
+                    debug('Encrypted Configuration', 'info', encryptedConfiguration)
+
                     // Store credentials in users PSW Management
                     // OSX Keychain Access
                     // Windows Credential Manager
                     await setPassword('bldr', configured.instance, JSON.stringify(encryptedConfiguration));
+
+                    const credentialCheck = await getPassword('bldr', configured.instance)
+                    debug('Check Credentials Saved', 'info', credentialCheck)
 
                     // Set newly configured instance to Current State
                     await state_conf.set({

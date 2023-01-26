@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConfigSwitch = void 0;
 const config_1 = require("../../_bldr/_processes/config");
 const state_1 = require("../../_bldr/_processes/state");
-const { toggleVerbose, toggleTracking } = new state_1.State();
+const { toggleVerbose, toggleTracking, toggleDebug } = new state_1.State();
 const { initiateConfiguration, getInstanceConfiguration, listInstanceConfiguration, removeConfiguration, setConfiguration, } = new config_1.Config();
 /**
  * Flag routing for Config command
@@ -59,6 +59,9 @@ const ConfigSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, function* 
     }
     if (argv.analytics) {
         return toggleTracking();
+    }
+    if (argv.debug) {
+        return toggleDebug();
     }
     return;
 });

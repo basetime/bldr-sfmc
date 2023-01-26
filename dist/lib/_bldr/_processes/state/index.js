@@ -96,6 +96,32 @@ class State {
         this.allowTracking = () => {
             return store_1.state_conf.get('allowTracking') || false;
         };
+        this.toggleDebug = () => {
+            const debugMode = store_1.state_conf.get('debugMode');
+            if (debugMode !== 'undefined') {
+                debugMode && (0, display_1.displayLine)('debugMode turned off', 'info');
+                !debugMode && (0, display_1.displayLine)('debugMode turned on', 'info');
+                store_1.state_conf.set({
+                    debugMode: !debugMode,
+                });
+            }
+            else {
+                store_1.state_conf.set({
+                    debugMode: false,
+                });
+            }
+        };
+        this.debugMode = () => {
+            return store_1.state_conf.get('debugMode') || false;
+        };
+        this.debug = (debugContext, debugStatus, output) => {
+            const debug = this.debugMode();
+            if (!debug) {
+                return;
+            }
+            (0, display_1.displayLine)(debugContext, debugStatus);
+            typeof output === 'string' ? console.log(output) : console.log(JSON.stringify(output, null, 2));
+        };
         this.checkForTracking = () => __awaiter(this, void 0, void 0, function* () {
             const hasAllowTracking = store_1.state_conf.has('allowTracking');
             if (!hasAllowTracking) {

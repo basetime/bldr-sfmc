@@ -5,6 +5,7 @@ export interface Argv {
     de: any;
     'data-extension'?: Boolean;
     verbose: Boolean;
+    debug: Boolean;
     _?: string[];
     // Config
     n?: string;
