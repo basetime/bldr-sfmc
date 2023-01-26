@@ -104,7 +104,7 @@ const updateManifest = async (
                 if (assetType === 'assets') {
                     // Content Builder assets should have have item.id
                     // Automation Studio assets get an assetType object with the key for their ID
-                    if (context === 'contentBuilder') {
+                    if (['contentBuilder', 'sharedContent'].includes(context)) {
                         itemId = updateItem.id;
                         manifestObj = manifestContextItems.find(({ id }) => id === itemId);
                     } else if (context === 'automationStudio') {
@@ -116,7 +116,7 @@ const updateManifest = async (
                         //@ts-ignore
                         manifestObj = manifestContextItems.find((item) => item[objectIdKey] === itemId);
 
-                    } else if (context === 'dataExtension') {
+                    } else if (['dataExtension', 'sharedDataExtension'].includes(context) ) {
                         itemId = updateItem.customerKey;
                         manifestObj = manifestContextItems.find(({ customerKey }) => customerKey === itemId);
                     }
@@ -134,7 +134,7 @@ const updateManifest = async (
                         let updateIndex;
 
                         if (assetType === 'assets') {
-                            if (context === 'contentBuilder') {
+                            if (['contentBuilder', 'sharedContent'].includes(context)) {
                                 updateIndex = manifestContextItems.findIndex(({ id }) => id === updateItem.id);
                             } else if (context === 'automationStudio') {
                                 const objectIdKey =
@@ -149,7 +149,7 @@ const updateManifest = async (
 
                                 updateItem.category = manifestObj.category
 
-                            } else if (context === 'dataExtension') {
+                            } else if (['dataExtension', 'sharedDataExtension'].includes(context)) {
                                 itemId = updateItem.customerKey || updateItem.id;
                                 updateIndex = manifestContextItems.findIndex(
                                     ({ customerKey }) => customerKey === updateItem.customerKey

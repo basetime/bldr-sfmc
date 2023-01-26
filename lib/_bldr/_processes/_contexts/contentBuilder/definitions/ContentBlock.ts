@@ -18,6 +18,12 @@ const SetContentBlock = async (
             id: number;
         };
         content?: string;
+        businessUnitAvailability?: {
+            [key: string]: any
+        }
+        sharingProperties?: {
+            [key: string]: any
+        }
     },
     updatedContent: string
 ) => {
@@ -37,6 +43,12 @@ const SetContentBlock = async (
             folderPath: string;
         };
         content: string;
+        businessUnitAvailability?: {
+            [key: string]: any
+        }
+        sharingProperties?: {
+            [key: string]: any
+        }
     } = {
         bldrId: sfmcUpdateObject.bldr.bldrId || sfmcUpdateObject.bldrId,
         name: sfmcUpdateObject.name,
@@ -55,8 +67,17 @@ const SetContentBlock = async (
         returnObject.id = sfmcUpdateObject.id;
     }
 
-    if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'customerKey')) {
+     //Append keys for update flow
+     if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'customerKey')) {
         returnObject.customerKey = sfmcUpdateObject.customerKey;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'businessUnitAvailability')) {
+        returnObject.businessUnitAvailability = sfmcUpdateObject.businessUnitAvailability;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'sharingProperties')) {
+        returnObject.sharingProperties = sfmcUpdateObject.sharingProperties;
     }
 
     return returnObject;

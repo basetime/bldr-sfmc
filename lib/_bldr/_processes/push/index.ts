@@ -250,10 +250,16 @@ export class Push {
                             }
                             break;
                         case 'contentBuilder':
+                        case 'sharedContent':
                             createdFolders = await addNewFolders(folderPath);
                             manifestJSON = await readManifest();
                             manifestContextFolders =
-                                manifestJSON['contentBuilder'] && manifestJSON['contentBuilder']['folders'];
+                                manifestJSON[
+                                    stashFileContext === 'contentBuilder' ? 'contentBuilder' : 'sharedContent'
+                                ] &&
+                                manifestJSON[
+                                    stashFileContext === 'contentBuilder' ? 'contentBuilder' : 'sharedContent'
+                                ]['folders'];
 
                             // Get Category Data
                             sfmcUpdateObject.category =
@@ -396,7 +402,15 @@ export class Push {
                 errors,
             };
         } catch (err: any) {
-            console.log(err);
+            err.response.data && err.response.data.message && displayLine(err.response.data.message, 'error');
+            err.response.data &&
+                err.response.data.validationErrors &&
+                err.response.data.validationErrors.length &&
+                displayLine(err.response.data.validationErrors[0].message, 'error')
+                err.response.data &&
+                err.response.data.validationErrors &&
+                err.response.data.validationErrors.length &&
+                displayLine(`ErrorCode: ${err.response.data.validationErrors[0].errorcode}`, 'error');
         }
     };
 }

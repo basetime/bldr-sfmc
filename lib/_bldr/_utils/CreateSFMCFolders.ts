@@ -74,7 +74,6 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                         searchTerm: context.name,
                     });
 
-                    console.log({parentFolderResponse})
                     if (parentFolderResponse.OverallStatus !== 'OK') {
                         throw new Error(parentFolderResponse.OverallStatus);
                     }
