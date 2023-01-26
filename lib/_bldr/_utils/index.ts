@@ -34,7 +34,7 @@ const uniqueArrayByKey = (array: any[], key: string) => [...new Map(array.map((i
  *
  */
 const sfmc_context = (systemFilePath: string) =>
-    sfmc_context_mapping.find((context: { name: string }) => systemFilePath.includes(context.name));
+    sfmc_context_mapping.find((context: { name: string }) => systemFilePath.includes(`/${context.name}/`));
 /**
  *
  * @param systemFilePath

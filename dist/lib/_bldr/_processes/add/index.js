@@ -91,7 +91,7 @@ class Add {
                 // Identify the context for request
                 const contextsArray = sfmcContext.sfmc_context_mapping.map((context) => (0, fileSystem_1.fileExists)(`./${context.name}`) && context.name);
                 // Isolate context from Array
-                const contexts = contextsArray.filter((ctx) => ctx !== 'Data Extensions').filter(Boolean);
+                const contexts = contextsArray.filter((ctx) => ctx && ['Data Extensions', 'Shared Data Extensions'].includes(ctx)).filter(Boolean);
                 // Store all complete file paths for files in CWD and subdirectories
                 let contextFiles = [];
                 // if dir is root folder
@@ -153,7 +153,7 @@ class Add {
                 return filePath.includes(context.name) && context;
             });
             for (const context in availableContexts) {
-                const contextPaths = contextFiles.filter((file) => file.includes(availableContexts[context].name));
+                const contextPaths = contextFiles.filter((file) => file.includes(`/${availableContexts[context].name}/`));
                 const bldrContext = availableContexts[context].context;
                 const manifestContextAssets = manifestJSON[bldrContext] && manifestJSON[bldrContext]['assets'];
                 // If the Manifest JSON file has an assets Array process files
@@ -199,7 +199,7 @@ class Add {
                             // If the file does not exist build the stash object for a post request
                             // Also Build the options for CLI prompt
                             const bldrId = yield (0, _utils_1.guid)();
-                            const { fileName, folderPath } = (0, _utils_1.getFilePathDetails)(systemFilePath);
+                            const { fileName, folderPath } = yield (0, _utils_1.getFilePathDetails)(systemFilePath);
                             const fileContentRaw = yield (0, promises_1.readFile)(systemFilePath);
                             const fileContent = fileContentRaw.toString();
                             postFiles.push({

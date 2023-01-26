@@ -20,7 +20,6 @@ const { getStashArray, removeFromStashByBldrId, clearStash } = new Stash();
 
 import { incrementMetric } from '../../../_utils/metrics';
 
-
 export class Push {
     constructor() {}
     /**
@@ -294,6 +293,52 @@ export class Push {
 
                             sfmcUpdateObject.assetType = {
                                 name: 'dataExtension',
+                            };
+
+                            sfmcUpdateObject.category =
+                                (createdFolders &&
+                                    createdFolders.length &&
+                                    createdFolders[createdFolders.length - 1]) ||
+                                manifestContextFolders.find(
+                                    (manifestFolder) => manifestFolder.folderPath === folderPath
+                                );
+
+                            sfmcAPIObject = JSON.parse(sfmcUpdateObject.fileContent);
+                            sfmcAPIObject.categoryId = sfmcUpdateObject.category.id;
+
+                            if (method === 'put') {
+                                // assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
+                            } else {
+                                assetResponse = await sdk.sfmc.emailStudio.postAsset(sfmcAPIObject);
+                            }
+
+                            if (
+                                assetResponse.OverallStatus === 'OK' &&
+                                Object.prototype.hasOwnProperty.call(assetResponse, 'Results') &&
+                                Object.prototype.hasOwnProperty.call(assetResponse.Results[0], 'Object') &&
+                                Object.prototype.hasOwnProperty.call(assetResponse.Results[0]['Object'], 'CustomerKey')
+                            ) {
+                                sfmcAPIObject.bldrId = bldrId;
+                                sfmcAPIObject.customerKey = assetResponse.Results[0].Object.CustomerKey;
+                                sfmcAPIObject.category = {
+                                    id: sfmcUpdateObject.category.id,
+                                    folderPath: sfmcUpdateObject.category.folderPath,
+                                };
+
+                                await createFile(`${folderPath}/${sfmcAPIObject.name}.json`, sfmcAPIObject);
+                                success.push(sfmcAPIObject);
+                            } else {
+                                errors.push(sfmcAPIObject);
+                            }
+                            break;
+                        case 'sharedDataExtension':
+                            createdFolders = await addNewFolders(folderPath);
+                            manifestJSON = await readManifest();
+                            manifestContextFolders =
+                                manifestJSON['sharedDataExtension'] && manifestJSON['sharedDataExtension']['folders'];
+
+                            sfmcUpdateObject.assetType = {
+                                name: 'sharedDataExtension',
                             };
 
                             sfmcUpdateObject.category =

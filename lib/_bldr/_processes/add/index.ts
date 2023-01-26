@@ -60,7 +60,6 @@ export class Add {
             // Separate out existing files and newly created files
             // Add existing files to the Stash with the updated file content
             const organizedFiles = await this.gatherAllFiles(contextFiles, rootPath);
-
             const { putFiles, postFiles, postFileOptions } = organizedFiles;
 
             putFiles && putFiles.length && (await saveStash(putFiles));
@@ -96,7 +95,7 @@ export class Add {
             );
 
             // Isolate context from Array
-            const contexts = contextsArray.filter((ctx) => ctx !== 'Data Extensions').filter(Boolean);
+            const contexts = contextsArray.filter((ctx) => ctx && ['Data Extensions', 'Shared Data Extensions'].includes(ctx)).filter(Boolean);
 
             // Store all complete file paths for files in CWD and subdirectories
             let contextFiles: string[] = [];
@@ -170,9 +169,8 @@ export class Add {
         });
 
         for (const context in availableContexts) {
-            const contextPaths = contextFiles.filter((file) => file.includes(availableContexts[context].name));
+            const contextPaths = contextFiles.filter((file) => file.includes(`/${availableContexts[context].name}/`));
             const bldrContext = availableContexts[context].context;
-
             // Retrieve Manifest JSON file and get the assets for the specific context
             type ManifestContext = any;
 
@@ -228,8 +226,7 @@ export class Add {
                         // Also Build the options for CLI prompt
                         const bldrId = await guid();
 
-                        const { fileName, folderPath } = getFilePathDetails(systemFilePath);
-
+                        const { fileName, folderPath } = await getFilePathDetails(systemFilePath);
                         const fileContentRaw = await readFile(systemFilePath);
                         const fileContent = fileContentRaw.toString();
 

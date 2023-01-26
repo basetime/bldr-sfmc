@@ -94,6 +94,7 @@ class Initiate {
                 .usage('$bldr init [args]')
                 .interactive(dataExtensionInitiate)
                 .then((initResults) => __awaiter(this, void 0, void 0, function* () {
+                const context = initResults.sharedDataExtension ? 'sharedDataExtension' : 'dataExtension';
                 const rootFolder = initResults.sharedDataExtension ? 'Shared Data Extensions' : 'Data Extensions';
                 const initFolderPath = initResults.dataExtensionPath ? `${rootFolder}/${initResults.dataExtensionPath}` : rootFolder;
                 const folderPaths = [
@@ -104,7 +105,7 @@ class Initiate {
                 // Create empty directories
                 yield (0, bldrFileSystem_1.createAllDirectories)(folderPaths);
                 // Update ManifestJSON file with responses
-                yield (0, manifestJSON_1.updateManifest)('dataExtension', { folders: [], assets: [] });
+                yield (0, manifestJSON_1.updateManifest)(context, { folders: [], assets: [] });
                 const dataExtensionInit = {
                     name: initResults.dataExtensionName,
                     customerKey: (0, _utils_1.guid)(),

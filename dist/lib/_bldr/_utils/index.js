@@ -42,7 +42,7 @@ exports.uniqueArrayByKey = uniqueArrayByKey;
  * ```
  *
  */
-const sfmc_context = (systemFilePath) => sfmc_context_mapping.find((context) => systemFilePath.includes(context.name));
+const sfmc_context = (systemFilePath) => sfmc_context_mapping.find((context) => systemFilePath.includes(`/${context.name}/`));
 exports.sfmc_context = sfmc_context;
 /**
  *

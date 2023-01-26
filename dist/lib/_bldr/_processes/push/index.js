@@ -279,6 +279,44 @@ class Push {
                                     errors.push(sfmcAPIObject);
                                 }
                                 break;
+                            case 'sharedDataExtension':
+                                createdFolders = yield (0, CreateSFMCFolders_1.addNewFolders)(folderPath);
+                                manifestJSON = yield (0, bldrFileSystem_1.readManifest)();
+                                manifestContextFolders =
+                                    manifestJSON['sharedDataExtension'] && manifestJSON['sharedDataExtension']['folders'];
+                                sfmcUpdateObject.assetType = {
+                                    name: 'sharedDataExtension',
+                                };
+                                sfmcUpdateObject.category =
+                                    (createdFolders &&
+                                        createdFolders.length &&
+                                        createdFolders[createdFolders.length - 1]) ||
+                                        manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
+                                sfmcAPIObject = JSON.parse(sfmcUpdateObject.fileContent);
+                                sfmcAPIObject.categoryId = sfmcUpdateObject.category.id;
+                                if (method === 'put') {
+                                    // assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
+                                }
+                                else {
+                                    assetResponse = yield sdk.sfmc.emailStudio.postAsset(sfmcAPIObject);
+                                }
+                                if (assetResponse.OverallStatus === 'OK' &&
+                                    Object.prototype.hasOwnProperty.call(assetResponse, 'Results') &&
+                                    Object.prototype.hasOwnProperty.call(assetResponse.Results[0], 'Object') &&
+                                    Object.prototype.hasOwnProperty.call(assetResponse.Results[0]['Object'], 'CustomerKey')) {
+                                    sfmcAPIObject.bldrId = bldrId;
+                                    sfmcAPIObject.customerKey = assetResponse.Results[0].Object.CustomerKey;
+                                    sfmcAPIObject.category = {
+                                        id: sfmcUpdateObject.category.id,
+                                        folderPath: sfmcUpdateObject.category.folderPath,
+                                    };
+                                    yield (0, fileSystem_1.createFile)(`${folderPath}/${sfmcAPIObject.name}.json`, sfmcAPIObject);
+                                    success.push(sfmcAPIObject);
+                                }
+                                else {
+                                    errors.push(sfmcAPIObject);
+                                }
+                                break;
                         }
                         if (assetResponse.OverallStatus === 'OK' ||
                             Object.prototype.hasOwnProperty.call(assetResponse, 'objectId') ||
