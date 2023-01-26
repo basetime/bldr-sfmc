@@ -100,7 +100,8 @@ export class Initiate {
             .usage('$bldr init [args]')
             .interactive(dataExtensionInitiate)
             .then(async (initResults) => {
-                const initFolderPath = initResults.dataExtensionPath || 'Data Extensions';
+                const rootFolder = initResults.sharedDataExtension ? 'Shared Data Extensions' : 'Data Extensions';
+                const initFolderPath = initResults.dataExtensionPath ? `${rootFolder}/${initResults.dataExtensionPath}` : rootFolder;
                 const folderPaths = [
                     {
                         folderPath: initFolderPath,
@@ -109,7 +110,6 @@ export class Initiate {
 
                 // Create empty directories
                 await createAllDirectories(folderPaths);
-
                 // Update ManifestJSON file with responses
                 await updateManifest('dataExtension', { folders: [], assets: [] });
 
@@ -193,9 +193,9 @@ export class Initiate {
                     }
                 }
 
+
                 await createFile(`${initFolderPath}/${initResults.dataExtensionName}.json`, dataExtensionInit);
                 allowTracking() && incrementMetric('req_project_initiates_dataExtension');
-
             });
     };
 }

@@ -1,7 +1,17 @@
 #!/usr/bin/env node
+/**
+ * Before making changes/saving this file update vsCode settings
+ *
+ * source.organizeImports must be set to false before saving
+ * updates cause errors with this file
+ *
+ * "editor.codeActionsOnSave": {
+    "source.organizeImports": false
+  },
+ *
+ */
 
 import yargs from 'yargs';
-import { stash_conf, state_conf } from '../lib/_bldr_sdk/store';
 import { version } from '../lib/_bldr_sdk/version';
 // Initiate all route switches
 // const InitSwitch = require('../lib/_controllers/init')
@@ -18,9 +28,11 @@ import { DeploySwitch } from '../lib/_controllers/deploy';
 import { InitSwitch } from '../lib/_controllers/initiate';
 import { State } from '../lib/_bldr/_processes/state';
 import { Crypto } from '../lib/_bldr/_utils/crypto';
+import { Config } from '../lib/_bldr/_processes/config';
 
-const { setEncryption } = new Crypto()
-const { checkForTracking } = new State()
+const { setEncryption } = new Crypto();
+const { getInstanceConfiguration } = new Config();
+const { checkForTracking, getState } = new State();
 
 // Parse requests and input arguments
 
@@ -80,6 +92,8 @@ const initCLI = async (req: string, argv: any) => {
             displayObject({
                 '--cb -f <search term>              ': 'Content Builder Folders',
                 '--cb -a <search term>              ': 'Content Builder Assets',
+                '--cb -f:shared <search term>       ': 'Shared Content Builder Folders',
+                '--cb -a:shared <search term>       ': 'Shared Content Builder Assets',
                 '--as -f <search term>              ': 'Automation Folders',
                 '--as -a <search term>              ': 'Automation Assets',
                 '--as -f:sql  <search term>         ': 'SQL Activity Folders',
@@ -88,6 +102,8 @@ const initCLI = async (req: string, argv: any) => {
                 '--as -a:ssjs <search term>         ': 'SSJS Activity Assets',
                 '--de -f <search term>              ': 'Data Extension Folders',
                 '--de -a <search term>              ': 'Data Extension Assets',
+                '--de -f:shared <search term>       ': 'Shared Data Extension Folders',
+                '--de -a:shared <search term>       ': 'Shared Data Extension Assets',
             });
 
             displayLine('clone', 'success');
@@ -95,6 +111,8 @@ const initCLI = async (req: string, argv: any) => {
             displayObject({
                 '--cb -f <folder id>                ': 'Content Builder Folder ID to Clone',
                 '--cb -a <asset id>                 ': 'Content Builder Asset ID to Clone',
+                '--cb -f:shared <folder id>         ': 'Shared Content Builder Folder ID to Clone',
+                '--cb -a:shared <asset id>          ': 'Shared Content Builder Asset ID to Clone',
                 '--as -f <folder id>                ': 'Automation Folder ID to Clone',
                 '--as -a <object id>                ': 'Automation Object ID to Clone',
                 '--as -f:sql  <folder id>           ': 'SQL Activity Folders',
@@ -103,13 +121,16 @@ const initCLI = async (req: string, argv: any) => {
                 '--as -a:ssjs <definition id>       ': 'SSJS Activity Assets',
                 '--de -f <folder id>                ': 'Data Extension Folder Id to Clone',
                 '--de -a <customer key>             ': 'Data Extension Customer Key to Clone',
+                '--de -f:shared <folder id>         ': 'Shared Data Extension Folder Id to Clone',
+                '--de -a:shared <customer key>      ': 'Shared Data Extension Customer Key to Clone',
             });
 
             displayLine('add', 'success');
             displayObject({
                 '.                                  ': 'Add All Assets to the Stash to be Pushed into SFMC',
                 '<file path>                        ': 'Add One or Multiple Assets to the Stash to be Pushed into SFMC',
-                '                                   ': 'New Assets to be created will prompt for selection of asset type',
+                '                                   ':
+                    'New Assets to be created will prompt for selection of asset type',
             });
 
             displayLine('push', 'success');
@@ -130,11 +151,35 @@ const initCLI = async (req: string, argv: any) => {
             displayLine('deploy [beta]', 'success');
             displayObject({
                 '--sfmc-only                        ': 'Create files in SFMC only [only recommended for flat packages]',
-                '--local-only                       ': 'Create files in locally only [only recommended for flat packages]',
+                '--local-only                       ':
+                    'Create files in locally only [only recommended for flat packages]',
                 '                                   ': 'Create local files and push to SFMC',
             });
         }
     } else {
+        if (Object.values(argv).includes(':shared')) {
+            // If authObject is not passed use the current set credentials to initiate SDK
+            const currentState = await getState();
+            const stateInstance = currentState.instance;
+            const activeMID = currentState.activeMID;
+            const stateConfiguration = await getInstanceConfiguration(stateInstance);
+            const command = argv._ && argv._[0]
+
+            if (
+                activeMID &&
+                stateConfiguration &&
+                stateConfiguration.parentMID &&
+                stateConfiguration.parentMID !== activeMID &&
+                ['search', 'clone'].includes(command)
+            ) {
+                displayLine(`Shared ${command} must be done from Parent Business Unit`, 'info');
+                displayLine(
+                    `Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`,
+                    'info'
+                );
+                return;
+            }
+        }
         switch (req) {
             case 'init':
                 InitSwitch(argv);

@@ -9,9 +9,10 @@ import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { createContentBuilderEditableFiles } from '../../../_utils/bldrFileSystem/_context/contentBuilder/CreateLocalFiles';
 import { displayLine, displayObject } from '../../../_utils/display';
 import { incrementMetric } from '../../../_utils/metrics';
-const { allowTracking } = new State();
-
 const delete_confirm = require('../../../_utils/options/delete_confirm');
+
+const { allowTracking, getState } = new State();
+
 
 /**
  * Flag routing for Config command
@@ -31,6 +32,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
             throw new Error('unable to load sdk');
         }
 
+         // If authObject is not passed use the current set credentials to initiate SDK
+         const currentState = await getState();
+
         switch (req) {
             case 'search':
                 /**
@@ -49,6 +53,14 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                                     searchKey: 'Name',
                                     searchTerm: searchTerm,
                                 });
+
+                                displayLine(`${searchTerm} Search Results | ${searchRequest.length} Results`, 'info');
+                                searchRequest.forEach((obj: any) => {
+                                    displayObject(flatten(obj));
+                                });
+
+                                allowTracking() && incrementMetric('req_searches_sharedContent_folders');
+
                                 break;
                         }
                     } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
@@ -57,14 +69,14 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             searchKey: 'Name',
                             searchTerm: argv.f,
                         });
+
+                        displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
+                        searchRequest.forEach((obj: any) => {
+                            displayObject(flatten(obj));
+                        });
+
+                        allowTracking() && incrementMetric('req_searches_contentBuilder_folders');
                     }
-
-                    displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj: any) => {
-                        displayObject(flatten(obj));
-                    });
-
-                    allowTracking() && incrementMetric('req_searches_contentBuilder_folders');
                 }
 
                 /**
@@ -112,15 +124,23 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             shared
                         );
 
-                        const { assets, folders } = cloneRequest;
-                        const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
-                        assets && assets.length && (await createContentBuilderEditableFiles(assets));
-                        assets &&
-                            folders &&
+                        const isolatedFoldersUnique =
+                            cloneRequest &&
+                            cloneRequest.folders &&
+                            cloneRequest.folders.length &&
+                            uniqueArrayByKey(cloneRequest.folders, 'id');
+                        cloneRequest &&
+                            cloneRequest.assets &&
+                            cloneRequest.assets.length &&
+                            (await createContentBuilderEditableFiles(cloneRequest.assets));
+                        cloneRequest.assets &&
+                            cloneRequest.folders &&
                             (await updateManifest('sharedContent', {
-                                assets: assets,
-                                folders: isolatedFoldersUnique,
+                                assets: cloneRequest.assets,
+                                folders: isolatedFoldersUnique || [],
                             }));
+
+                        allowTracking() && incrementMetric('req_clones_sharedContent_folders');
                     } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
@@ -136,14 +156,20 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             categoryId: argv.f,
                         });
 
-                        const { assets, folders } = cloneRequest;
-                        const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
-                        assets && assets.length && (await createContentBuilderEditableFiles(assets));
-                        assets &&
-                            folders &&
+                        const isolatedFoldersUnique =
+                            cloneRequest &&
+                            cloneRequest.folders &&
+                            cloneRequest.folders.length &&
+                            uniqueArrayByKey(cloneRequest.folders, 'id');
+                        cloneRequest &&
+                            cloneRequest.assets &&
+                            cloneRequest.assets.length &&
+                            (await createContentBuilderEditableFiles(cloneRequest.assets));
+                        cloneRequest.assets &&
+                            cloneRequest.folders &&
                             (await updateManifest('contentBuilder', {
-                                assets: assets,
-                                folders: isolatedFoldersUnique,
+                                assets: cloneRequest.assets,
+                                folders: isolatedFoldersUnique || [],
                             }));
 
                         allowTracking() && incrementMetric('req_clones_contentBuilder_folders');
@@ -155,8 +181,33 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                  */
                 if (argv.a) {
                     if (typeof argv.a === 'string' && argv.a.includes(':')) {
+                        const legacy = false;
+                        const shared = argv.a.split(':')[1] === 'shared' ? true : false;
+                        const assetId = argv._ && argv._[1];
 
+                        const cloneRequest: {
+                            assets: SFMC_Content_Builder_Asset[];
+                            folders: {
+                                ID: number;
+                                Name: string;
+                                ContentType: string;
+                                ParentFolder: any;
+                                FolderPath: string;
+                            }[];
+                        } = await contentBuilder.gatherAssetById(assetId, legacy, shared);
 
+                        const { assets, folders } = cloneRequest;
+                        const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
+
+                        assets && assets.length && (await createContentBuilderEditableFiles(assets));
+                        assets &&
+                            folders &&
+                            (await updateManifest('sharedContent', {
+                                assets: assets,
+                                folders: isolatedFoldersUnique,
+                            }));
+
+                        allowTracking() && incrementMetric('req_clones_sharedContent_assets');
                     } else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];

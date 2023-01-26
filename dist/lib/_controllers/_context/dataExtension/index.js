@@ -54,14 +54,6 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                     const flag = argv.f.split(':')[1];
                     const shared = flag && flag === 'shared' ? true : false;
                     const searchTerm = argv._ && argv._[1];
-                    if (activeMID &&
-                        stateConfiguration &&
-                        stateConfiguration.parentMID &&
-                        stateConfiguration.parentMID !== activeMID) {
-                        (0, display_1.displayLine)('Shared searches must be done from Parent Business Unit', 'info');
-                        (0, display_1.displayLine)(`Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`, 'info');
-                        return;
-                    }
                     const searchRequest = yield emailStudio.searchFolders({
                         contentType: shared ? 'shared_dataextension' : 'dataextension',
                         searchKey: 'Name',
@@ -73,7 +65,7 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         searchRequest.forEach((obj) => {
                             (0, display_1.displayObject)((0, flat_1.default)(obj));
                         });
-                    allowTracking() && (0, metrics_1.incrementMetric)('req_searches_dataExtension_folders');
+                    allowTracking() && (0, metrics_1.incrementMetric)('req_searches_sharedDataExtension_folders');
                 }
                 else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
                     const searchRequest = yield emailStudio.searchFolders({
@@ -96,14 +88,6 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                  * Search for Data Extension Assets
                  */
                 if (typeof argv.a === 'string' && argv.a.includes(':')) {
-                    if (activeMID &&
-                        stateConfiguration &&
-                        stateConfiguration.parentMID &&
-                        stateConfiguration.parentMID !== activeMID) {
-                        (0, display_1.displayLine)('Shared searches must be done from Parent Business Unit', 'info');
-                        (0, display_1.displayLine)(`Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`, 'info');
-                        return;
-                    }
                     const flag = argv.a.split(':')[1];
                     const shared = flag && flag === 'shared' ? true : false;
                     const searchTerm = argv._ && argv._[1];
@@ -119,6 +103,7 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                     searchRequest &&
                         searchRequest.length &&
                         searchRequest.forEach((item) => (0, display_1.displayObject)(item));
+                    allowTracking() && (0, metrics_1.incrementMetric)('req_searches_sharedDataExtension_assets');
                 }
                 else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                     const searchRequest = yield emailStudio.searchDataExtensions({
@@ -143,14 +128,6 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                     const flag = argv.f.split(':')[1];
                     const shared = flag && flag === 'shared' ? true : false;
                     const searchTerm = argv._ && argv._[1];
-                    if (activeMID &&
-                        stateConfiguration &&
-                        stateConfiguration.parentMID &&
-                        stateConfiguration.parentMID !== activeMID) {
-                        (0, display_1.displayLine)('Shared clones must be done from Parent Business Unit', 'info');
-                        (0, display_1.displayLine)(`Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`, 'info');
-                        return;
-                    }
                     const cloneRequest = yield emailStudio.gatherAssetsByCategoryId({
                         contentType: shared ? 'shared_dataextension' : 'dataextension',
                         categoryId: searchTerm,
@@ -159,15 +136,22 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         (0, display_1.displayLine)(`Could not find ${searchTerm}. If it's a shared item, update your command with '-a:shared'`, 'info');
                         return;
                     }
-                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
-                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
+                    const isolatedFoldersUnique = (cloneRequest &&
+                        cloneRequest.folders &&
+                        cloneRequest.folders.length &&
+                        (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id')) ||
+                        [];
+                    cloneRequest &&
+                        cloneRequest.assets &&
+                        cloneRequest.assets.length &&
+                        (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
                     cloneRequest.assets &&
                         isolatedFoldersUnique &&
-                        (yield (0, manifestJSON_1.updateManifest)('dataExtension', {
+                        (yield (0, manifestJSON_1.updateManifest)('sharedDataExtension', {
                             assets: cloneRequest.assets,
                             folders: isolatedFoldersUnique,
                         }));
-                    allowTracking() && (0, metrics_1.incrementMetric)('req_clones_dataExtension_folders');
+                    allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedDataExtension_folders');
                 }
                 else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
                     const cloneRequest = yield emailStudio.gatherAssetsByCategoryId({
@@ -178,8 +162,15 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         (0, display_1.displayLine)(`Could not find ${argv.f}. If it's a shared item, update your command with '-f:shared'`, 'info');
                         return;
                     }
-                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
-                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
+                    const isolatedFoldersUnique = (cloneRequest &&
+                        cloneRequest.folders &&
+                        cloneRequest.folders.length &&
+                        (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id')) ||
+                        [];
+                    cloneRequest &&
+                        cloneRequest.assets &&
+                        cloneRequest.assets.length &&
+                        (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
                     cloneRequest.assets &&
                         isolatedFoldersUnique &&
                         (yield (0, manifestJSON_1.updateManifest)('dataExtension', {
@@ -201,8 +192,15 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         (0, display_1.displayLine)(`Could not find ${customerKey}. If it's a shared item, update your command with '-a:shared'`, 'info');
                         return;
                     }
-                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
-                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
+                    const isolatedFoldersUnique = (cloneRequest &&
+                        cloneRequest.folders &&
+                        cloneRequest.folders.length &&
+                        (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id')) ||
+                        [];
+                    cloneRequest &&
+                        cloneRequest.assets &&
+                        cloneRequest.assets.length &&
+                        (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
                     cloneRequest.assets &&
                         isolatedFoldersUnique &&
                         (yield (0, manifestJSON_1.updateManifest)('dataExtension', {
@@ -217,8 +215,15 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         (0, display_1.displayLine)(`Could not find ${argv.a}. If it's a shared item, update your command with '-a:shared'`, 'info');
                         return;
                     }
-                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id') || [];
-                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
+                    const isolatedFoldersUnique = (cloneRequest &&
+                        cloneRequest.folders &&
+                        cloneRequest.folders.length &&
+                        (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id')) ||
+                        [];
+                    cloneRequest &&
+                        cloneRequest.assets &&
+                        cloneRequest.assets.length &&
+                        (yield (0, CreateLocalFiles_1.createEmailStudioEditableFiles)(cloneRequest.assets));
                     cloneRequest.assets &&
                         isolatedFoldersUnique &&
                         (yield (0, manifestJSON_1.updateManifest)('dataExtension', {

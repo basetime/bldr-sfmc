@@ -5,10 +5,15 @@ module.exports = {
         describe: 'Data Extension Name',
         prompt: 'always',
     },
+    sharedDataExtension: {
+        type: 'confirm',
+        describe: 'Shared Data extension?',
+        prompt: 'always',
+    },
     dataExtensionPath: {
         type: 'input',
-        describe: 'Data Extension Path',
-        default: 'Data Extensions',
+        describe: `Data Extension Path. Root Folder is 'Data Extensions', input project folder and subfolder nesting if needed.`,
+        default: '',
         prompt: 'always',
     },
     sendableDataExtension: {

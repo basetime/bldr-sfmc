@@ -94,7 +94,8 @@ class Initiate {
                 .usage('$bldr init [args]')
                 .interactive(dataExtensionInitiate)
                 .then((initResults) => __awaiter(this, void 0, void 0, function* () {
-                const initFolderPath = initResults.dataExtensionPath || 'Data Extensions';
+                const rootFolder = initResults.sharedDataExtension ? 'Shared Data Extensions' : 'Data Extensions';
+                const initFolderPath = initResults.dataExtensionPath ? `${rootFolder}/${initResults.dataExtensionPath}` : rootFolder;
                 const folderPaths = [
                     {
                         folderPath: initFolderPath,

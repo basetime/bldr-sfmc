@@ -45,20 +45,6 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                     const shared = flag && flag === 'shared' ? true : false;
                     const searchTerm = argv._ && argv._[1];
 
-                    if (
-                        activeMID &&
-                        stateConfiguration &&
-                        stateConfiguration.parentMID &&
-                        stateConfiguration.parentMID !== activeMID
-                    ) {
-                        displayLine('Shared searches must be done from Parent Business Unit', 'info');
-                        displayLine(
-                            `Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`,
-                            'info'
-                        );
-                        return;
-                    }
-
                     const searchRequest = await emailStudio.searchFolders({
                         contentType: shared ? 'shared_dataextension' : 'dataextension',
                         searchKey: 'Name',
@@ -71,7 +57,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         searchRequest.forEach((obj: any) => {
                             displayObject(flatten(obj));
                         });
-                    allowTracking() && incrementMetric('req_searches_dataExtension_folders');
+                    allowTracking() && incrementMetric('req_searches_sharedDataExtension_folders');
                 } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
                     const searchRequest = await emailStudio.searchFolders({
                         contentType: 'dataextension',
@@ -98,20 +84,6 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                  * Search for Data Extension Assets
                  */
                 if (typeof argv.a === 'string' && argv.a.includes(':')) {
-                    if (
-                        activeMID &&
-                        stateConfiguration &&
-                        stateConfiguration.parentMID &&
-                        stateConfiguration.parentMID !== activeMID
-                    ) {
-                        displayLine('Shared searches must be done from Parent Business Unit', 'info');
-                        displayLine(
-                            `Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`,
-                            'info'
-                        );
-                        return;
-                    }
-
                     const flag = argv.a.split(':')[1];
                     const shared = flag && flag === 'shared' ? true : false;
                     const searchTerm = argv._ && argv._[1];
@@ -141,6 +113,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                                 }[]
                             ) => displayObject(item)
                         );
+                    allowTracking() && incrementMetric('req_searches_sharedDataExtension_assets');
                 } else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                     const searchRequest = await emailStudio.searchDataExtensions({
                         searchKey: 'Name',
@@ -168,20 +141,6 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                     const shared = flag && flag === 'shared' ? true : false;
                     const searchTerm = argv._ && argv._[1];
 
-                    if (
-                        activeMID &&
-                        stateConfiguration &&
-                        stateConfiguration.parentMID &&
-                        stateConfiguration.parentMID !== activeMID
-                    ) {
-                        displayLine('Shared clones must be done from Parent Business Unit', 'info');
-                        displayLine(
-                            `Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`,
-                            'info'
-                        );
-                        return;
-                    }
-
                     const cloneRequest: {
                         assets: SFMC_Data_Extension_Asset[];
                         folders: {
@@ -196,23 +155,33 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         categoryId: searchTerm,
                     });
 
-                    if(!cloneRequest.folders || !cloneRequest.assets){
-                        displayLine(`Could not find ${searchTerm}. If it's a shared item, update your command with '-a:shared'`, 'info')
-                        return
+                    if (!cloneRequest.folders || !cloneRequest.assets) {
+                        displayLine(
+                            `Could not find ${searchTerm}. If it's a shared item, update your command with '-a:shared'`,
+                            'info'
+                        );
+                        return;
                     }
 
-                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && uniqueArrayByKey(cloneRequest.folders, 'id') || [];
-                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (await createEmailStudioEditableFiles(cloneRequest.assets));
+                    const isolatedFoldersUnique =
+                        (cloneRequest &&
+                            cloneRequest.folders &&
+                            cloneRequest.folders.length &&
+                            uniqueArrayByKey(cloneRequest.folders, 'id')) ||
+                        [];
+                    cloneRequest &&
+                        cloneRequest.assets &&
+                        cloneRequest.assets.length &&
+                        (await createEmailStudioEditableFiles(cloneRequest.assets));
 
                     cloneRequest.assets &&
-                    isolatedFoldersUnique &&
-                        (await updateManifest('dataExtension', {
+                        isolatedFoldersUnique &&
+                        (await updateManifest('sharedDataExtension', {
                             assets: cloneRequest.assets,
                             folders: isolatedFoldersUnique,
                         }));
-                    allowTracking() && incrementMetric('req_clones_dataExtension_folders');
+                    allowTracking() && incrementMetric('req_clones_sharedDataExtension_folders');
                 } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
-
                     const cloneRequest: {
                         assets: SFMC_Data_Extension_Asset[];
                         folders: {
@@ -227,15 +196,26 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         categoryId: argv.f,
                     });
 
-                    if(!cloneRequest.folders || !cloneRequest.assets){
-                        displayLine(`Could not find ${argv.f}. If it's a shared item, update your command with '-f:shared'`, 'info')
-                        return
+                    if (!cloneRequest.folders || !cloneRequest.assets) {
+                        displayLine(
+                            `Could not find ${argv.f}. If it's a shared item, update your command with '-f:shared'`,
+                            'info'
+                        );
+                        return;
                     }
-                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && uniqueArrayByKey(cloneRequest.folders, 'id') || [];
-                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (await createEmailStudioEditableFiles(cloneRequest.assets));
+                    const isolatedFoldersUnique =
+                        (cloneRequest &&
+                            cloneRequest.folders &&
+                            cloneRequest.folders.length &&
+                            uniqueArrayByKey(cloneRequest.folders, 'id')) ||
+                        [];
+                    cloneRequest &&
+                        cloneRequest.assets &&
+                        cloneRequest.assets.length &&
+                        (await createEmailStudioEditableFiles(cloneRequest.assets));
 
                     cloneRequest.assets &&
-                    isolatedFoldersUnique &&
+                        isolatedFoldersUnique &&
                         (await updateManifest('dataExtension', {
                             assets: cloneRequest.assets,
                             folders: isolatedFoldersUnique,
@@ -263,16 +243,27 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         }[];
                     } = await emailStudio.gatherAssetById(customerKey, completeResponse, shared);
 
-                    if(!cloneRequest.folders || !cloneRequest.assets){
-                        displayLine(`Could not find ${customerKey}. If it's a shared item, update your command with '-a:shared'`, 'info')
-                        return
+                    if (!cloneRequest.folders || !cloneRequest.assets) {
+                        displayLine(
+                            `Could not find ${customerKey}. If it's a shared item, update your command with '-a:shared'`,
+                            'info'
+                        );
+                        return;
                     }
 
-                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && uniqueArrayByKey(cloneRequest.folders, 'id') || [];
-                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (await createEmailStudioEditableFiles(cloneRequest.assets));
+                    const isolatedFoldersUnique =
+                        (cloneRequest &&
+                            cloneRequest.folders &&
+                            cloneRequest.folders.length &&
+                            uniqueArrayByKey(cloneRequest.folders, 'id')) ||
+                        [];
+                    cloneRequest &&
+                        cloneRequest.assets &&
+                        cloneRequest.assets.length &&
+                        (await createEmailStudioEditableFiles(cloneRequest.assets));
 
                     cloneRequest.assets &&
-                    isolatedFoldersUnique &&
+                        isolatedFoldersUnique &&
                         (await updateManifest('dataExtension', {
                             assets: cloneRequest.assets,
                             folders: isolatedFoldersUnique,
@@ -291,16 +282,27 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         }[];
                     } = await emailStudio.gatherAssetById(argv.a);
 
-                    if(!cloneRequest.folders || !cloneRequest.assets){
-                        displayLine(`Could not find ${argv.a}. If it's a shared item, update your command with '-a:shared'`, 'info')
-                        return
+                    if (!cloneRequest.folders || !cloneRequest.assets) {
+                        displayLine(
+                            `Could not find ${argv.a}. If it's a shared item, update your command with '-a:shared'`,
+                            'info'
+                        );
+                        return;
                     }
 
-                    const isolatedFoldersUnique = cloneRequest && cloneRequest.folders && cloneRequest.folders.length && uniqueArrayByKey(cloneRequest.folders, 'id') || [];
-                    cloneRequest && cloneRequest.assets && cloneRequest.assets.length && (await createEmailStudioEditableFiles(cloneRequest.assets));
+                    const isolatedFoldersUnique =
+                        (cloneRequest &&
+                            cloneRequest.folders &&
+                            cloneRequest.folders.length &&
+                            uniqueArrayByKey(cloneRequest.folders, 'id')) ||
+                        [];
+                    cloneRequest &&
+                        cloneRequest.assets &&
+                        cloneRequest.assets.length &&
+                        (await createEmailStudioEditableFiles(cloneRequest.assets));
 
                     cloneRequest.assets &&
-                    isolatedFoldersUnique &&
+                        isolatedFoldersUnique &&
                         (await updateManifest('dataExtension', {
                             assets: cloneRequest.assets,
                             folders: isolatedFoldersUnique,
@@ -313,8 +315,8 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
 
         return;
     } catch (err) {
-        console.log('err', err)
-        displayLine('error', 'error')
+        console.log('err', err);
+        displayLine('error', 'error');
     }
 };
 

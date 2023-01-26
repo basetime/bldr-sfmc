@@ -22,8 +22,8 @@ const manifestJSON_1 = require("../../../_utils/bldrFileSystem/manifestJSON");
 const CreateLocalFiles_1 = require("../../../_utils/bldrFileSystem/_context/contentBuilder/CreateLocalFiles");
 const display_1 = require("../../../_utils/display");
 const metrics_1 = require("../../../_utils/metrics");
-const { allowTracking } = new state_1.State();
 const delete_confirm = require('../../../_utils/options/delete_confirm');
+const { allowTracking, getState } = new state_1.State();
 /**
  * Flag routing for Config command
  *
@@ -40,6 +40,8 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
         if (!bldr) {
             throw new Error('unable to load sdk');
         }
+        // If authObject is not passed use the current set credentials to initiate SDK
+        const currentState = yield getState();
         switch (req) {
             case 'search':
                 /**
@@ -57,6 +59,11 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                                     searchKey: 'Name',
                                     searchTerm: searchTerm,
                                 });
+                                (0, display_1.displayLine)(`${searchTerm} Search Results | ${searchRequest.length} Results`, 'info');
+                                searchRequest.forEach((obj) => {
+                                    (0, display_1.displayObject)((0, flat_1.default)(obj));
+                                });
+                                allowTracking() && (0, metrics_1.incrementMetric)('req_searches_sharedContent_folders');
                                 break;
                         }
                     }
@@ -66,12 +73,12 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             searchKey: 'Name',
                             searchTerm: argv.f,
                         });
+                        (0, display_1.displayLine)(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
+                        searchRequest.forEach((obj) => {
+                            (0, display_1.displayObject)((0, flat_1.default)(obj));
+                        });
+                        allowTracking() && (0, metrics_1.incrementMetric)('req_searches_contentBuilder_folders');
                     }
-                    (0, display_1.displayLine)(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj) => {
-                        (0, display_1.displayObject)((0, flat_1.default)(obj));
-                    });
-                    allowTracking() && (0, metrics_1.incrementMetric)('req_searches_contentBuilder_folders');
                 }
                 /**
                  * Search for Content Builder Assets
@@ -101,6 +108,53 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             contentType: 'asset',
                             categoryId: searchTerm,
                         }, shared);
+                        const isolatedFoldersUnique = cloneRequest &&
+                            cloneRequest.folders &&
+                            cloneRequest.folders.length &&
+                            (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id');
+                        cloneRequest &&
+                            cloneRequest.assets &&
+                            cloneRequest.assets.length &&
+                            (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(cloneRequest.assets));
+                        cloneRequest.assets &&
+                            cloneRequest.folders &&
+                            (yield (0, manifestJSON_1.updateManifest)('sharedContent', {
+                                assets: cloneRequest.assets,
+                                folders: isolatedFoldersUnique || [],
+                            }));
+                        allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_folders');
+                    }
+                    else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                        const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
+                            contentType: 'asset',
+                            categoryId: argv.f,
+                        });
+                        const isolatedFoldersUnique = cloneRequest &&
+                            cloneRequest.folders &&
+                            cloneRequest.folders.length &&
+                            (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id');
+                        cloneRequest &&
+                            cloneRequest.assets &&
+                            cloneRequest.assets.length &&
+                            (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(cloneRequest.assets));
+                        cloneRequest.assets &&
+                            cloneRequest.folders &&
+                            (yield (0, manifestJSON_1.updateManifest)('contentBuilder', {
+                                assets: cloneRequest.assets,
+                                folders: isolatedFoldersUnique || [],
+                            }));
+                        allowTracking() && (0, metrics_1.incrementMetric)('req_clones_contentBuilder_folders');
+                    }
+                }
+                /**
+                 * Search for Content Builder Assets
+                 */
+                if (argv.a) {
+                    if (typeof argv.a === 'string' && argv.a.includes(':')) {
+                        const legacy = false;
+                        const shared = argv.a.split(':')[1] === 'shared' ? true : false;
+                        const assetId = argv._ && argv._[1];
+                        const cloneRequest = yield contentBuilder.gatherAssetById(assetId, legacy, shared);
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
                         assets && assets.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assets));
@@ -110,12 +164,10 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                                 assets: assets,
                                 folders: isolatedFoldersUnique,
                             }));
+                        allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_assets');
                     }
-                    else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
-                        const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
-                            contentType: 'asset',
-                            categoryId: argv.f,
-                        });
+                    else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
+                        const cloneRequest = yield contentBuilder.gatherAssetById(argv.a);
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
                         assets && assets.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assets));
@@ -125,24 +177,8 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                                 assets: assets,
                                 folders: isolatedFoldersUnique,
                             }));
-                        allowTracking() && (0, metrics_1.incrementMetric)('req_clones_contentBuilder_folders');
+                        allowTracking() && (0, metrics_1.incrementMetric)('req_clones_contentBuilder_assets');
                     }
-                }
-                /**
-                 * Search for Content Builder Assets
-                 */
-                if (argv.a) {
-                    const cloneRequest = yield contentBuilder.gatherAssetById(argv.a);
-                    const { assets, folders } = cloneRequest;
-                    const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
-                    assets && assets.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assets));
-                    assets &&
-                        folders &&
-                        (yield (0, manifestJSON_1.updateManifest)('contentBuilder', {
-                            assets: assets,
-                            folders: isolatedFoldersUnique,
-                        }));
-                    allowTracking() && (0, metrics_1.incrementMetric)('req_clones_contentBuilder_assets');
                 }
                 break;
             case 'delete':

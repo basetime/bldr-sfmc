@@ -1,5 +1,16 @@
 #!/usr/bin/env node
 "use strict";
+/**
+ * Before making changes/saving this file update vsCode settings
+ *
+ * source.organizeImports must be set to false before saving
+ * updates cause errors with this file
+ *
+ * "editor.codeActionsOnSave": {
+    "source.organizeImports": false
+  },
+ *
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -30,8 +41,10 @@ const deploy_1 = require("../lib/_controllers/deploy");
 const initiate_1 = require("../lib/_controllers/initiate");
 const state_1 = require("../lib/_bldr/_processes/state");
 const crypto_1 = require("../lib/_bldr/_utils/crypto");
+const config_2 = require("../lib/_bldr/_processes/config");
 const { setEncryption } = new crypto_1.Crypto();
-const { checkForTracking } = new state_1.State();
+const { getInstanceConfiguration } = new config_2.Config();
+const { checkForTracking, getState } = new state_1.State();
 // Parse requests and input arguments
 const userInput = yargs_1.default;
 const req = userInput.argv._[0] ? userInput.argv._[0].toLowerCase() : null;
@@ -82,6 +95,8 @@ const initCLI = (req, argv) => __awaiter(void 0, void 0, void 0, function* () {
             (0, display_1.displayObject)({
                 '--cb -f <search term>              ': 'Content Builder Folders',
                 '--cb -a <search term>              ': 'Content Builder Assets',
+                '--cb -f:shared <search term>       ': 'Shared Content Builder Folders',
+                '--cb -a:shared <search term>       ': 'Shared Content Builder Assets',
                 '--as -f <search term>              ': 'Automation Folders',
                 '--as -a <search term>              ': 'Automation Assets',
                 '--as -f:sql  <search term>         ': 'SQL Activity Folders',
@@ -90,12 +105,16 @@ const initCLI = (req, argv) => __awaiter(void 0, void 0, void 0, function* () {
                 '--as -a:ssjs <search term>         ': 'SSJS Activity Assets',
                 '--de -f <search term>              ': 'Data Extension Folders',
                 '--de -a <search term>              ': 'Data Extension Assets',
+                '--de -f:shared <search term>       ': 'Shared Data Extension Folders',
+                '--de -a:shared <search term>       ': 'Shared Data Extension Assets',
             });
             (0, display_1.displayLine)('clone', 'success');
             (0, display_1.displayLine)('Clone requires the use of context flags.', 'progress');
             (0, display_1.displayObject)({
                 '--cb -f <folder id>                ': 'Content Builder Folder ID to Clone',
                 '--cb -a <asset id>                 ': 'Content Builder Asset ID to Clone',
+                '--cb -f:shared <folder id>         ': 'Shared Content Builder Folder ID to Clone',
+                '--cb -a:shared <asset id>          ': 'Shared Content Builder Asset ID to Clone',
                 '--as -f <folder id>                ': 'Automation Folder ID to Clone',
                 '--as -a <object id>                ': 'Automation Object ID to Clone',
                 '--as -f:sql  <folder id>           ': 'SQL Activity Folders',
@@ -104,6 +123,8 @@ const initCLI = (req, argv) => __awaiter(void 0, void 0, void 0, function* () {
                 '--as -a:ssjs <definition id>       ': 'SSJS Activity Assets',
                 '--de -f <folder id>                ': 'Data Extension Folder Id to Clone',
                 '--de -a <customer key>             ': 'Data Extension Customer Key to Clone',
+                '--de -f:shared <folder id>         ': 'Shared Data Extension Folder Id to Clone',
+                '--de -a:shared <customer key>      ': 'Shared Data Extension Customer Key to Clone',
             });
             (0, display_1.displayLine)('add', 'success');
             (0, display_1.displayObject)({
@@ -132,6 +153,23 @@ const initCLI = (req, argv) => __awaiter(void 0, void 0, void 0, function* () {
         }
     }
     else {
+        if (Object.values(argv).includes(':shared')) {
+            // If authObject is not passed use the current set credentials to initiate SDK
+            const currentState = yield getState();
+            const stateInstance = currentState.instance;
+            const activeMID = currentState.activeMID;
+            const stateConfiguration = yield getInstanceConfiguration(stateInstance);
+            const command = argv._ && argv._[0];
+            if (activeMID &&
+                stateConfiguration &&
+                stateConfiguration.parentMID &&
+                stateConfiguration.parentMID !== activeMID &&
+                ['search', 'clone'].includes(command)) {
+                (0, display_1.displayLine)(`Shared ${command} must be done from Parent Business Unit`, 'info');
+                (0, display_1.displayLine)(`Use Command 'bldr config -s ${stateInstance} -m ${stateConfiguration.parentMID}' and retry request`, 'info');
+                return;
+            }
+        }
         switch (req) {
             case 'init':
                 (0, initiate_1.InitSwitch)(argv);
