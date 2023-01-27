@@ -14,7 +14,7 @@ import { State } from '../_bldr/_processes/state';
 import { isExpired } from '../_utils';
 import { displayLine } from '../_utils/display';
 
-const { getState } = new State();
+const { getState, debug } = new State();
 const { getInstanceConfiguration } = new Config();
 /**
  *
@@ -22,18 +22,22 @@ const { getInstanceConfiguration } = new Config();
  */
 const getAuthenticatedUserPermissions = async (authObject: any) => {
     try {
+
         const userRequest = await axios.get(`${authObject.auth_url}v2/userinfo`, {
             headers: {
                 Authorization: `Bearer ${authObject.access_token}`
             }
         });
 
+        debug('Retrieve Authenticated User Permissions', 'info', userRequest)
         return userRequest?.data?.permissions;
     } catch (err) {
-        console.log(err)
+        debug('Retrieve Authenticated User Permissions Err', 'error', err)
+        return err
     }
 }
 /**
+ *
  *
  * @param authObject
  * @param code
@@ -41,7 +45,14 @@ const getAuthenticatedUserPermissions = async (authObject: any) => {
  */
 const verifyChallengeCode = async (authObject: any, code: string) => {
     try {
-        displayLine('Verifying Challenge Code', 'info')
+        if(!code){
+            displayLine('Challenge Code Not Received', 'error')
+            return
+        }
+
+
+        displayLine('Verify Challenge Code Request', 'info')
+
         const challengePayload = {
             grant_type: "authorization_code",
             client_id: authObject.client_id,
@@ -51,9 +62,11 @@ const verifyChallengeCode = async (authObject: any, code: string) => {
             code: code
         }
 
+        debug('Challenge Code Request', 'info', {authObject, challengePayload})
+
         const tokenRequest = await axios.post(`${authObject.auth_url}v2/token`, challengePayload)
 
-        if (tokenRequest.status === 200) {
+        if (tokenRequest && new RegExp(/^2/).test(tokenRequest.status)) {
             displayLine('Challenge Code verified', 'success')
             let authObjectResponse = tokenRequest.data;
             authObjectResponse.scope = authObjectResponse.scope.split(' ');
@@ -61,11 +74,15 @@ const verifyChallengeCode = async (authObject: any, code: string) => {
             authObjectResponse.account_id = authObject.account_id;
             authObjectResponse.auth_url = authObject.auth_url;
             return authObjectResponse;
+        } else {
+            debug('No Token Request', 'error', tokenRequest)
+            return tokenRequest
         }
 
         return false
     } catch (err) {
-        console.log(err)
+        debug('Verify Challenge Code Err', 'error', err)
+        return err
     }
 }
 /**
@@ -94,7 +111,9 @@ const oAuthInitiator = async (authObject: any) => {
             //const code = req.query.code
             const code = req.body.code;
             code && displayLine('BLDR Received Challenge Code', 'info')
+            debug('Challenge Code', 'info', code)
             const verified = code && await verifyChallengeCode(authObject, code)
+            debug('Verify Challenge Code Response', 'info', verified)
             const userPermissions = verified && await getAuthenticatedUserPermissions(verified)
 
             verified.user = {
@@ -142,41 +161,69 @@ const initiateBldrSDK = async (
     cli: CLI_Client;
 }> => {
     try {
+        debug('Initiating bldr sdk: initial request', 'info', '')
         // If authObject is passed use those credentials to initiate SDK
         if (authObject && configurationType && configurationType === 'Server-to-Server') {
+            debug('Initiate sdk Server-To-Server', 'info', {
+                authObject,
+                instance,
+                configurationType,
+                account_id
+            })
             return new BLDR(authObject);
         } else if (authObject && configurationType && configurationType === 'Web App') {
+            debug('Initiate sdk Web-App', 'info', '')
+
             const verified = Object.assign({}, await oAuthInitiator(authObject))
+            debug('Initiate sdk Web-App: Received Verification', 'info', verified)
 
             if (verified) {
                 const oAuthJSON = {
                     ...verified,
                     ...authObject
                 }
+
                 await setPassword('bldr', 'currentSession', JSON.stringify({
                     instance,
                     authObject: oAuthJSON
                 }))
 
+                debug('Check Session Saved', 'info', await getPassword('bldr', 'currentSession'))
                 return oAuthJSON && new BLDR(oAuthJSON)
             }
         }
 
+        debug('Initiating bldr sdk from current state', 'info', '')
         // If authObject is not passed use the current set credentials to initiate SDK
         const currentState = await getState();
         const stateInstance = currentState.instance;
         const activeMID = currentState.activeMID;
 
+        debug('Current bldr state', 'info', {
+            instance: stateInstance,
+            mid: activeMID
+        })
+
         let stateConfiguration = await getInstanceConfiguration(stateInstance);
+
+        debug('Current Configuration', 'info', {
+            ...stateConfiguration,
+            apiClientId: stateConfiguration.apiClientId.substring(0,5),
+            apiClientSecret: stateConfiguration.apiClientSecret.substring(0,5)
+        })
+
         stateConfiguration.configurationType = stateConfiguration.configurationType || 'Server-to-Server';
 
         const currentSession = await getPassword('bldr', 'currentSession');
         const currentSessionJSON = currentSession && JSON.parse(currentSession);
         const currentAuthObject = currentSessionJSON && currentSessionJSON.authObject;
 
+        debug('Current session', 'info', currentSession)
 
         //Check if session is expired
-        const sessionExpired = currentAuthObject && await isExpired(currentSessionJSON.authObject);
+        let sessionExpired = currentAuthObject && await isExpired(currentSessionJSON.authObject);
+
+        debug('Session expired', 'info', sessionExpired)
 
         //Check if target MID has been updated
         let midUpdated = false;
@@ -198,13 +245,23 @@ const initiateBldrSDK = async (
             && stateConfiguration.configurationType === 'Server-to-Server'
         ) {
             if (currentSession && !sessionExpired && !midUpdated && stateInstance === currentSessionJSON.instance) {
+                debug('Initiating bldr sdk: request', 'info', {
+                    ...sdkConfiguration,
+                    ...currentAuthObject
+                })
+
                 return new BLDR({
                     ...sdkConfiguration,
                     ...currentAuthObject
                 })
             } else {
+                debug('Requesting Authentication Token Refresh: request', 'info', sdkConfiguration)
+
                 const newSession = new BLDR(sdkConfiguration)
                 let accessToken = await newSession.sfmc.account.getAccessTokenResponse();
+
+                debug('Requesting Authentication Token Refresh: response', 'info', accessToken)
+
                 accessToken.scope = accessToken.scope.split(' ')
 
                 delete accessToken.client_id;
@@ -214,6 +271,8 @@ const initiateBldrSDK = async (
                     instance: stateInstance,
                     authObject: accessToken
                 }))
+
+                debug('Check Session Saved', 'info', await getPassword('bldr', 'currentSession'))
 
                 return newSession
             }
@@ -228,23 +287,32 @@ const initiateBldrSDK = async (
                 }
             } else if (currentSession && stateInstance === currentSessionJSON.instance && (sessionExpired || midUpdated)) {
 
+                debug('Requesting Authentication Token Refresh: request', 'info', sdkConfiguration)
+
                 const verified = Object.assign({}, await oAuthInitiator({
                     ...sdkConfiguration,
                     ...currentAuthObject
                 }))
 
+            debug('Initiate sdk Web-App: Received Verification', 'info', verified)
+
                 if (verified) {
                     sdkConfiguration = {
                         ...sdkConfiguration,
                         ...verified
                     }
+
                     await setPassword('bldr', 'currentSession', JSON.stringify({
                         instance: stateInstance,
                         authObject: verified
                     }))
+
+                    debug('Check Session Saved', 'info', await getPassword('bldr', 'currentSession'))
                 }
             } else if ((currentSession && stateInstance !== currentSessionJSON.instance) || !currentSession) {
                 const verified = Object.assign({}, await oAuthInitiator(sdkConfiguration))
+
+                debug('Initiate sdk Web-App: Received Verification', 'info', verified)
 
                 if (verified) {
                     sdkConfiguration = {
@@ -255,13 +323,16 @@ const initiateBldrSDK = async (
                         instance: stateInstance,
                         authObject: verified
                     }))
+                    debug('Check Session Saved', 'info', await getPassword('bldr', 'currentSession'))
+
                 }
             }
         }
 
         return new BLDR(sdkConfiguration)
     } catch (err: any) {
-        return err.message && displayLine(err.message, 'error');
+        debug('Initiate sdk Err', 'error', err)
+        return err
     }
 };
 

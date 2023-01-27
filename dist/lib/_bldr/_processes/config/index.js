@@ -242,6 +242,7 @@ class Config {
                 (0, display_1.displayObject)(initState);
             }
             catch (err) {
+                debug('Config Err', 'error', err);
                 (0, display_1.displayLine)(`There was an error setting your target instance`, 'error');
                 (0, display_1.displayLine)(err.message, 'error');
             }

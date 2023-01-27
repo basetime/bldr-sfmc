@@ -293,6 +293,7 @@ export class Config {
             displayLine(`${instanceToSet} has been set to target instance`, 'success');
             displayObject(initState);
         } catch (err: any) {
+            debug('Config Err', 'error', err)
             displayLine(`There was an error setting your target instance`, 'error');
             displayLine(err.message, 'error');
         }

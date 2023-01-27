@@ -1,24 +1,20 @@
-import { Argv } from '../../../_types/Argv';
-import { createFile, fileExists, getAllFiles, getRootPath } from '../../../_utils/fileSystem';
+import fs from 'fs';
+import yargsInteractive from 'yargs-interactive';
 import {
     createAllDirectories,
     createEnv,
     readManifest,
-    readPackageManifest,
-    replaceBldrSfmcEnv,
-    scrubBldrSfmcEnv,
+    readPackageManifest, scrubBldrSfmcEnv
 } from '../../../_utils/bldrFileSystem';
-import axios from 'axios';
-import fs from 'fs';
-import yargsInteractive from 'yargs-interactive';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { displayLine } from '../../../_utils/display';
+import { createFile, fileExists, getAllFiles, getRootPath } from '../../../_utils/fileSystem';
+import { incrementMetric } from '../../../_utils/metrics';
 import { guid, isDirEmpty } from '../../_utils';
+import { State } from '../state';
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder');
 const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension');
-import { State } from '../state';
-const { isVerbose, allowTracking } = new State();
-import { incrementMetric } from '../../../_utils/metrics';
+const { isVerbose, allowTracking, debug } = new State();
 
 /**
  * Notes June 2
@@ -54,7 +50,7 @@ export class Initiate {
                 fs.writeFileSync(`${rootPath}package.manifest.json`, JSON.stringify(updatedPkg, null, 2));
             }
         } catch (err: any) {
-            console.log(err.message);
+            debug('Update Keys Err', 'error', err)
         }
     };
 

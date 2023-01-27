@@ -1,9 +1,11 @@
-import { initiateBldrSDK } from '../../_bldr_sdk';
+import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
 import { getFilePathDetails, uniqueArrayByKey } from '.';
-import { displayLine } from '../../_utils/display';
+import { initiateBldrSDK } from '../../_bldr_sdk';
 import { readManifest } from '../../_utils/bldrFileSystem';
 import { updateManifest } from '../../_utils/bldrFileSystem/manifestJSON';
-import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
+import { displayLine } from '../../_utils/display';
+import { State } from '../_processes/state';
+const { debug } = new State();
 /**
  * Method to create new folders in SFMC when the do not exist
  *
@@ -32,6 +34,7 @@ const addNewFolders = async (stashItemFolderPath: string) => {
             [...manifestAssetCategories, ...manifestFolderCategories],
             'folderPath'
         );
+
         const createdFoldersOutput: any[] = [];
 
         let checkPath = rootContextFolder;
@@ -47,12 +50,12 @@ const addNewFolders = async (stashItemFolderPath: string) => {
 
             manifestJSON = await readManifest();
             manifestFolderCategories = manifestJSON[context.context]['folders'].map(
-                       (manifestFolder: { folderPath: string }) => manifestFolder
-                   );
+                (manifestFolder: { folderPath: string }) => manifestFolder
+            );
             manifestFolders = await uniqueArrayByKey(
-                       [...manifestAssetCategories, ...manifestFolderCategories],
-                       'folderPath'
-                   );
+                [...manifestAssetCategories, ...manifestFolderCategories],
+                'folderPath'
+            );
 
             // Check if folder path exists in .local.manifest.json
             const folderIndex = manifestFolders.findIndex(
@@ -62,17 +65,14 @@ const addNewFolders = async (stashItemFolderPath: string) => {
             // If folder does not exist
             if (folderIndex === -1) {
                 if (typeof parentId === 'undefined') {
-                    console.log('parent request', {
-                        contentType: context.contentType,
-                        searchKey: 'Name',
-                        searchTerm: context.name,
-                    })
 
                     const parentFolderResponse = await sdk.sfmc.folder.search({
                         contentType: context.contentType,
                         searchKey: 'Name',
                         searchTerm: context.name,
                     });
+
+                    debug('Search for Parent Folder', 'info', parentFolderResponse)
 
                     if (parentFolderResponse.OverallStatus !== 'OK') {
                         throw new Error(parentFolderResponse.OverallStatus);
@@ -97,6 +97,11 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                     parentId = parentFolderResponse.Results[0].ID;
                 }
 
+                debug('Create Folder Request', 'info', {
+                    contentType: context.contentType,
+                    name: folder,
+                    parentId,
+                })
 
                 // Create folder via SFMC API
                 createFolder = await sdk.sfmc.folder.createFolder({
@@ -105,7 +110,12 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                     parentId,
                 });
 
-                if (!createFolder || typeof createFolder === 'string' && createFolder.includes('Please select a different Name.')) {
+                debug('Create Folder Response', 'info', createFolder)
+
+                if (
+                    !createFolder ||
+                    (typeof createFolder === 'string' && createFolder.includes('Please select a different Name.'))
+                ) {
                     const existingFolder: any = await addExistingFolderToManifest(sdk, {
                         context,
                         folder,
@@ -153,7 +163,6 @@ const addNewFolders = async (stashItemFolderPath: string) => {
         return createdFoldersOutput;
     } catch (err: any) {
         console.log(err);
-        console.log(err.message);
     }
 };
 

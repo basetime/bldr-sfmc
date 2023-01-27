@@ -5,19 +5,15 @@ const { MappingByAssetType } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/
 const getFiles = require('node-recursive-directory');
 
 import { readFile } from 'fs/promises';
-import { StashItem } from '../../../_types/StashItem';
-import yargsInteractive from 'yargs-interactive';
-import { State } from '../state';
-import { displayLine, displayObject, displayArrayOfStrings } from '../../../_utils/display';
-import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
-import { InstanceConfiguration } from '../../../_types/InstanceConfiguration';
-import { Argv } from '../../../_types/Argv';
-import { guid, getFilePathDetails } from '../../_utils';
-import { getRootPath, fileExists } from '../../../_utils/fileSystem';
-import { SFMC_Content_Builder_Asset } from '@basetime/bldr-sfmc-sdk/lib/sfmc/types/objects/sfmc_content_builder_assets';
-import { Stash } from '../stash';
-import { initiateBldrSDK } from '../../../_bldr_sdk';
 import remove from 'lodash.remove';
+import yargsInteractive from 'yargs-interactive';
+import { Argv } from '../../../_types/Argv';
+import { StashItem } from '../../../_types/StashItem';
+import { displayLine } from '../../../_utils/display';
+import { fileExists, getRootPath } from '../../../_utils/fileSystem';
+import { getFilePathDetails, guid } from '../../_utils';
+import { Stash } from '../stash';
+import { State } from '../state';
 
 const { getState } = new State();
 

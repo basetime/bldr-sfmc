@@ -13,18 +13,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Initiate = void 0;
-const fileSystem_1 = require("../../../_utils/fileSystem");
-const bldrFileSystem_1 = require("../../../_utils/bldrFileSystem");
 const fs_1 = __importDefault(require("fs"));
 const yargs_interactive_1 = __importDefault(require("yargs-interactive"));
+const bldrFileSystem_1 = require("../../../_utils/bldrFileSystem");
 const manifestJSON_1 = require("../../../_utils/bldrFileSystem/manifestJSON");
 const display_1 = require("../../../_utils/display");
+const fileSystem_1 = require("../../../_utils/fileSystem");
+const metrics_1 = require("../../../_utils/metrics");
 const _utils_1 = require("../../_utils");
+const state_1 = require("../state");
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder');
 const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension');
-const state_1 = require("../state");
-const { isVerbose, allowTracking } = new state_1.State();
-const metrics_1 = require("../../../_utils/metrics");
+const { isVerbose, allowTracking, debug } = new state_1.State();
 /**
  * Notes June 2
  * Left off replacing matchedValue references with the new bldr IDs
@@ -55,7 +55,7 @@ class Initiate {
                 }
             }
             catch (err) {
-                console.log(err.message);
+                debug('Update Keys Err', 'error', err);
             }
         });
         this.envOnly = () => {

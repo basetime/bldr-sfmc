@@ -44,7 +44,7 @@ const crypto_1 = require("../lib/_bldr/_utils/crypto");
 const config_2 = require("../lib/_bldr/_processes/config");
 const { setEncryption } = new crypto_1.Crypto();
 const { getInstanceConfiguration } = new config_2.Config();
-const { checkForTracking, getState } = new state_1.State();
+const { checkForTracking, getState, debug } = new state_1.State();
 // Parse requests and input arguments
 const userInput = yargs_1.default;
 const req = userInput.argv._[0] ? userInput.argv._[0].toLowerCase() : null;
@@ -58,6 +58,7 @@ const argv = userInput.argv;
  */
 const initCLI = (req, argv) => __awaiter(void 0, void 0, void 0, function* () {
     yield checkForTracking();
+    debug('User Request', 'info', { request: req, argument: argv });
     if (!req) {
         if (argv.v) {
             (0, display_1.displayLine)(`bldr version: ${version_1.version}`, 'info');
@@ -154,12 +155,15 @@ const initCLI = (req, argv) => __awaiter(void 0, void 0, void 0, function* () {
     }
     else {
         if (Object.values(argv).includes(':shared')) {
+            debug('Checking Shared Request', 'info', '');
             // If authObject is not passed use the current set credentials to initiate SDK
             const currentState = yield getState();
             const stateInstance = currentState.instance;
             const activeMID = currentState.activeMID;
             const stateConfiguration = yield getInstanceConfiguration(stateInstance);
             const command = argv._ && argv._[0];
+            debug('Current State', 'info', currentState);
+            debug('Current Configuration', 'info', Object.assign(Object.assign({}, stateConfiguration), { apiClientId: stateConfiguration.apiClientId.substring(0, 5), apiClientSecret: stateConfiguration.apiClientSecret.substring(0, 5) }));
             if (activeMID &&
                 stateConfiguration &&
                 stateConfiguration.parentMID &&

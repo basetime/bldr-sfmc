@@ -10,11 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addNewFolders = void 0;
-const _bldr_sdk_1 = require("../../_bldr_sdk");
 const _1 = require(".");
-const display_1 = require("../../_utils/display");
+const _bldr_sdk_1 = require("../../_bldr_sdk");
 const bldrFileSystem_1 = require("../../_utils/bldrFileSystem");
 const manifestJSON_1 = require("../../_utils/bldrFileSystem/manifestJSON");
+const display_1 = require("../../_utils/display");
+const state_1 = require("../_processes/state");
+const { debug } = new state_1.State();
 /**
  * Method to create new folders in SFMC when the do not exist
  *
@@ -53,16 +55,12 @@ const addNewFolders = (stashItemFolderPath) => __awaiter(void 0, void 0, void 0,
             // If folder does not exist
             if (folderIndex === -1) {
                 if (typeof parentId === 'undefined') {
-                    console.log('parent request', {
-                        contentType: context.contentType,
-                        searchKey: 'Name',
-                        searchTerm: context.name,
-                    });
                     const parentFolderResponse = yield sdk.sfmc.folder.search({
                         contentType: context.contentType,
                         searchKey: 'Name',
                         searchTerm: context.name,
                     });
+                    debug('Search for Parent Folder', 'info', parentFolderResponse);
                     if (parentFolderResponse.OverallStatus !== 'OK') {
                         throw new Error(parentFolderResponse.OverallStatus);
                     }
@@ -79,13 +77,20 @@ const addNewFolders = (stashItemFolderPath) => __awaiter(void 0, void 0, void 0,
                     yield (0, manifestJSON_1.updateManifest)(context.context, { folders: [parentFolderObject] });
                     parentId = parentFolderResponse.Results[0].ID;
                 }
+                debug('Create Folder Request', 'info', {
+                    contentType: context.contentType,
+                    name: folder,
+                    parentId,
+                });
                 // Create folder via SFMC API
                 createFolder = yield sdk.sfmc.folder.createFolder({
                     contentType: context.contentType,
                     name: folder,
                     parentId,
                 });
-                if (!createFolder || typeof createFolder === 'string' && createFolder.includes('Please select a different Name.')) {
+                debug('Create Folder Response', 'info', createFolder);
+                if (!createFolder ||
+                    (typeof createFolder === 'string' && createFolder.includes('Please select a different Name.'))) {
                     const existingFolder = yield addExistingFolderToManifest(sdk, {
                         context,
                         folder,
@@ -129,7 +134,6 @@ const addNewFolders = (stashItemFolderPath) => __awaiter(void 0, void 0, void 0,
     }
     catch (err) {
         console.log(err);
-        console.log(err.message);
     }
 });
 exports.addNewFolders = addNewFolders;

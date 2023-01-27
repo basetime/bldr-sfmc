@@ -10,18 +10,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Push = void 0;
+const _bldr_sdk_1 = require("../../../_bldr_sdk");
+const bldrFileSystem_1 = require("../../../_utils/bldrFileSystem");
+const manifestJSON_1 = require("../../../_utils/bldrFileSystem/manifestJSON");
+const display_1 = require("../../../_utils/display");
+const fileSystem_1 = require("../../../_utils/fileSystem");
+const _utils_1 = require("../../_utils");
+const CreateSFMCFolders_1 = require("../../_utils/CreateSFMCFolders");
 const stash_1 = require("../stash");
 const state_1 = require("../state");
-const bldrFileSystem_1 = require("../../../_utils/bldrFileSystem");
-const _bldr_sdk_1 = require("../../../_bldr_sdk");
-const display_1 = require("../../../_utils/display");
-const _utils_1 = require("../../_utils");
-const manifestJSON_1 = require("../../../_utils/bldrFileSystem/manifestJSON");
-const definitions_1 = require("../_contexts/contentBuilder/definitions");
-const definitions_2 = require("../_contexts/automationStudio/definitions");
-const fileSystem_1 = require("../../../_utils/fileSystem");
-const CreateSFMCFolders_1 = require("../../_utils/CreateSFMCFolders");
-const { getCurrentInstance, isVerbose, allowTracking } = new state_1.State();
+const definitions_1 = require("../_contexts/automationStudio/definitions");
+const definitions_2 = require("../_contexts/contentBuilder/definitions");
+const { getCurrentInstance, isVerbose, allowTracking, debug } = new state_1.State();
 const { getStashArray, removeFromStashByBldrId, clearStash } = new stash_1.Stash();
 const metrics_1 = require("../../../_utils/metrics");
 class Push {
@@ -31,6 +31,7 @@ class Push {
          */
         this.pushStash = () => __awaiter(this, void 0, void 0, function* () {
             const instance = yield getCurrentInstance();
+            debug('Push Instance', 'info', instance);
             // get stash for instance for state instance
             const instanceStash = yield getStashArray();
             const availableContextsArray = instanceStash.map((stashItem) => {
@@ -41,6 +42,7 @@ class Push {
             for (const context in availableContexts) {
                 const currentContext = availableContexts[context].context;
                 const contextStash = instanceStash.filter((stashItem) => stashItem.bldr.context.context === currentContext);
+                debug(`${currentContext} Stash`, 'info', contextStash);
                 isVerbose() && (0, display_1.displayLine)(`Working on ${currentContext}`, 'progress');
                 const postStashFiles = contextStash
                     .map((stashItem) => {
@@ -49,11 +51,13 @@ class Push {
                         stashItem);
                 })
                     .filter(Boolean) || [];
+                debug(`${postStashFiles.length}  Files to be Created`, 'info', postStashFiles);
                 const putStashFiles = contextStash
                     .map((stashItem) => (Object.prototype.hasOwnProperty.call(stashItem.bldr, 'id') ||
                     Object.prototype.hasOwnProperty.call(stashItem.bldr, 'key')) &&
                     stashItem)
                     .filter(Boolean) || [];
+                debug(`${putStashFiles.length} Files to be Updated`, 'info', putStashFiles);
                 isVerbose() && postStashFiles.length && putStashFiles.length
                     ? (0, display_1.displayLine)(`Updating and Creating assets for ${instance}`, 'info')
                     : postStashFiles.length && !putStashFiles.length
@@ -196,8 +200,10 @@ class Push {
                                 if (method === 'put') {
                                     sfmcAPIObject =
                                         (stashFileObject === null || stashFileObject === void 0 ? void 0 : stashFileObject.fileContent) &&
-                                            (yield (0, definitions_2.setAutomationStudioDefinition)(sfmcUpdateObject, stashFileObject.fileContent));
+                                            (yield (0, definitions_1.setAutomationStudioDefinition)(sfmcUpdateObject, stashFileObject.fileContent));
+                                    debug('Automation Studio Payload', 'info', sfmcAPIObject);
                                     assetResponse = yield sdk.sfmc.automation.patchAutomationAsset(sfmcAPIObject);
+                                    debug('Automation Studio Update', 'info', assetResponse);
                                 }
                                 else {
                                     // sfmcAPIObject = stashFileObject?.post?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject.post)
@@ -227,12 +233,15 @@ class Push {
                                         createdFolders[createdFolders.length - 1]) ||
                                         manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
                                 // Set Asset Definition Schema
-                                sfmcAPIObject = yield (0, definitions_1.setContentBuilderDefinition)(sfmcUpdateObject, stashFileObject.fileContent);
+                                sfmcAPIObject = yield (0, definitions_2.setContentBuilderDefinition)(sfmcUpdateObject, stashFileObject.fileContent);
+                                debug('Content Builder Payload', 'info', sfmcAPIObject);
                                 if (method === 'put') {
                                     assetResponse = yield sdk.sfmc.asset.putAsset(sfmcAPIObject);
+                                    debug('Content Builder Update', 'info', assetResponse);
                                 }
                                 else {
                                     assetResponse = yield sdk.sfmc.asset.postAsset(sfmcAPIObject);
+                                    debug('Content Builder Create', 'info', assetResponse);
                                 }
                                 if (Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')) {
                                     sfmcAPIObject.customerKey = assetResponse.customerKey;
@@ -258,11 +267,13 @@ class Push {
                                         manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
                                 sfmcAPIObject = JSON.parse(sfmcUpdateObject.fileContent);
                                 sfmcAPIObject.categoryId = sfmcUpdateObject.category.id;
+                                debug('Data Extension Payload', 'info', sfmcAPIObject);
                                 if (method === 'put') {
                                     // assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
                                 }
                                 else {
                                     assetResponse = yield sdk.sfmc.emailStudio.postAsset(sfmcAPIObject);
+                                    debug('Data Extension Update', 'info', assetResponse);
                                 }
                                 if (assetResponse.OverallStatus === 'OK' &&
                                     Object.prototype.hasOwnProperty.call(assetResponse, 'Results') &&
@@ -296,11 +307,13 @@ class Push {
                                         manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
                                 sfmcAPIObject = JSON.parse(sfmcUpdateObject.fileContent);
                                 sfmcAPIObject.categoryId = sfmcUpdateObject.category.id;
+                                debug('Shared Data Extension Payload', 'info', sfmcAPIObject);
                                 if (method === 'put') {
                                     // assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
                                 }
                                 else {
                                     assetResponse = yield sdk.sfmc.emailStudio.postAsset(sfmcAPIObject);
+                                    debug('Shared Data Extension Update', 'info', assetResponse);
                                 }
                                 if (assetResponse.OverallStatus === 'OK' &&
                                     Object.prototype.hasOwnProperty.call(assetResponse, 'Results') &&
@@ -335,6 +348,7 @@ class Push {
                 };
             }
             catch (err) {
+                debug('Push Err', 'error', err);
                 err.response.data && err.response.data.message && (0, display_1.displayLine)(err.response.data.message, 'error');
                 err.response.data &&
                     err.response.data.validationErrors &&
