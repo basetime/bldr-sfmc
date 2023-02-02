@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 module.exports.config_remove = (instance) => {
     return {
         interactive: { default: true },
