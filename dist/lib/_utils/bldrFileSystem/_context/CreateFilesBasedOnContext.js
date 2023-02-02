@@ -1,9 +1,9 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.createEditableFilesBasedOnContext = void 0;
-const CreateLocalFiles_1 = require('./contentBuilder/CreateLocalFiles');
-const CreateLocalFiles_2 = require('./automationStudio/CreateLocalFiles');
-const CreateLocalFiles_3 = require('./dataExtension/CreateLocalFiles');
+const CreateLocalFiles_1 = require("./contentBuilder/CreateLocalFiles");
+const CreateLocalFiles_2 = require("./automationStudio/CreateLocalFiles");
+const CreateLocalFiles_3 = require("./dataExtension/CreateLocalFiles");
 const createEditableFilesBasedOnContext = (context, assets) => {
     switch (context) {
         case 'contentBuilder':
