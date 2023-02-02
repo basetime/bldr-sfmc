@@ -273,7 +273,7 @@ class Push {
                                 }
                                 else {
                                     assetResponse = yield sdk.sfmc.emailStudio.postAsset(sfmcAPIObject);
-                                    debug('Data Extension Update', 'info', assetResponse);
+                                    debug('Data Extension Create', 'info', assetResponse);
                                 }
                                 if (assetResponse.OverallStatus === 'OK' &&
                                     Object.prototype.hasOwnProperty.call(assetResponse, 'Results') &&
@@ -348,7 +348,7 @@ class Push {
                 };
             }
             catch (err) {
-                debug('Push Err', 'error', err);
+                err.errorMessage && (0, display_1.displayLine)(err.errorMessage, 'error');
                 err.response.data && err.response.data.message && (0, display_1.displayLine)(err.response.data.message, 'error');
                 err.response.data &&
                     err.response.data.validationErrors &&

@@ -10,7 +10,7 @@ import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { displayLine } from '../../../_utils/display';
 import { createFile, fileExists, getAllFiles, getRootPath } from '../../../_utils/fileSystem';
 import { incrementMetric } from '../../../_utils/metrics';
-import { guid, isDirEmpty } from '../../_utils';
+import { isDirEmpty } from '../../_utils';
 import { State } from '../state';
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder');
 const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension');
@@ -141,7 +141,7 @@ export class Initiate {
                     deleteAtEndOfRetentionPeriod?: Boolean;
                 } = {
                     name: initResults.dataExtensionName,
-                    customerKey: guid(),
+                    customerKey: initResults.dataExtensionName,
                     description: '',
                     fields: [
                         {
@@ -149,8 +149,8 @@ export class Initiate {
                             defaultValue: '',
                             isRequired: false,
                             isPrimaryKey: false,
-                            fieldType: 'Text',
-                            maxLength: '4000',
+                            fieldType: 'Text | Number | Date | Boolean | EmailAddress | Phone | Decimal | Locale',
+                            maxLength: '4000 | {{ Required for Primary Key Field }}',
                         },
                     ],
                     category: {

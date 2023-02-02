@@ -72,7 +72,6 @@ export class State {
         return state_conf.get('isVerbose') || false;
     };
 
-
     toggleTracking = () => {
         const allowTracking = state_conf.get('allowTracking');
         if (allowTracking !== 'undefined') {
@@ -113,26 +112,40 @@ export class State {
 
     debug = (debugContext: string, debugStatus: 'success' | 'error' | 'info', output: any) => {
         const debug = this.debugMode();
-        if(!debug){
-            return
+        if (!debug) {
+            return;
         }
 
-        displayLine(debugContext, debugStatus)
-        typeof output === 'string' ? console.log(output) : console.log(JSON.stringify(output, null, 2))
-    }
+        try {
+            displayLine(debugContext, debugStatus);
+            if(output && output.JSON && output.JSON.Results){
+                console.log(JSON.stringify(output.JSON.Results, null, 2))
+                return
+            }
+
+            typeof output === 'string' ? console.log(output) : console.log(JSON.stringify(output, null, 2));
+        } catch (err) {
+            console.log(output);
+        }
+    };
 
     checkForTracking = async () => {
         const hasAllowTracking = state_conf.has('allowTracking');
-        if(!hasAllowTracking) {
-            await incrementMetric('downloads')
+        if (!hasAllowTracking) {
+            await incrementMetric('downloads');
             state_conf.set({
-                allowTracking: true
-            })
+                allowTracking: true,
+            });
 
-            await displayLine(`BLDR is configured to collect basic analytics`, 'info')
-            await displayLine(`Visit https://github.com/basetime/bldr-sfmc for more information on what is being captured`, 'info')
-            await displayLine(`If you wish to opt-out of analytics, run [ bldr config --analytics ] to disable this functionality`, 'info')
-
+            await displayLine(`BLDR is configured to collect basic analytics`, 'info');
+            await displayLine(
+                `Visit https://github.com/basetime/bldr-sfmc for more information on what is being captured`,
+                'info'
+            );
+            await displayLine(
+                `If you wish to opt-out of analytics, run [ bldr config --analytics ] to disable this functionality`,
+                'info'
+            );
         }
-    }
+    };
 }

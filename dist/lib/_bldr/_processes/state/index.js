@@ -119,15 +119,24 @@ class State {
             if (!debug) {
                 return;
             }
-            (0, display_1.displayLine)(debugContext, debugStatus);
-            typeof output === 'string' ? console.log(output) : console.log(JSON.stringify(output, null, 2));
+            try {
+                (0, display_1.displayLine)(debugContext, debugStatus);
+                if (output && output.JSON && output.JSON.Results) {
+                    console.log(JSON.stringify(output.JSON.Results, null, 2));
+                    return;
+                }
+                typeof output === 'string' ? console.log(output) : console.log(JSON.stringify(output, null, 2));
+            }
+            catch (err) {
+                console.log(output);
+            }
         };
         this.checkForTracking = () => __awaiter(this, void 0, void 0, function* () {
             const hasAllowTracking = store_1.state_conf.has('allowTracking');
             if (!hasAllowTracking) {
                 yield (0, metrics_1.incrementMetric)('downloads');
                 store_1.state_conf.set({
-                    allowTracking: true
+                    allowTracking: true,
                 });
                 yield (0, display_1.displayLine)(`BLDR is configured to collect basic analytics`, 'info');
                 yield (0, display_1.displayLine)(`Visit https://github.com/basetime/bldr-sfmc for more information on what is being captured`, 'info');

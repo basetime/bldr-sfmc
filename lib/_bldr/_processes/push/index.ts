@@ -326,7 +326,7 @@ export class Push {
                                 // assetResponse = await sdk.sfmc.asset.putAsset(sfmcAPIObject);
                             } else {
                                 assetResponse = await sdk.sfmc.emailStudio.postAsset(sfmcAPIObject);
-                                debug('Data Extension Update', 'info', assetResponse);
+                                debug('Data Extension Create', 'info', assetResponse);
                             }
 
                             if (
@@ -415,7 +415,7 @@ export class Push {
                 errors,
             };
         } catch (err: any) {
-            debug('Push Err', 'error', err);
+            err.errorMessage && displayLine(err.errorMessage, 'error')
 
             err.response.data && err.response.data.message && displayLine(err.response.data.message, 'error');
             err.response.data &&

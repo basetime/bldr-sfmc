@@ -108,7 +108,7 @@ class Initiate {
                 yield (0, manifestJSON_1.updateManifest)(context, { folders: [], assets: [] });
                 const dataExtensionInit = {
                     name: initResults.dataExtensionName,
-                    customerKey: (0, _utils_1.guid)(),
+                    customerKey: initResults.dataExtensionName,
                     description: '',
                     fields: [
                         {
@@ -116,8 +116,8 @@ class Initiate {
                             defaultValue: '',
                             isRequired: false,
                             isPrimaryKey: false,
-                            fieldType: 'Text',
-                            maxLength: '4000',
+                            fieldType: 'Text | Number | Date | Boolean | EmailAddress | Phone | Decimal | Locale',
+                            maxLength: '4000 | {{ Required for Primary Key Field }}',
                         },
                     ],
                     category: {
