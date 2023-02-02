@@ -13,7 +13,7 @@ import { State } from '../state';
 
 const { setEncryption, encrypt, decrypt } = new Crypto();
 
-const { getState, allowTracking, debug} = new State();
+const { getState, allowTracking, debug } = new State();
 
 /**
  * Handles all Configuration commands
@@ -21,7 +21,7 @@ const { getState, allowTracking, debug} = new State();
  * @property {object} stateConfiguration
  */
 export class Config {
-    constructor() { }
+    constructor() {}
     /**
      * Initiate the setting of a Configuration
      * Prompts user input
@@ -33,8 +33,11 @@ export class Config {
      */
     initiateConfiguration = async (argv: Argv) => {
         try {
-            displayLine('For Web App Configurations, use the following as the Redirect URI in your Installed Package', 'info')
-            displayLine('https://bldr.io/cli/sfmc/authenticate/', 'progress')
+            displayLine(
+                'For Web App Configurations, use the following as the Redirect URI in your Installed Package',
+                'info'
+            );
+            displayLine('https://bldr.io/cli/sfmc/authenticate/', 'progress');
 
             yargsInteractive()
                 .usage('$bldr config [args]')
@@ -61,16 +64,18 @@ export class Config {
                         authURI: configResults.authURI,
                     };
 
-                    displayLine('Testing Configuration...')
+                    displayLine('Testing Configuration...');
 
-                    const sdk = await initiateBldrSDK({
-                        client_id: configured.apiClientId,
-                        client_secret: configured.apiClientSecret,
-                        account_id: configured.parentMID,
-                        auth_url: configured.authURI,
-                    },
-                    configured.instance,
-                    configured.configurationType);
+                    const sdk = await initiateBldrSDK(
+                        {
+                            client_id: configured.apiClientId,
+                            client_secret: configured.apiClientSecret,
+                            account_id: configured.parentMID,
+                            auth_url: configured.authURI,
+                        },
+                        configured.instance,
+                        configured.configurationType
+                    );
 
                     // Throw Error if SDK Fails to Load
                     if (!sdk) {
@@ -78,24 +83,30 @@ export class Config {
                         return;
                     }
 
-                    displayLine('Gathering Business Unit Details...')
+                    displayLine('Gathering Business Unit Details...');
 
                     // Get All Business Unit Details from provided credentials
                     const getAllBusinessUnitDetails = await sdk.sfmc.account.getAllBusinessUnitDetails();
-                    debug('Business Unit Return', 'info', getAllBusinessUnitDetails)
+                    debug('Business Unit Return', 'info', getAllBusinessUnitDetails);
 
                     // Throw Error if there are issues with getting Business Unit Details
-                    if (!Array.isArray(getAllBusinessUnitDetails) || Array.isArray(getAllBusinessUnitDetails) && !getAllBusinessUnitDetails.length) {
+                    if (
+                        !Array.isArray(getAllBusinessUnitDetails) ||
+                        (Array.isArray(getAllBusinessUnitDetails) && !getAllBusinessUnitDetails.length)
+                    ) {
                         throw new Error('Unable to get Instance Details. Please review credentials.');
                     }
 
                     // Isolate each Business Unit Name and MID for stored configuration
-                    const instanceBusinessUnits = Array.isArray(getAllBusinessUnitDetails) && getAllBusinessUnitDetails.length && getAllBusinessUnitDetails.map((bu: { Name: string; ID: number }) => {
-                        return {
-                            name: bu.Name,
-                            mid: bu.ID,
-                        };
-                    });
+                    const instanceBusinessUnits =
+                        Array.isArray(getAllBusinessUnitDetails) &&
+                        getAllBusinessUnitDetails.length &&
+                        getAllBusinessUnitDetails.map((bu: { Name: string; ID: number }) => {
+                            return {
+                                name: bu.Name,
+                                mid: bu.ID,
+                            };
+                        });
 
                     // Encrypt Configuration object
                     const encryptedConfiguration = {
@@ -105,15 +116,15 @@ export class Config {
                         apiClientSecret: await encrypt(configResults.apiClientSecret),
                     };
 
-                    debug('Encrypted Configuration', 'info', encryptedConfiguration)
+                    debug('Encrypted Configuration', 'info', encryptedConfiguration);
 
                     // Store credentials in users PSW Management
                     // OSX Keychain Access
                     // Windows Credential Manager
                     await setPassword('bldr', configured.instance, JSON.stringify(encryptedConfiguration));
 
-                    const credentialCheck = await getPassword('bldr', configured.instance)
-                    debug('Check Credentials Saved', 'info', credentialCheck)
+                    const credentialCheck = await getPassword('bldr', configured.instance);
+                    debug('Check Credentials Saved', 'info', credentialCheck);
 
                     // Set newly configured instance to Current State
                     await state_conf.set({
@@ -125,8 +136,8 @@ export class Config {
                     displayLine(`${configured.instance} Configuration Saved`, 'success');
                     allowTracking() && incrementMetric('req_command_config');
                 });
-        } catch (err:any) {
-            err.message && displayLine(err.message, 'error')
+        } catch (err: any) {
+            err.message && displayLine(err.message, 'error');
             return err;
         }
     };
@@ -293,7 +304,7 @@ export class Config {
             displayLine(`${instanceToSet} has been set to target instance`, 'success');
             displayObject(initState);
         } catch (err: any) {
-            debug('Config Err', 'error', err)
+            debug('Config Err', 'error', err);
             displayLine(`There was an error setting your target instance`, 'error');
             displayLine(err.message, 'error');
         }

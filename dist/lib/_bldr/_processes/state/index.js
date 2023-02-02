@@ -1,19 +1,41 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+var __awaiter =
+    (this && this.__awaiter) ||
+    function (thisArg, _arguments, P, generator) {
+        function adopt(value) {
+            return value instanceof P
+                ? value
+                : new P(function (resolve) {
+                      resolve(value);
+                  });
+        }
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) {
+                try {
+                    step(generator.next(value));
+                } catch (e) {
+                    reject(e);
+                }
+            }
+            function rejected(value) {
+                try {
+                    step(generator['throw'](value));
+                } catch (e) {
+                    reject(e);
+                }
+            }
+            function step(result) {
+                result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+            }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    };
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.State = void 0;
-const store_1 = require("../../../_bldr_sdk/store");
-const display_1 = require("../../../_utils/display");
-const metrics_1 = require("../../../_utils/metrics");
-const _utils_1 = require("../../_utils");
+const store_1 = require('../../../_bldr_sdk/store');
+const display_1 = require('../../../_utils/display');
+const metrics_1 = require('../../../_utils/metrics');
+const _utils_1 = require('../../_utils');
 // const Config = require('./Config');
 // const Column = require('../help/Column');
 // const utils = require('../utils');
@@ -29,10 +51,11 @@ class State {
          *
          * @returns
          */
-        this.getCurrentInstance = () => __awaiter(this, void 0, void 0, function* () {
-            const currentState = yield store_1.state_conf.get();
-            return currentState.instance;
-        });
+        this.getCurrentInstance = () =>
+            __awaiter(this, void 0, void 0, function* () {
+                const currentState = yield store_1.state_conf.get();
+                return currentState.instance;
+            });
         /**
          *
          * @param key
@@ -47,16 +70,14 @@ class State {
                         (0, display_1.displayObject)(state);
                     }
                     return state;
-                }
-                else {
+                } else {
                     if (key && store_1.state_conf.has(key))
                         if (show) {
                             (0, display_1.displayObject)(state);
                         }
                     return state[key];
                 }
-            }
-            catch (err) {
+            } catch (err) {
                 console.log(err);
             }
         };
@@ -68,8 +89,7 @@ class State {
                 store_1.state_conf.set({
                     isVerbose: !isVerbose,
                 });
-            }
-            else {
+            } else {
                 store_1.state_conf.set({
                     isVerbose: false,
                 });
@@ -86,8 +106,7 @@ class State {
                 store_1.state_conf.set({
                     allowTracking: !allowTracking,
                 });
-            }
-            else {
+            } else {
                 store_1.state_conf.set({
                     allowTracking: false,
                 });
@@ -104,8 +123,7 @@ class State {
                 store_1.state_conf.set({
                     debugMode: !debugMode,
                 });
-            }
-            else {
+            } else {
                 store_1.state_conf.set({
                     debugMode: false,
                 });
@@ -126,23 +144,29 @@ class State {
                     return;
                 }
                 typeof output === 'string' ? console.log(output) : console.log(JSON.stringify(output, null, 2));
-            }
-            catch (err) {
+            } catch (err) {
                 console.log(output);
             }
         };
-        this.checkForTracking = () => __awaiter(this, void 0, void 0, function* () {
-            const hasAllowTracking = store_1.state_conf.has('allowTracking');
-            if (!hasAllowTracking) {
-                yield (0, metrics_1.incrementMetric)('downloads');
-                store_1.state_conf.set({
-                    allowTracking: true,
-                });
-                yield (0, display_1.displayLine)(`BLDR is configured to collect basic analytics`, 'info');
-                yield (0, display_1.displayLine)(`Visit https://github.com/basetime/bldr-sfmc for more information on what is being captured`, 'info');
-                yield (0, display_1.displayLine)(`If you wish to opt-out of analytics, run [ bldr config --analytics ] to disable this functionality`, 'info');
-            }
-        });
+        this.checkForTracking = () =>
+            __awaiter(this, void 0, void 0, function* () {
+                const hasAllowTracking = store_1.state_conf.has('allowTracking');
+                if (!hasAllowTracking) {
+                    yield (0, metrics_1.incrementMetric)('downloads');
+                    store_1.state_conf.set({
+                        allowTracking: true,
+                    });
+                    yield (0, display_1.displayLine)(`BLDR is configured to collect basic analytics`, 'info');
+                    yield (0, display_1.displayLine)(
+                        `Visit https://github.com/basetime/bldr-sfmc for more information on what is being captured`,
+                        'info'
+                    );
+                    yield (0, display_1.displayLine)(
+                        `If you wish to opt-out of analytics, run [ bldr config --analytics ] to disable this functionality`,
+                        'info'
+                    );
+                }
+            });
     }
 }
 exports.State = State;

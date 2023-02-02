@@ -91,7 +91,9 @@ export class Add {
             );
 
             // Isolate context from Array
-            const contexts = contextsArray.filter((ctx) => ctx && ['Data Extensions', 'Shared Data Extensions'].includes(ctx)).filter(Boolean);
+            const contexts = contextsArray
+                .filter((ctx) => ctx && ['Data Extensions', 'Shared Data Extensions'].includes(ctx))
+                .filter(Boolean);
 
             // Store all complete file paths for files in CWD and subdirectories
             let contextFiles: string[] = [];

@@ -65,14 +65,13 @@ const addNewFolders = async (stashItemFolderPath: string) => {
             // If folder does not exist
             if (folderIndex === -1) {
                 if (typeof parentId === 'undefined') {
-
                     const parentFolderResponse = await sdk.sfmc.folder.search({
                         contentType: context.contentType,
                         searchKey: 'Name',
                         searchTerm: context.name,
                     });
 
-                    debug('Search for Parent Folder', 'info', parentFolderResponse)
+                    debug('Search for Parent Folder', 'info', parentFolderResponse);
 
                     if (parentFolderResponse.OverallStatus !== 'OK') {
                         throw new Error(parentFolderResponse.OverallStatus);
@@ -101,7 +100,7 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                     contentType: context.contentType,
                     name: folder,
                     parentId,
-                })
+                });
 
                 // Create folder via SFMC API
                 createFolder = await sdk.sfmc.folder.createFolder({
@@ -110,7 +109,7 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                     parentId,
                 });
 
-                debug('Create Folder Response', 'info', createFolder)
+                debug('Create Folder Response', 'info', createFolder);
 
                 if (
                     !createFolder ||

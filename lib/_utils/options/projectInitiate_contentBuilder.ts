@@ -9,5 +9,5 @@ module.exports = {
         type: 'confirm',
         describe: 'Does your project need environment variables?',
         prompt: 'always',
-    }
+    },
 };

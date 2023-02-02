@@ -4,7 +4,8 @@ import {
     createAllDirectories,
     createEnv,
     readManifest,
-    readPackageManifest, scrubBldrSfmcEnv
+    readPackageManifest,
+    scrubBldrSfmcEnv,
 } from '../../../_utils/bldrFileSystem';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { displayLine } from '../../../_utils/display';
@@ -50,7 +51,7 @@ export class Initiate {
                 fs.writeFileSync(`${rootPath}package.manifest.json`, JSON.stringify(updatedPkg, null, 2));
             }
         } catch (err: any) {
-            debug('Update Keys Err', 'error', err)
+            debug('Update Keys Err', 'error', err);
         }
     };
 
@@ -98,7 +99,9 @@ export class Initiate {
             .then(async (initResults) => {
                 const context = initResults.sharedDataExtension ? 'sharedDataExtension' : 'dataExtension';
                 const rootFolder = initResults.sharedDataExtension ? 'Shared Data Extensions' : 'Data Extensions';
-                const initFolderPath = initResults.dataExtensionPath ? `${rootFolder}/${initResults.dataExtensionPath}` : rootFolder;
+                const initFolderPath = initResults.dataExtensionPath
+                    ? `${rootFolder}/${initResults.dataExtensionPath}`
+                    : rootFolder;
                 const folderPaths = [
                     {
                         folderPath: initFolderPath,
@@ -190,7 +193,6 @@ export class Initiate {
                             break;
                     }
                 }
-
 
                 await createFile(`${initFolderPath}/${initResults.dataExtensionName}.json`, dataExtensionInit);
                 allowTracking() && incrementMetric('req_project_initiates_dataExtension');

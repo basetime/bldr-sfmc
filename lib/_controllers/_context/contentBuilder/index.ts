@@ -13,7 +13,6 @@ const delete_confirm = require('../../../_utils/options/delete_confirm');
 
 const { allowTracking, getState } = new State();
 
-
 /**
  * Flag routing for Config command
  *
@@ -32,8 +31,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
             throw new Error('unable to load sdk');
         }
 
-         // If authObject is not passed use the current set credentials to initiate SDK
-         const currentState = await getState();
+        // If authObject is not passed use the current set credentials to initiate SDK
+        const currentState = await getState();
 
         switch (req) {
             case 'search':

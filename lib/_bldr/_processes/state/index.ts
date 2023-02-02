@@ -118,9 +118,9 @@ export class State {
 
         try {
             displayLine(debugContext, debugStatus);
-            if(output && output.JSON && output.JSON.Results){
-                console.log(JSON.stringify(output.JSON.Results, null, 2))
-                return
+            if (output && output.JSON && output.JSON.Results) {
+                console.log(JSON.stringify(output.JSON.Results, null, 2));
+                return;
             }
 
             typeof output === 'string' ? console.log(output) : console.log(JSON.stringify(output, null, 2));

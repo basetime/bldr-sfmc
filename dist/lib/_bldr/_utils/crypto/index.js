@@ -1,17 +1,39 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+var __awaiter =
+    (this && this.__awaiter) ||
+    function (thisArg, _arguments, P, generator) {
+        function adopt(value) {
+            return value instanceof P
+                ? value
+                : new P(function (resolve) {
+                      resolve(value);
+                  });
+        }
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) {
+                try {
+                    step(generator.next(value));
+                } catch (e) {
+                    reject(e);
+                }
+            }
+            function rejected(value) {
+                try {
+                    step(generator['throw'](value));
+                } catch (e) {
+                    reject(e);
+                }
+            }
+            function step(result) {
+                result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+            }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    };
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.Crypto = void 0;
 const crypto = require('crypto');
-const keytar_sync_1 = require("keytar-sync");
+const keytar_sync_1 = require('keytar-sync');
 const algorithm = 'aes-256-ctr';
 class Crypto {
     constructor() {
@@ -39,17 +61,18 @@ class Crypto {
             return ret.substring(0, length);
         };
         /**
-        * Create required entries for bldr's encryption
-        */
-        this.setEncryption = () => __awaiter(this, void 0, void 0, function* () {
-            let envExists = yield (0, keytar_sync_1.getPassword)('bldr', 'io');
-            if (!envExists) {
-                const hex = yield this.generateHexString(32);
-                const salt = yield this.generateHexString(12);
-                yield (0, keytar_sync_1.setPassword)('bldr', 'io', hex);
-                yield (0, keytar_sync_1.setPassword)('bldr', 'salty', salt);
-            }
-        });
+         * Create required entries for bldr's encryption
+         */
+        this.setEncryption = () =>
+            __awaiter(this, void 0, void 0, function* () {
+                let envExists = yield (0, keytar_sync_1.getPassword)('bldr', 'io');
+                if (!envExists) {
+                    const hex = yield this.generateHexString(32);
+                    const salt = yield this.generateHexString(12);
+                    yield (0, keytar_sync_1.setPassword)('bldr', 'io', hex);
+                    yield (0, keytar_sync_1.setPassword)('bldr', 'salty', salt);
+                }
+            });
     }
     /**
      * Encrypt string with aes-256-gcm

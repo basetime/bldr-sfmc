@@ -87,7 +87,7 @@ const updateManifest = async (
                 id?: number;
                 assetType?: {
                     objectIdKey: ObjectIdKeys;
-                }
+                };
                 category?: any;
                 // @ts-ignore
             }[] = content[assetType];
@@ -115,8 +115,7 @@ const updateManifest = async (
                             updateItem[objectIdKey];
                         //@ts-ignore
                         manifestObj = manifestContextItems.find((item) => item[objectIdKey] === itemId);
-
-                    } else if (['dataExtension', 'sharedDataExtension'].includes(context) ) {
+                    } else if (['dataExtension', 'sharedDataExtension'].includes(context)) {
                         itemId = updateItem.customerKey;
                         manifestObj = manifestContextItems.find(({ customerKey }) => customerKey === itemId);
                     }
@@ -147,8 +146,7 @@ const updateManifest = async (
                                     (item: { [key: string]: any }) => itemId && item[itemId] === updateItem[itemId]
                                 );
 
-                                updateItem.category = manifestObj.category
-
+                                updateItem.category = manifestObj.category;
                             } else if (['dataExtension', 'sharedDataExtension'].includes(context)) {
                                 itemId = updateItem.customerKey || updateItem.id;
                                 updateIndex = manifestContextItems.findIndex(

@@ -4,5 +4,5 @@ module.exports = {
         type: 'confirm',
         describe: `Please confirm deletion`,
         prompt: 'always',
-    }
+    },
 };

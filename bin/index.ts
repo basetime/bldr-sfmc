@@ -49,7 +49,7 @@ const argv = userInput.argv;
  */
 const initCLI = async (req: string, argv: any) => {
     await checkForTracking();
-    debug('User Request', 'info', {request: req, argument: argv})
+    debug('User Request', 'info', { request: req, argument: argv });
 
     if (!req) {
         if (argv.v) {
@@ -160,19 +160,19 @@ const initCLI = async (req: string, argv: any) => {
         }
     } else {
         if (Object.values(argv).includes(':shared')) {
-            debug('Checking Shared Request', 'info', '')
+            debug('Checking Shared Request', 'info', '');
             // If authObject is not passed use the current set credentials to initiate SDK
             const currentState = await getState();
             const stateInstance = currentState.instance;
             const activeMID = currentState.activeMID;
             const stateConfiguration = await getInstanceConfiguration(stateInstance);
-            const command = argv._ && argv._[0]
-            debug('Current State', 'info', currentState)
+            const command = argv._ && argv._[0];
+            debug('Current State', 'info', currentState);
             debug('Current Configuration', 'info', {
                 ...stateConfiguration,
-                apiClientId: stateConfiguration.apiClientId.substring(0,5),
-                apiClientSecret: stateConfiguration.apiClientSecret.substring(0,5)
-            })
+                apiClientId: stateConfiguration.apiClientId.substring(0, 5),
+                apiClientSecret: stateConfiguration.apiClientSecret.substring(0, 5),
+            });
 
             if (
                 activeMID &&

@@ -1,5 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.getContentBuilderAssetContent = void 0;
 const getContentBuilderAssetContent = (asset) => {
     const assetType = asset.assetType.name;

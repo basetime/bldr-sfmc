@@ -22,7 +22,7 @@ import { assignObject, uniqueArrayByKey } from '../../_utils';
 
 import { State } from '../state';
 import { incrementMetric } from '../../../_utils/metrics';
-const { allowTracking} = new State();
+const { allowTracking } = new State();
 
 /**
  */

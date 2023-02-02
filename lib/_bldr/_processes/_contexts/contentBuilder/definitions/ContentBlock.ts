@@ -19,11 +19,11 @@ const SetContentBlock = async (
         };
         content?: string;
         businessUnitAvailability?: {
-            [key: string]: any
-        }
+            [key: string]: any;
+        };
         sharingProperties?: {
-            [key: string]: any
-        }
+            [key: string]: any;
+        };
     },
     updatedContent: string
 ) => {
@@ -44,11 +44,11 @@ const SetContentBlock = async (
         };
         content: string;
         businessUnitAvailability?: {
-            [key: string]: any
-        }
+            [key: string]: any;
+        };
         sharingProperties?: {
-            [key: string]: any
-        }
+            [key: string]: any;
+        };
     } = {
         bldrId: sfmcUpdateObject.bldr.bldrId || sfmcUpdateObject.bldrId,
         name: sfmcUpdateObject.name,
@@ -67,8 +67,8 @@ const SetContentBlock = async (
         returnObject.id = sfmcUpdateObject.id;
     }
 
-     //Append keys for update flow
-     if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'customerKey')) {
+    //Append keys for update flow
+    if (Object.prototype.hasOwnProperty.call(sfmcUpdateObject, 'customerKey')) {
         returnObject.customerKey = sfmcUpdateObject.customerKey;
     }
 

@@ -415,7 +415,7 @@ export class Push {
                 errors,
             };
         } catch (err: any) {
-            err.errorMessage && displayLine(err.errorMessage, 'error')
+            err.errorMessage && displayLine(err.errorMessage, 'error');
 
             err.response.data && err.response.data.message && displayLine(err.response.data.message, 'error');
             err.response.data &&
