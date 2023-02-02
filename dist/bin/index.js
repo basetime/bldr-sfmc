@@ -28,22 +28,22 @@ const yargs_1 = __importDefault(require("yargs"));
 const version_1 = require("../lib/_bldr_sdk/version");
 // Initiate all route switches
 // const InitSwitch = require('../lib/_controllers/init')
-const config_1 = require("../lib/_bldr/_processes/config");
-const state_1 = require("../lib/_bldr/_processes/state");
-const crypto_1 = require("../lib/_bldr/_utils/crypto");
+const _context_1 = require("../lib/_controllers/_context");
+const config_1 = require("../lib/_controllers/config");
 const add_1 = require("../lib/_controllers/add");
-const config_2 = require("../lib/_controllers/config");
+const stash_1 = require("../lib/_controllers/stash");
+const push_1 = require("../lib/_controllers/push");
+const status_1 = require("../lib/_controllers/status");
+const package_1 = require("../lib/_controllers/package");
+const install_1 = require("../lib/_controllers/install");
+const display_1 = require("../lib/_utils/display");
 const deploy_1 = require("../lib/_controllers/deploy");
 const initiate_1 = require("../lib/_controllers/initiate");
-const install_1 = require("../lib/_controllers/install");
-const package_1 = require("../lib/_controllers/package");
-const push_1 = require("../lib/_controllers/push");
-const stash_1 = require("../lib/_controllers/stash");
-const status_1 = require("../lib/_controllers/status");
-const _context_1 = require("../lib/_controllers/_context");
-const display_1 = require("../lib/_utils/display");
+const state_1 = require("../lib/_bldr/_processes/state");
+const crypto_1 = require("../lib/_bldr/_utils/crypto");
+const config_2 = require("../lib/_bldr/_processes/config");
 const { setEncryption } = new crypto_1.Crypto();
-const { getInstanceConfiguration } = new config_1.Config();
+const { getInstanceConfiguration } = new config_2.Config();
 const { checkForTracking, getState, debug } = new state_1.State();
 // Parse requests and input arguments
 const userInput = yargs_1.default;
@@ -184,7 +184,7 @@ const initCLI = (req, argv) => __awaiter(void 0, void 0, void 0, function* () {
              * See README for config details
              */
             case 'config':
-                (0, config_2.ConfigSwitch)(req, argv);
+                (0, config_1.ConfigSwitch)(req, argv);
                 break;
             /**
              * Add files in bulk or by filepath to the stash.json file

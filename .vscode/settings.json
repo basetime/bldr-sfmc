@@ -10,5 +10,8 @@
         "queryactivity",
         "ssjsactivity",
         "uuidv"
-    ]
+    ],
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": false
+      },
 }

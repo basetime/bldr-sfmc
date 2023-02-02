@@ -11,28 +11,28 @@
  *
  */
 
-import yargs from 'yargs';
-import { version } from '../lib/_bldr_sdk/version';
-// Initiate all route switches
-// const InitSwitch = require('../lib/_controllers/init')
-import { Config } from '../lib/_bldr/_processes/config';
-import { State } from '../lib/_bldr/_processes/state';
-import { Crypto } from '../lib/_bldr/_utils/crypto';
-import { AddSwitch } from '../lib/_controllers/add';
-import { ConfigSwitch } from '../lib/_controllers/config';
-import { DeploySwitch } from '../lib/_controllers/deploy';
-import { InitSwitch } from '../lib/_controllers/initiate';
-import { InstallSwitch } from '../lib/_controllers/install';
-import { PackageSwitch } from '../lib/_controllers/package';
-import { PushSwitch } from '../lib/_controllers/push';
-import { StashSwitch } from '../lib/_controllers/stash';
-import { StatusSwitch } from '../lib/_controllers/status';
-import { ContextSwitch } from '../lib/_controllers/_context';
-import { displayLine, displayObject } from '../lib/_utils/display';
+  import yargs from 'yargs';
+  import { version } from '../lib/_bldr_sdk/version';
+  // Initiate all route switches
+  // const InitSwitch = require('../lib/_controllers/init')
+  import { ContextSwitch } from '../lib/_controllers/_context';
+  import { ConfigSwitch } from '../lib/_controllers/config';
+  import { AddSwitch } from '../lib/_controllers/add';
+  import { StashSwitch } from '../lib/_controllers/stash';
+  import { PushSwitch } from '../lib/_controllers/push';
+  import { StatusSwitch } from '../lib/_controllers/status';
+  import { PackageSwitch } from '../lib/_controllers/package';
+  import { InstallSwitch } from '../lib/_controllers/install';
+  import { displayLine, displayObject } from '../lib/_utils/display';
+  import { DeploySwitch } from '../lib/_controllers/deploy';
+  import { InitSwitch } from '../lib/_controllers/initiate';
+  import { State } from '../lib/_bldr/_processes/state';
+  import { Crypto } from '../lib/_bldr/_utils/crypto';
+  import { Config } from '../lib/_bldr/_processes/config';
 
-const { setEncryption } = new Crypto();
-const { getInstanceConfiguration } = new Config();
-const { checkForTracking, getState, debug } = new State();
+  const { setEncryption } = new Crypto();
+  const { getInstanceConfiguration } = new Config();
+  const { checkForTracking, getState, debug } = new State();
 
 // Parse requests and input arguments
 
