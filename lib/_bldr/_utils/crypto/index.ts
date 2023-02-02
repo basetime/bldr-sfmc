@@ -65,8 +65,8 @@ export class Crypto {
         }
 
         return ret.substring(0, length);
-    }
-     /**
+    };
+    /**
      * Create required entries for bldr's encryption
      */
     setEncryption = async () => {
@@ -78,5 +78,5 @@ export class Crypto {
             await setPassword('bldr', 'io', hex);
             await setPassword('bldr', 'salty', salt);
         }
-    }
+    };
 }

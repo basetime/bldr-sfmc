@@ -2,7 +2,7 @@ import { Config } from '../../_bldr/_processes/config';
 import { State } from '../../_bldr/_processes/state';
 import { Argv } from '../../_types/Argv';
 
-const { toggleVerbose, toggleTracking } = new State();
+const { toggleVerbose, toggleTracking, toggleDebug } = new State();
 
 const {
     initiateConfiguration,
@@ -63,6 +63,9 @@ const ConfigSwitch = async (req: any, argv: Argv) => {
         return toggleTracking();
     }
 
+    if (argv.debug) {
+        return toggleDebug();
+    }
     return;
 };
 

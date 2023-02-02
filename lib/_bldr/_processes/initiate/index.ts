@@ -1,24 +1,21 @@
-import { Argv } from '../../../_types/Argv';
-import { createFile, fileExists, getAllFiles, getRootPath } from '../../../_utils/fileSystem';
+import fs from 'fs';
+import yargsInteractive from 'yargs-interactive';
 import {
     createAllDirectories,
     createEnv,
     readManifest,
     readPackageManifest,
-    replaceBldrSfmcEnv,
     scrubBldrSfmcEnv,
 } from '../../../_utils/bldrFileSystem';
-import axios from 'axios';
-import fs from 'fs';
-import yargsInteractive from 'yargs-interactive';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { displayLine } from '../../../_utils/display';
-import { guid, isDirEmpty } from '../../_utils';
+import { createFile, fileExists, getAllFiles, getRootPath } from '../../../_utils/fileSystem';
+import { incrementMetric } from '../../../_utils/metrics';
+import { isDirEmpty } from '../../_utils';
+import { State } from '../state';
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder');
 const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension');
-import { State } from '../state';
-const { isVerbose, allowTracking } = new State();
-import { incrementMetric } from '../../../_utils/metrics';
+const { isVerbose, allowTracking, debug } = new State();
 
 /**
  * Notes June 2
@@ -54,7 +51,7 @@ export class Initiate {
                 fs.writeFileSync(`${rootPath}package.manifest.json`, JSON.stringify(updatedPkg, null, 2));
             }
         } catch (err: any) {
-            console.log(err.message);
+            debug('Update Keys Err', 'error', err);
         }
     };
 
@@ -100,7 +97,11 @@ export class Initiate {
             .usage('$bldr init [args]')
             .interactive(dataExtensionInitiate)
             .then(async (initResults) => {
-                const initFolderPath = initResults.dataExtensionPath || 'Data Extensions';
+                const context = initResults.sharedDataExtension ? 'sharedDataExtension' : 'dataExtension';
+                const rootFolder = initResults.sharedDataExtension ? 'Shared Data Extensions' : 'Data Extensions';
+                const initFolderPath = initResults.dataExtensionPath
+                    ? `${rootFolder}/${initResults.dataExtensionPath}`
+                    : rootFolder;
                 const folderPaths = [
                     {
                         folderPath: initFolderPath,
@@ -109,9 +110,9 @@ export class Initiate {
 
                 // Create empty directories
                 await createAllDirectories(folderPaths);
-
                 // Update ManifestJSON file with responses
-                await updateManifest('dataExtension', { folders: [], assets: [] });
+
+                await updateManifest(context, { folders: [], assets: [] });
 
                 const dataExtensionInit: {
                     name: string;
@@ -143,7 +144,7 @@ export class Initiate {
                     deleteAtEndOfRetentionPeriod?: Boolean;
                 } = {
                     name: initResults.dataExtensionName,
-                    customerKey: guid(),
+                    customerKey: initResults.dataExtensionName,
                     description: '',
                     fields: [
                         {
@@ -151,8 +152,8 @@ export class Initiate {
                             defaultValue: '',
                             isRequired: false,
                             isPrimaryKey: false,
-                            fieldType: 'Text',
-                            maxLength: '4000',
+                            fieldType: 'Text | Number | Date | Boolean | EmailAddress | Phone | Decimal | Locale',
+                            maxLength: '4000 | {{ Required for Primary Key Field }}',
                         },
                     ],
                     category: {
@@ -195,7 +196,6 @@ export class Initiate {
 
                 await createFile(`${initFolderPath}/${initResults.dataExtensionName}.json`, dataExtensionInit);
                 allowTracking() && incrementMetric('req_project_initiates_dataExtension');
-
             });
     };
 }

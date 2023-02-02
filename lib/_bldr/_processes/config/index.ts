@@ -1,20 +1,19 @@
+import { deletePasswordSync, findCredentials, getPassword, getPasswordSync, setPassword } from 'keytar-sync';
 import yargsInteractive from 'yargs-interactive';
+import { initiateBldrSDK } from '../../../_bldr_sdk';
 import { state_conf } from '../../../_bldr_sdk/store';
-import { State } from '../state';
+import { Argv } from '../../../_types/Argv';
+import { InstanceConfiguration } from '../../../_types/InstanceConfiguration';
+import { displayArrayOfStrings, displayLine, displayObject } from '../../../_utils/display';
+import { handleError } from '../../../_utils/handleError';
+import { incrementMetric } from '../../../_utils/metrics';
 import { config_new, config_remove } from '../../../_utils/options';
 import { Crypto } from '../../_utils/crypto';
-import { initiateBldrSDK } from '../../../_bldr_sdk';
-import { handleError } from '../../../_utils/handleError';
-import { displayLine, displayObject, displayArrayOfStrings } from '../../../_utils/display';
-import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
-import { InstanceConfiguration } from '../../../_types/InstanceConfiguration';
-import { Argv } from '../../../_types/Argv';
-import { incrementMetric } from '../../../_utils/metrics'
-import { getPassword, setPassword, findCredentials, deletePasswordSync, getPasswordSync } from 'keytar-sync';
+import { State } from '../state';
 
 const { setEncryption, encrypt, decrypt } = new Crypto();
 
-const { getState, allowTracking } = new State();
+const { getState, allowTracking, debug } = new State();
 
 /**
  * Handles all Configuration commands
@@ -22,7 +21,7 @@ const { getState, allowTracking } = new State();
  * @property {object} stateConfiguration
  */
 export class Config {
-    constructor() { }
+    constructor() {}
     /**
      * Initiate the setting of a Configuration
      * Prompts user input
@@ -34,8 +33,11 @@ export class Config {
      */
     initiateConfiguration = async (argv: Argv) => {
         try {
-            displayLine('For Web App Configurations, use the following as the Redirect URI in your Installed Package', 'info')
-            displayLine('https://bldr.io/cli/sfmc/authenticate/', 'progress')
+            displayLine(
+                'For Web App Configurations, use the following as the Redirect URI in your Installed Package',
+                'info'
+            );
+            displayLine('https://bldr.io/cli/sfmc/authenticate/', 'progress');
 
             yargsInteractive()
                 .usage('$bldr config [args]')
@@ -62,14 +64,18 @@ export class Config {
                         authURI: configResults.authURI,
                     };
 
-                    const sdk = await initiateBldrSDK({
-                        client_id: configured.apiClientId,
-                        client_secret: configured.apiClientSecret,
-                        account_id: configured.parentMID,
-                        auth_url: configured.authURI,
-                    },
-                    configured.instance,
-                    configured.configurationType);
+                    displayLine('Testing Configuration...');
+
+                    const sdk = await initiateBldrSDK(
+                        {
+                            client_id: configured.apiClientId,
+                            client_secret: configured.apiClientSecret,
+                            account_id: configured.parentMID,
+                            auth_url: configured.authURI,
+                        },
+                        configured.instance,
+                        configured.configurationType
+                    );
 
                     // Throw Error if SDK Fails to Load
                     if (!sdk) {
@@ -77,22 +83,30 @@ export class Config {
                         return;
                     }
 
+                    displayLine('Gathering Business Unit Details...');
+
                     // Get All Business Unit Details from provided credentials
-                    //@ts-ignore //TODO figure out why getAllBusinessUnitDetails is throwing TS error
                     const getAllBusinessUnitDetails = await sdk.sfmc.account.getAllBusinessUnitDetails();
+                    debug('Business Unit Return', 'info', getAllBusinessUnitDetails);
 
                     // Throw Error if there are issues with getting Business Unit Details
-                    if (!getAllBusinessUnitDetails) {
+                    if (
+                        !Array.isArray(getAllBusinessUnitDetails) ||
+                        (Array.isArray(getAllBusinessUnitDetails) && !getAllBusinessUnitDetails.length)
+                    ) {
                         throw new Error('Unable to get Instance Details. Please review credentials.');
                     }
 
                     // Isolate each Business Unit Name and MID for stored configuration
-                    const instanceBusinessUnits = getAllBusinessUnitDetails.map((bu: { Name: string; ID: number }) => {
-                        return {
-                            name: bu.Name,
-                            mid: bu.ID,
-                        };
-                    });
+                    const instanceBusinessUnits =
+                        Array.isArray(getAllBusinessUnitDetails) &&
+                        getAllBusinessUnitDetails.length &&
+                        getAllBusinessUnitDetails.map((bu: { Name: string; ID: number }) => {
+                            return {
+                                name: bu.Name,
+                                mid: bu.ID,
+                            };
+                        });
 
                     // Encrypt Configuration object
                     const encryptedConfiguration = {
@@ -102,10 +116,15 @@ export class Config {
                         apiClientSecret: await encrypt(configResults.apiClientSecret),
                     };
 
+                    debug('Encrypted Configuration', 'info', encryptedConfiguration);
+
                     // Store credentials in users PSW Management
                     // OSX Keychain Access
                     // Windows Credential Manager
                     await setPassword('bldr', configured.instance, JSON.stringify(encryptedConfiguration));
+
+                    const credentialCheck = await getPassword('bldr', configured.instance);
+                    debug('Check Credentials Saved', 'info', credentialCheck);
 
                     // Set newly configured instance to Current State
                     await state_conf.set({
@@ -117,8 +136,9 @@ export class Config {
                     displayLine(`${configured.instance} Configuration Saved`, 'success');
                     allowTracking() && incrementMetric('req_command_config');
                 });
-        } catch (err) {
-            return handleError(err);
+        } catch (err: any) {
+            err.message && displayLine(err.message, 'error');
+            return err;
         }
     };
     /**
@@ -284,6 +304,7 @@ export class Config {
             displayLine(`${instanceToSet} has been set to target instance`, 'success');
             displayObject(initState);
         } catch (err: any) {
+            debug('Config Err', 'error', err);
             displayLine(`There was an error setting your target instance`, 'error');
             displayLine(err.message, 'error');
         }

@@ -5,19 +5,15 @@ const { MappingByAssetType } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/
 const getFiles = require('node-recursive-directory');
 
 import { readFile } from 'fs/promises';
-import { StashItem } from '../../../_types/StashItem';
-import yargsInteractive from 'yargs-interactive';
-import { State } from '../state';
-import { displayLine, displayObject, displayArrayOfStrings } from '../../../_utils/display';
-import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
-import { InstanceConfiguration } from '../../../_types/InstanceConfiguration';
-import { Argv } from '../../../_types/Argv';
-import { guid, getFilePathDetails } from '../../_utils';
-import { getRootPath, fileExists } from '../../../_utils/fileSystem';
-import { SFMC_Content_Builder_Asset } from '@basetime/bldr-sfmc-sdk/lib/sfmc/types/objects/sfmc_content_builder_assets';
-import { Stash } from '../stash';
-import { initiateBldrSDK } from '../../../_bldr_sdk';
 import remove from 'lodash.remove';
+import yargsInteractive from 'yargs-interactive';
+import { Argv } from '../../../_types/Argv';
+import { StashItem } from '../../../_types/StashItem';
+import { displayLine } from '../../../_utils/display';
+import { fileExists, getRootPath } from '../../../_utils/fileSystem';
+import { getFilePathDetails, guid } from '../../_utils';
+import { Stash } from '../stash';
+import { State } from '../state';
 
 const { getState } = new State();
 
@@ -60,7 +56,6 @@ export class Add {
             // Separate out existing files and newly created files
             // Add existing files to the Stash with the updated file content
             const organizedFiles = await this.gatherAllFiles(contextFiles, rootPath);
-
             const { putFiles, postFiles, postFileOptions } = organizedFiles;
 
             putFiles && putFiles.length && (await saveStash(putFiles));
@@ -96,7 +91,9 @@ export class Add {
             );
 
             // Isolate context from Array
-            const contexts = contextsArray.filter((ctx) => ctx !== 'Data Extensions').filter(Boolean);
+            const contexts = contextsArray
+                .filter((ctx) => ctx && ['Data Extensions', 'Shared Data Extensions'].includes(ctx))
+                .filter(Boolean);
 
             // Store all complete file paths for files in CWD and subdirectories
             let contextFiles: string[] = [];
@@ -170,9 +167,8 @@ export class Add {
         });
 
         for (const context in availableContexts) {
-            const contextPaths = contextFiles.filter((file) => file.includes(availableContexts[context].name));
+            const contextPaths = contextFiles.filter((file) => file.includes(`/${availableContexts[context].name}/`));
             const bldrContext = availableContexts[context].context;
-
             // Retrieve Manifest JSON file and get the assets for the specific context
             type ManifestContext = any;
 
@@ -228,8 +224,7 @@ export class Add {
                         // Also Build the options for CLI prompt
                         const bldrId = await guid();
 
-                        const { fileName, folderPath } = getFilePathDetails(systemFilePath);
-
+                        const { fileName, folderPath } = await getFilePathDetails(systemFilePath);
                         const fileContentRaw = await readFile(systemFilePath);
                         const fileContent = fileContentRaw.toString();
 

@@ -5,6 +5,7 @@ export interface Argv {
     de: any;
     'data-extension'?: Boolean;
     verbose: Boolean;
+    debug: Boolean;
     _?: string[];
     // Config
     n?: string;
@@ -35,5 +36,5 @@ export interface Argv {
     'local-only'?: Boolean;
     'update-env-keys'?: Boolean;
     'env-only'?: Boolean;
-    'force'?: Boolean;
+    force?: Boolean;
 }

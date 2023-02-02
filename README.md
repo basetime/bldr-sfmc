@@ -61,7 +61,7 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 1. In SFMC, navigate to `Settings > Setup > Platform Tools > Apps > Installed Packages`
 2. Click on `New` to create a new Package and name it `bldr-cli`
 3. Click on `Add Component` to add a new API Component and select `API Integration` and then `Server-to-Server` or `Web App`
-   1. For `Web App` configurations, include `https://bldr.io/cli/sfmc/authenticate/` as the Redirect URI
+    1. For `Web App` configurations, include `https://bldr.io/cli/sfmc/authenticate/` as the Redirect URI
 4. Navigate to `Access` and ensure that the Installed Package is provisioned for all desired Business Units
 5. Update the scope of the Installed Package to match the following:
 
@@ -87,10 +87,11 @@ BLDR is configured so you can use it across as many SFMC instances as you requir
 Web App Configurations will use the [oAuth 2 authentication flow](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/integration-app-auth-code.html) which adds an extra layer of security for your organization and the instance you are connecting with. When using the Web App configuration, BLDR will still need to encrypt and store the credentials in your default credential vault as they are needed to initiate the oAuth process.
 
 To facilitate this flow, BLDR will:
-- Use a localhost NodeJS server to open your web browser to the [SFMC Authorization URL](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/authorization-code.html)
-- Once logged in, SFMC will send the challenge code to `https://bldr.io/cli/sfmc/authenticate/` which points to a Google Cloud function
-- The Google Cloud function will serve a basic HTML page which passes the challenge code back to the localhost server to validate and receive the access token
-- Once the process is complete, the server will close
+
+-   Use a localhost NodeJS server to open your web browser to the [SFMC Authorization URL](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/authorization-code.html)
+-   Once logged in, SFMC will send the challenge code to `https://bldr.io/cli/sfmc/authenticate/` which points to a Google Cloud function
+-   The Google Cloud function will serve a basic HTML page which passes the challenge code back to the localhost server to validate and receive the access token
+-   Once the process is complete, the server will close
 
 <br>
 
@@ -130,19 +131,20 @@ The goal of BLDR is to put effort and focus into the most used features and area
 If you do not wish to have these metrics gathered as you use BLDR please run `bldr config --analytics` to turn this functionality off. It can be toggled on/off at any time.
 
 Analytics Gathered:
-  - Initial Download
-  - New Configuration
-  - Push To SFMC
-  - Package
-  - Package Deploy
-  - Content Builder Project Initiate
-  - Data Extension Initiate
-  - Content Builder Search Folders
-  - Content Builder Search Assets
-  - Data Extension Search Folders
-  - Data Extension Search Assets
-  - Content Builder Clone Folders
-  - Content Builder Clone Assets
-  - Data Extension Clone Folders
-  - Data Extension Clone Assets
-<br>
+
+-   Initial Download
+-   New Configuration
+-   Push To SFMC
+-   Package
+-   Package Deploy
+-   Content Builder Project Initiate
+-   Data Extension Initiate
+-   Content Builder Search Folders
+-   Content Builder Search Assets
+-   Data Extension Search Folders
+-   Data Extension Search Assets
+-   Content Builder Clone Folders
+-   Content Builder Clone Assets
+-   Data Extension Clone Folders
+-   Data Extension Clone Assets
+    <br>

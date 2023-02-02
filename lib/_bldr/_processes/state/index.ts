@@ -72,7 +72,6 @@ export class State {
         return state_conf.get('isVerbose') || false;
     };
 
-
     toggleTracking = () => {
         const allowTracking = state_conf.get('allowTracking');
         if (allowTracking !== 'undefined') {
@@ -92,18 +91,61 @@ export class State {
         return state_conf.get('allowTracking') || false;
     };
 
+    toggleDebug = () => {
+        const debugMode = state_conf.get('debugMode');
+        if (debugMode !== 'undefined') {
+            debugMode && displayLine('debugMode turned off', 'info');
+            !debugMode && displayLine('debugMode turned on', 'info');
+            state_conf.set({
+                debugMode: !debugMode,
+            });
+        } else {
+            state_conf.set({
+                debugMode: false,
+            });
+        }
+    };
+
+    debugMode = () => {
+        return state_conf.get('debugMode') || false;
+    };
+
+    debug = (debugContext: string, debugStatus: 'success' | 'error' | 'info', output: any) => {
+        const debug = this.debugMode();
+        if (!debug) {
+            return;
+        }
+
+        try {
+            displayLine(debugContext, debugStatus);
+            if (output && output.JSON && output.JSON.Results) {
+                console.log(JSON.stringify(output.JSON.Results, null, 2));
+                return;
+            }
+
+            typeof output === 'string' ? console.log(output) : console.log(JSON.stringify(output, null, 2));
+        } catch (err) {
+            console.log(output);
+        }
+    };
+
     checkForTracking = async () => {
         const hasAllowTracking = state_conf.has('allowTracking');
-        if(!hasAllowTracking) {
-            await incrementMetric('downloads')
+        if (!hasAllowTracking) {
+            await incrementMetric('downloads');
             state_conf.set({
-                allowTracking: true
-            })
+                allowTracking: true,
+            });
 
-            await displayLine(`BLDR is configured to collect basic analytics`, 'info')
-            await displayLine(`Visit https://github.com/basetime/bldr-sfmc for more information on what is being captured`, 'info')
-            await displayLine(`If you wish to opt-out of analytics, run [ bldr config --analytics ] to disable this functionality`, 'info')
-
+            await displayLine(`BLDR is configured to collect basic analytics`, 'info');
+            await displayLine(
+                `Visit https://github.com/basetime/bldr-sfmc for more information on what is being captured`,
+                'info'
+            );
+            await displayLine(
+                `If you wish to opt-out of analytics, run [ bldr config --analytics ] to disable this functionality`,
+                'info'
+            );
         }
-    }
+    };
 }

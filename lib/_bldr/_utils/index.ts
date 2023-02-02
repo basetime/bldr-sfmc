@@ -34,7 +34,7 @@ const uniqueArrayByKey = (array: any[], key: string) => [...new Map(array.map((i
  *
  */
 const sfmc_context = (systemFilePath: string) =>
-    sfmc_context_mapping.find((context: { name: string }) => systemFilePath.includes(context.name));
+    sfmc_context_mapping.filter((context: { name: string }) => new RegExp(context.name).test(systemFilePath));
 /**
  *
  * @param systemFilePath
@@ -61,7 +61,16 @@ const getFilePathDetails = (systemFilePath: string) => {
     const fileExtension = fileName && fileName.substring(fileName.indexOf('.') + 1);
     fileName = fileName && fileName.substring(0, fileName.indexOf('.'));
     const folderName = systemFilePathArray && systemFilePathArray.slice(-1).pop();
-    const projectPath = systemFilePath.substring(systemFilePath.indexOf(contextDetails.name));
+    const context =
+        (contextDetails &&
+            contextDetails.length &&
+            contextDetails.length > 1 &&
+            contextDetails
+                .map((context: { name: string }) => systemFilePathArray.includes(context.name) && context)
+                .filter(Boolean)) ||
+        contextDetails;
+
+    const projectPath = context && context.length && systemFilePath.substring(systemFilePath.indexOf(context[0].name));
     const projectPathArray = projectPath.split('/');
     projectPathArray.pop();
     const folderPath = projectPathArray.join('/');
@@ -71,7 +80,7 @@ const getFilePathDetails = (systemFilePath: string) => {
         fileExtension,
         folderPath,
         folderName,
-        context: contextDetails,
+        context: context[0],
     };
 };
 

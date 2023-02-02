@@ -82,8 +82,8 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     allowTracking() && incrementMetric(`req_searches_automationStudio_automations_folders`);
                 }
                 /**
-                                * Search for AutomationStudio Assets
-                                */
+                 * Search for AutomationStudio Assets
+                 */
                 if (typeof argv.a === 'string' && argv.a.includes(':')) {
                     const activity = argv.a.split(':')[1];
                     const searchTerm = argv._ && argv._[1];
@@ -111,7 +111,6 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     searchRequest.forEach((obj: any) => {
                         displayObject(flatten(obj));
                     });
-
                 }
                 break;
 
@@ -144,27 +143,33 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
 
                     const { assets, folders } = searchRequest;
 
-                    const formattedAssetResponse = await assets && Array.isArray(assets) && assets.map((asset: any) => {
-                        const category = folders.find((folder: { ID: number }) => folder.ID === asset.categoryId);
-                        asset.assetType = MappingByActivityType(contentType);
-                        asset.category = {
-                            id: category.ID,
-                            name: category.Name,
-                            parentId: category.ParentFolder.ID,
-                            folderPath: `Automation Studio/${category.FolderPath}`,
-                        };
+                    const formattedAssetResponse =
+                        (await assets) &&
+                        Array.isArray(assets) &&
+                        assets.map((asset: any) => {
+                            const category = folders.find((folder: { ID: number }) => folder.ID === asset.categoryId);
+                            asset.assetType = MappingByActivityType(contentType);
+                            asset.category = {
+                                id: category.ID,
+                                name: category.Name,
+                                parentId: category.ParentFolder.ID,
+                                folderPath: `Automation Studio/${category.FolderPath}`,
+                            };
 
-                        return asset;
-                    });
+                            return asset;
+                        });
 
-                    const formattedAssetCategories = folders && Array.isArray(folders) && folders.map((category: any) => {
-                        return {
-                            id: category.ID,
-                            name: category.Name,
-                            parentId: category.ParentFolder.ID,
-                            folderPath: `Automation Studio/${category.FolderPath}`,
-                        };
-                    });
+                    const formattedAssetCategories =
+                        folders &&
+                        Array.isArray(folders) &&
+                        folders.map((category: any) => {
+                            return {
+                                id: category.ID,
+                                name: category.Name,
+                                parentId: category.ParentFolder.ID,
+                                folderPath: `Automation Studio/${category.FolderPath}`,
+                            };
+                        });
 
                     await createAutomationStudioEditableFiles(formattedAssetResponse);
                     await updateManifest('automationStudio', {
@@ -193,7 +198,7 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     const activity = argv.a.split(':')[1];
                     const assetId = argv._ && argv._[1];
 
-                    let contentType: string = ''; 
+                    let contentType: string = '';
                     switch (activity) {
                         case 'ssjs':
                             contentType = 'ssjsactivity';
@@ -213,28 +218,33 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
 
                     const { assets, folders } = searchRequest;
 
-                    const formattedAssetResponse = await assets && Array.isArray(assets) && assets.map((asset: any) => {
-                        const category = folders.find((folder: { ID: number }) => folder.ID === asset.categoryId);
-                        asset.assetType = MappingByActivityType(contentType);
-                        asset.category = {
-                            id: category.ID,
-                            name: category.Name,
-                            parentId: category.ParentFolder.ID,
-                            folderPath: `Automation Studio/${category.FolderPath}`,
-                        };
+                    const formattedAssetResponse =
+                        (await assets) &&
+                        Array.isArray(assets) &&
+                        assets.map((asset: any) => {
+                            const category = folders.find((folder: { ID: number }) => folder.ID === asset.categoryId);
+                            asset.assetType = MappingByActivityType(contentType);
+                            asset.category = {
+                                id: category.ID,
+                                name: category.Name,
+                                parentId: category.ParentFolder.ID,
+                                folderPath: `Automation Studio/${category.FolderPath}`,
+                            };
 
-                        return asset;
-                    });
+                            return asset;
+                        });
 
-
-                    const formattedAssetCategories = folders && Array.isArray(folders) && folders.map((category: any) => {
-                        return {
-                            id: category.ID,
-                            name: category.Name,
-                            parentId: category.ParentFolder.ID,
-                            folderPath: category.FolderPath,
-                        };
-                    });
+                    const formattedAssetCategories =
+                        folders &&
+                        Array.isArray(folders) &&
+                        folders.map((category: any) => {
+                            return {
+                                id: category.ID,
+                                name: category.Name,
+                                parentId: category.ParentFolder.ID,
+                                folderPath: category.FolderPath,
+                            };
+                        });
 
                     await createAutomationStudioEditableFiles(formattedAssetResponse);
                     await updateManifest('automationStudio', {
@@ -302,7 +312,10 @@ const processAutomationCloneRequest = async (cloneAutomationRequest: {
 
             switch (context) {
                 case 'contentBuilder':
-                    manifestUpdates.folders = contextDependencies && Array.isArray(contextDependencies) && contextDependencies.map((dep: any) => dep.category);
+                    manifestUpdates.folders =
+                        contextDependencies &&
+                        Array.isArray(contextDependencies) &&
+                        contextDependencies.map((dep: any) => dep.category);
                     await createContentBuilderEditableFiles(contextDependencies);
                     break;
             }
