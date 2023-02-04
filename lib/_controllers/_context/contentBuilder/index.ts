@@ -11,7 +11,7 @@ import { displayLine, displayObject } from '../../../_utils/display';
 import { incrementMetric } from '../../../_utils/metrics';
 const delete_confirm = require('../../../_utils/options/delete_confirm');
 
-const { allowTracking, getState } = new State();
+const { allowTracking, getState, debug } = new State();
 
 /**
  * Flag routing for Config command
@@ -62,7 +62,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                                 break;
                         }
-                    } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                    } else if (typeof argv.f === 'string' && !argv.f.includes(':') || argv.f === 'number') {
                         searchRequest = await contentBuilder.searchFolders({
                             contentType: 'asset',
                             searchKey: 'Name',
@@ -106,6 +106,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         const shared = argv.f.split(':')[1] === 'shared' ? true : false;
                         const searchTerm = argv._ && argv._[1];
 
+                        debug('id', 'info', searchTerm)
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
                             folders: {
@@ -140,7 +141,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             }));
 
                         allowTracking() && incrementMetric('req_clones_sharedContent_folders');
-                    } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                    } else if (typeof argv.f === 'string' && !argv.f.includes(':') || typeof argv.f === 'number') {
+                        debug('arg', 'info', argv.f)
+
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
                             folders: {
@@ -154,6 +157,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             contentType: 'asset',
                             categoryId: argv.f,
                         });
+
+                        debug('Clone Request', 'info', cloneRequest)
+
 
                         const isolatedFoldersUnique =
                             cloneRequest &&
@@ -207,7 +213,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             }));
 
                         allowTracking() && incrementMetric('req_clones_sharedContent_assets');
-                    } else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
+                    } else if (typeof argv.a === 'string' && !argv.a.includes(':') || argv.a === 'number') {
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
                             folders: {
@@ -218,6 +224,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                                 FolderPath: string;
                             }[];
                         } = await contentBuilder.gatherAssetById(argv.a);
+
+                        debug('Clone Request', 'info', cloneRequest)
 
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');

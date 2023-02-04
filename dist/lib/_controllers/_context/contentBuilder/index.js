@@ -23,7 +23,7 @@ const CreateLocalFiles_1 = require("../../../_utils/bldrFileSystem/_context/cont
 const display_1 = require("../../../_utils/display");
 const metrics_1 = require("../../../_utils/metrics");
 const delete_confirm = require('../../../_utils/options/delete_confirm');
-const { allowTracking, getState } = new state_1.State();
+const { allowTracking, getState, debug } = new state_1.State();
 /**
  * Flag routing for Config command
  *
@@ -104,6 +104,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                     if (typeof argv.f === 'string' && argv.f.includes(':')) {
                         const shared = argv.f.split(':')[1] === 'shared' ? true : false;
                         const searchTerm = argv._ && argv._[1];
+                        debug('id', 'info', searchTerm);
                         const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
                             contentType: 'asset',
                             categoryId: searchTerm,
@@ -124,11 +125,13 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             }));
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_folders');
                     }
-                    else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                    else if (typeof argv.f === 'string' && !argv.f.includes(':') || typeof argv.f === 'number') {
+                        debug('arg', 'info', argv.f);
                         const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
                             contentType: 'asset',
                             categoryId: argv.f,
                         });
+                        debug('Clone Request', 'info', cloneRequest);
                         const isolatedFoldersUnique = cloneRequest &&
                             cloneRequest.folders &&
                             cloneRequest.folders.length &&
@@ -144,6 +147,10 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                                 folders: isolatedFoldersUnique || [],
                             }));
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_contentBuilder_folders');
+                    }
+                    else {
+                        console.log(typeof argv.f);
+                        debug('something else', 'error', null);
                     }
                 }
                 /**
@@ -168,6 +175,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                     }
                     else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                         const cloneRequest = yield contentBuilder.gatherAssetById(argv.a);
+                        debug('Clone Request', 'info', cloneRequest);
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
                         assets && assets.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assets));
