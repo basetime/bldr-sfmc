@@ -70,13 +70,9 @@ const createFile = (filePath, content) => __awaiter(void 0, void 0, void 0, func
     if (typeof content === 'object') {
         content = JSON.stringify(content, null, 2);
     }
-    yield fs_1.default.writeFile(filePath, content, 'utf8', (err) => __awaiter(void 0, void 0, void 0, function* () {
-        if (err) {
-            yield createDirectory(directoryPath);
-            yield createFile(filePath, content);
-        }
-    }));
-    return fileExists(filePath) ? true : false;
+    yield createDirectory(directoryPath);
+    yield promises_1.default.writeFile(filePath, content);
+    return yield fileExists(`./${filePath}`);
 });
 exports.createFile = createFile;
 /**

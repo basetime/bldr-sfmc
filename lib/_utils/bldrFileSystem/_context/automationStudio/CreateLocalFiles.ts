@@ -44,9 +44,9 @@ const createAutomationStudioEditableFiles = async (assets: any[]) => {
             }
 
             content = await updateFilesFromConfiguration(content);
-            await createFile(dirPath, content);
-
-            displayLine(`created [local]: ${asset.name || asset.Name}`, 'success');
+            const createFileResult = await createFile(dirPath, content);
+            createFileResult && displayLine(`Successfully Created [local]: ${asset.name}`, 'success');
+            !createFileResult && displayLine(`Error Creating File [local]: ${asset.name}`, 'error');
         }
     } catch (err: any) {
         displayLine(`ERROR: ${err.message}`);

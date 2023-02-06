@@ -60,14 +60,9 @@ const createFile = async (filePath: string, content: any) => {
         content = JSON.stringify(content, null, 2);
     }
 
-    await fs.writeFile(filePath, content, 'utf8', async (err) => {
-        if (err) {
-            await createDirectory(directoryPath);
-            await createFile(filePath, content);
-        }
-    });
-
-    return fileExists(filePath) ? true : false
+    await createDirectory(directoryPath);
+    await fsPromises.writeFile(filePath, content)
+    return await fileExists(`./${filePath}`)
 };
 /**
  *
