@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.State = void 0;
+const keytar_sync_1 = require("keytar-sync");
 const store_1 = require("../../../_bldr_sdk/store");
 const display_1 = require("../../../_utils/display");
 const metrics_1 = require("../../../_utils/metrics");
@@ -142,6 +143,11 @@ class State {
                 yield (0, display_1.displayLine)(`Visit https://github.com/basetime/bldr-sfmc for more information on what is being captured`, 'info');
                 yield (0, display_1.displayLine)(`If you wish to opt-out of analytics, run [ bldr config --analytics ] to disable this functionality`, 'info');
             }
+        });
+        this.clearSession = () => __awaiter(this, void 0, void 0, function* () {
+            yield (0, keytar_sync_1.deletePassword)('bldr', 'currentSession');
+            const sessionDeleted = (yield (0, keytar_sync_1.getPassword)('bldr', 'currentSession')) ? false : true;
+            return sessionDeleted;
         });
     }
 }

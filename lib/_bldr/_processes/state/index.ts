@@ -1,3 +1,4 @@
+import { deletePassword, getPassword } from 'keytar-sync';
 import { state_conf } from '../../../_bldr_sdk/store';
 import { displayLine, displayObject } from '../../../_utils/display';
 import { incrementMetric } from '../../../_utils/metrics';
@@ -148,4 +149,15 @@ export class State {
             );
         }
     };
+
+
+    clearSession = async () => {
+        await deletePassword(
+            'bldr',
+            'currentSession'
+        );
+
+        const sessionDeleted = await getPassword('bldr', 'currentSession') ? false : true;
+        return sessionDeleted;
+    }
 }

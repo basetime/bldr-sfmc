@@ -2,6 +2,7 @@ import { string } from 'yargs';
 
 export interface Argv {
     analytics: Boolean;
+    'clear-session'?: Boolean;
     de: any;
     'data-extension'?: Boolean;
     verbose: Boolean;

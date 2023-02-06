@@ -2,7 +2,7 @@ import { Config } from '../../_bldr/_processes/config';
 import { State } from '../../_bldr/_processes/state';
 import { Argv } from '../../_types/Argv';
 
-const { toggleVerbose, toggleTracking, toggleDebug } = new State();
+const { toggleVerbose, toggleTracking, toggleDebug, clearSession } = new State();
 
 const {
     initiateConfiguration,
@@ -65,6 +65,10 @@ const ConfigSwitch = async (req: any, argv: Argv) => {
 
     if (argv.debug) {
         return toggleDebug();
+    }
+
+    if(argv['clear-session']){
+        return clearSession()
     }
     return;
 };

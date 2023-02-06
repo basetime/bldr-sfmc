@@ -54,29 +54,37 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                         const searchTerm = argv._ && argv._[1];
                         switch (searchFlag) {
                             case 'shared':
-                                searchRequest = yield contentBuilder.searchFolders({
-                                    contentType: 'asset-shared',
-                                    searchKey: 'Name',
-                                    searchTerm: searchTerm,
-                                });
-                                (0, display_1.displayLine)(`${searchTerm} Search Results | ${searchRequest.length} Results`, 'info');
-                                searchRequest.forEach((obj) => {
-                                    (0, display_1.displayObject)((0, flat_1.default)(obj));
-                                });
+                                searchRequest =
+                                    (yield contentBuilder.searchFolders({
+                                        contentType: 'asset-shared',
+                                        searchKey: 'Name',
+                                        searchTerm: searchTerm,
+                                    })) || [];
+                                debug('Search Request', 'info', searchRequest);
+                                searchRequest &&
+                                    (0, display_1.displayLine)(`${searchTerm} Search Results | ${searchRequest.length} Results`, 'info');
+                                searchRequest &&
+                                    searchRequest.forEach((obj) => {
+                                        (0, display_1.displayObject)((0, flat_1.default)(obj));
+                                    });
                                 allowTracking() && (0, metrics_1.incrementMetric)('req_searches_sharedContent_folders');
                                 break;
                         }
                     }
-                    else if (typeof argv.f === 'string' && !argv.f.includes(':') || argv.f === 'number') {
-                        searchRequest = yield contentBuilder.searchFolders({
-                            contentType: 'asset',
-                            searchKey: 'Name',
-                            searchTerm: argv.f,
-                        });
-                        (0, display_1.displayLine)(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                        searchRequest.forEach((obj) => {
-                            (0, display_1.displayObject)((0, flat_1.default)(obj));
-                        });
+                    else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || argv.f === 'number') {
+                        searchRequest =
+                            (yield contentBuilder.searchFolders({
+                                contentType: 'asset',
+                                searchKey: 'Name',
+                                searchTerm: argv.f,
+                            })) || [];
+                        debug('Search Request', 'info', searchRequest);
+                        searchRequest &&
+                            (0, display_1.displayLine)(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
+                        searchRequest &&
+                            searchRequest.forEach((obj) => {
+                                (0, display_1.displayObject)((0, flat_1.default)(obj));
+                            });
                         allowTracking() && (0, metrics_1.incrementMetric)('req_searches_contentBuilder_folders');
                     }
                 }
@@ -84,14 +92,16 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                  * Search for Content Builder Assets
                  */
                 if (argv.a) {
-                    const searchRequest = yield contentBuilder.searchAssets({
+                    const searchRequest = (yield contentBuilder.searchAssets({
                         searchKey: 'Name',
                         searchTerm: argv.a,
-                    });
-                    (0, display_1.displayLine)(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj) => {
-                        (0, display_1.displayObject)((0, flat_1.default)(obj));
-                    });
+                    })) || [];
+                    debug('Search Request', 'info', searchRequest);
+                    searchRequest && (0, display_1.displayLine)(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
+                    searchRequest &&
+                        searchRequest.forEach((obj) => {
+                            (0, display_1.displayObject)((0, flat_1.default)(obj));
+                        });
                     allowTracking() && (0, metrics_1.incrementMetric)('req_searches_contentBuilder_assets');
                 }
                 break;
@@ -104,7 +114,6 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                     if (typeof argv.f === 'string' && argv.f.includes(':')) {
                         const shared = argv.f.split(':')[1] === 'shared' ? true : false;
                         const searchTerm = argv._ && argv._[1];
-                        debug('id', 'info', searchTerm);
                         const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
                             contentType: 'asset',
                             categoryId: searchTerm,
@@ -125,8 +134,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             }));
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_folders');
                     }
-                    else if (typeof argv.f === 'string' && !argv.f.includes(':') || typeof argv.f === 'number') {
-                        debug('arg', 'info', argv.f);
+                    else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
                         const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
                             contentType: 'asset',
                             categoryId: argv.f,
@@ -171,7 +179,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             }));
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_assets');
                     }
-                    else if (typeof argv.a === 'string' && !argv.a.includes(':') || argv.a === 'number') {
+                    else if ((typeof argv.a === 'string' && !argv.a.includes(':')) || argv.a === 'number') {
                         const cloneRequest = yield contentBuilder.gatherAssetById(argv.a);
                         debug('Clone Request', 'info', cloneRequest);
                         const { assets, folders } = cloneRequest;
