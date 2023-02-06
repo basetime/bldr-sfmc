@@ -67,9 +67,7 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         });
                     allowTracking() && (0, metrics_1.incrementMetric)('req_searches_sharedDataExtension_folders');
                 }
-
                 else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
-
                     const searchRequest = yield emailStudio.searchFolders({
                         contentType: 'dataextension',
                         searchKey: 'Name',
@@ -134,9 +132,7 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         contentType: shared ? 'shared_dataextension' : 'dataextension',
                         categoryId: searchTerm,
                     });
-
                     debug('Clone Request', 'info', cloneRequest);
-
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         (0, display_1.displayLine)(`Could not find ${searchTerm}. If it's a shared item, update your command with '-a:shared'`, 'info');
                         return;
@@ -158,16 +154,12 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         }));
                     allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedDataExtension_folders');
                 }
-
                 else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
-
                     const cloneRequest = yield emailStudio.gatherAssetsByCategoryId({
                         contentType: 'dataextension',
                         categoryId: argv.f,
                     });
-
                     debug('Clone Request', 'info', cloneRequest);
-
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         (0, display_1.displayLine)(`Could not find ${argv.f}. If it's a shared item, update your command with '-f:shared'`, 'info');
                         return;
@@ -198,9 +190,7 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                     const completeResponse = false;
                     const customerKey = argv._ && argv._[1];
                     const cloneRequest = yield emailStudio.gatherAssetById(customerKey, completeResponse, shared);
-
                     debug('Clone Request', 'info', cloneRequest);
-
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         (0, display_1.displayLine)(`Could not find ${customerKey}. If it's a shared item, update your command with '-a:shared'`, 'info');
                         return;
@@ -222,11 +212,9 @@ const DataExtensionSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fun
                         }));
                     allowTracking() && (0, metrics_1.incrementMetric)('req_clones_dataExtension_assets');
                 }
-
                 else if ((typeof argv.a === 'string' && !argv.a.includes(':') || typeof argv.a === 'number')) {
                     const cloneRequest = yield emailStudio.gatherAssetById(argv.a);
                     debug('Clone Request', 'info', cloneRequest);
-
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         (0, display_1.displayLine)(`Could not find ${argv.a}. If it's a shared item, update your command with '-a:shared'`, 'info');
                         return;
