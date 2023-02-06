@@ -166,10 +166,15 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             cloneRequest.folders &&
                             cloneRequest.folders.length &&
                             uniqueArrayByKey(cloneRequest.folders, 'id');
+                            debug('Unique Folders', 'info', isolatedFoldersUnique)
+
+                            debug('Assets', 'info', cloneRequest.assets)
+
                         cloneRequest &&
                             cloneRequest.assets &&
                             cloneRequest.assets.length &&
                             (await createContentBuilderEditableFiles(cloneRequest.assets));
+
                         cloneRequest.assets &&
                             cloneRequest.folders &&
                             (await updateManifest('contentBuilder', {

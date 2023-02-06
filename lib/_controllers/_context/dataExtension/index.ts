@@ -10,7 +10,7 @@ import { createEmailStudioEditableFiles } from '../../../_utils/bldrFileSystem/_
 import { displayLine, displayObject } from '../../../_utils/display';
 import { incrementMetric } from '../../../_utils/metrics';
 const { getInstanceConfiguration } = new Config();
-const { allowTracking, getState } = new State();
+const { allowTracking, getState, debug } = new State();
 /**
  * Flag routing for Config command
  *
@@ -58,7 +58,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                             displayObject(flatten(obj));
                         });
                     allowTracking() && incrementMetric('req_searches_sharedDataExtension_folders');
-                } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                } else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
                     const searchRequest = await emailStudio.searchFolders({
                         contentType: 'dataextension',
                         searchKey: 'Name',
@@ -155,6 +155,8 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         categoryId: searchTerm,
                     });
 
+                    debug('Clone Request', 'info', cloneRequest)
+
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         displayLine(
                             `Could not find ${searchTerm}. If it's a shared item, update your command with '-a:shared'`,
@@ -181,7 +183,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                             folders: isolatedFoldersUnique,
                         }));
                     allowTracking() && incrementMetric('req_clones_sharedDataExtension_folders');
-                } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                } else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
                     const cloneRequest: {
                         assets: SFMC_Data_Extension_Asset[];
                         folders: {
@@ -195,6 +197,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         contentType: 'dataextension',
                         categoryId: argv.f,
                     });
+                    debug('Clone Request', 'info', cloneRequest)
 
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         displayLine(
@@ -242,6 +245,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                             FolderPath: string;
                         }[];
                     } = await emailStudio.gatherAssetById(customerKey, completeResponse, shared);
+                    debug('Clone Request', 'info', cloneRequest)
 
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         displayLine(
@@ -270,7 +274,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         }));
 
                     allowTracking() && incrementMetric('req_clones_dataExtension_assets');
-                } else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
+                } else if ((typeof argv.a === 'string' && !argv.a.includes(':') || typeof argv.a === 'number')) {
                     const cloneRequest: {
                         assets: SFMC_Data_Extension_Asset[];
                         folders: {
@@ -281,7 +285,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                             FolderPath: string;
                         }[];
                     } = await emailStudio.gatherAssetById(argv.a);
-
+                    debug('Clone Request', 'info', cloneRequest)
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         displayLine(
                             `Could not find ${argv.a}. If it's a shared item, update your command with '-a:shared'`,

@@ -23,7 +23,7 @@ const createContentBuilderEditableFiles = (assets) => __awaiter(void 0, void 0, 
         for (const a in assets) {
             const asset = assets[a];
             const assetType = (asset.assetType && asset.assetType.name) || null;
-            const folderPath = (Object.prototype.hasOwnProperty.call(asset.category, 'folderPath') && asset.category.folderPath) || '';
+            const folderPath = asset && asset.category && asset.category.folderPath || null;
             const id = asset.id;
             const fileName = asset.name;
             let content;
@@ -60,8 +60,9 @@ const createContentBuilderEditableFiles = (assets) => __awaiter(void 0, void 0, 
                     dirPath = `${folderPath}/${fileName}${ext}`;
             }
             content = yield updateFilesFromConfiguration(content);
-            yield (0, fileSystem_1.createFile)(dirPath, content);
-            (0, display_1.displayLine)(`created [local]: ${asset.name}`, 'success');
+            const createFileResult = yield (0, fileSystem_1.createFile)(dirPath, content);
+            createFileResult && (0, display_1.displayLine)(`Successfully Created [local]: ${asset.name}`, 'success');
+            !createFileResult && (0, display_1.displayLine)(`Error Creating File [local]: ${asset.name}`, 'error');
         }
     }
     catch (err) {

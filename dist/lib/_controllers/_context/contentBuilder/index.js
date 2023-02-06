@@ -67,7 +67,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                                 break;
                         }
                     }
-                    else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
+                    else if (typeof argv.f === 'string' && !argv.f.includes(':') || argv.f === 'number') {
                         searchRequest = yield contentBuilder.searchFolders({
                             contentType: 'asset',
                             searchKey: 'Name',
@@ -136,6 +136,8 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             cloneRequest.folders &&
                             cloneRequest.folders.length &&
                             (0, _utils_1.uniqueArrayByKey)(cloneRequest.folders, 'id');
+                        debug('Unique Folders', 'info', isolatedFoldersUnique);
+                        debug('Assets', 'info', cloneRequest.assets);
                         cloneRequest &&
                             cloneRequest.assets &&
                             cloneRequest.assets.length &&
@@ -147,10 +149,6 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                                 folders: isolatedFoldersUnique || [],
                             }));
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_contentBuilder_folders');
-                    }
-                    else {
-                        console.log(typeof argv.f);
-                        debug('something else', 'error', null);
                     }
                 }
                 /**
@@ -173,7 +171,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             }));
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_assets');
                     }
-                    else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
+                    else if (typeof argv.a === 'string' && !argv.a.includes(':') || argv.a === 'number') {
                         const cloneRequest = yield contentBuilder.gatherAssetById(argv.a);
                         debug('Clone Request', 'info', cloneRequest);
                         const { assets, folders } = cloneRequest;

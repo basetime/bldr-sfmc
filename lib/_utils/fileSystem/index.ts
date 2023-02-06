@@ -6,7 +6,9 @@ const getFiles = require('node-recursive-directory');
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import path from 'path';
+import { State } from '../../_bldr/_processes/state';
 
+const { debug } = new State();
 /**
  *
  * @param filePath
@@ -58,12 +60,14 @@ const createFile = async (filePath: string, content: any) => {
         content = JSON.stringify(content, null, 2);
     }
 
-    fs.writeFile(filePath, content, 'utf8', async (err) => {
+    await fs.writeFile(filePath, content, 'utf8', async (err) => {
         if (err) {
             await createDirectory(directoryPath);
             await createFile(filePath, content);
         }
     });
+
+    return fileExists(filePath) ? true : false
 };
 /**
  *

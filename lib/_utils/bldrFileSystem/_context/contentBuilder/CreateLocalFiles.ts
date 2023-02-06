@@ -14,8 +14,7 @@ const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_As
         for (const a in assets) {
             const asset = assets[a];
             const assetType = (asset.assetType && asset.assetType.name) || null;
-            const folderPath =
-                (Object.prototype.hasOwnProperty.call(asset.category, 'folderPath') && asset.category.folderPath) || '';
+            const folderPath = asset && asset.category && asset.category.folderPath || null;
             const id = asset.id;
             const fileName = asset.name;
 
@@ -55,9 +54,10 @@ const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_As
             }
 
             content = await updateFilesFromConfiguration(content);
-            await createFile(dirPath, content);
 
-            displayLine(`created [local]: ${asset.name}`, 'success');
+            const createFileResult = await createFile(dirPath, content);
+            createFileResult && displayLine(`Successfully Created [local]: ${asset.name}`, 'success');
+            !createFileResult && displayLine(`Error Creating File [local]: ${asset.name}`, 'error');
         }
     } catch (err: any) {
         displayLine(`ERROR: ${err.message}`);
