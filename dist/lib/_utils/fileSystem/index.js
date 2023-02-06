@@ -18,10 +18,8 @@ const getFiles = require('node-recursive-directory');
 const fs_1 = __importDefault(require("fs"));
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
-
 const state_1 = require("../../_bldr/_processes/state");
 const { debug } = new state_1.State();
-
 /**
  *
  * @param filePath
@@ -72,11 +70,9 @@ const createFile = (filePath, content) => __awaiter(void 0, void 0, void 0, func
     if (typeof content === 'object') {
         content = JSON.stringify(content, null, 2);
     }
-
     yield createDirectory(directoryPath);
     yield promises_1.default.writeFile(filePath, content);
     return yield fileExists(`./${filePath}`);
-
 });
 exports.createFile = createFile;
 /**

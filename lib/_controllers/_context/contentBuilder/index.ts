@@ -47,32 +47,45 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                         switch (searchFlag) {
                             case 'shared':
-                                searchRequest = await contentBuilder.searchFolders({
-                                    contentType: 'asset-shared',
-                                    searchKey: 'Name',
-                                    searchTerm: searchTerm,
-                                });
+                                searchRequest =
+                                    (await contentBuilder.searchFolders({
+                                        contentType: 'asset-shared',
+                                        searchKey: 'Name',
+                                        searchTerm: searchTerm,
+                                    })) || [];
 
-                                displayLine(`${searchTerm} Search Results | ${searchRequest.length} Results`, 'info');
-                                searchRequest.forEach((obj: any) => {
-                                    displayObject(flatten(obj));
-                                });
+                                debug('Search Request', 'info', searchRequest);
+
+                                searchRequest &&
+                                    displayLine(
+                                        `${searchTerm} Search Results | ${searchRequest.length} Results`,
+                                        'info'
+                                    );
+                                searchRequest &&
+                                    searchRequest.forEach((obj: any) => {
+                                        displayObject(flatten(obj));
+                                    });
 
                                 allowTracking() && incrementMetric('req_searches_sharedContent_folders');
 
                                 break;
                         }
-                    } else if (typeof argv.f === 'string' && !argv.f.includes(':') || argv.f === 'number') {
-                        searchRequest = await contentBuilder.searchFolders({
-                            contentType: 'asset',
-                            searchKey: 'Name',
-                            searchTerm: argv.f,
-                        });
+                    } else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || argv.f === 'number') {
+                        searchRequest =
+                            (await contentBuilder.searchFolders({
+                                contentType: 'asset',
+                                searchKey: 'Name',
+                                searchTerm: argv.f,
+                            })) || [];
 
-                        displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                        searchRequest.forEach((obj: any) => {
-                            displayObject(flatten(obj));
-                        });
+                        debug('Search Request', 'info', searchRequest);
+
+                        searchRequest &&
+                            displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
+                        searchRequest &&
+                            searchRequest.forEach((obj: any) => {
+                                displayObject(flatten(obj));
+                            });
 
                         allowTracking() && incrementMetric('req_searches_contentBuilder_folders');
                     }
@@ -82,15 +95,19 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                  * Search for Content Builder Assets
                  */
                 if (argv.a) {
-                    const searchRequest = await contentBuilder.searchAssets({
-                        searchKey: 'Name',
-                        searchTerm: argv.a,
-                    });
+                    const searchRequest =
+                        (await contentBuilder.searchAssets({
+                            searchKey: 'Name',
+                            searchTerm: argv.a,
+                        })) || [];
 
-                    displayLine(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj: any) => {
-                        displayObject(flatten(obj));
-                    });
+                    debug('Search Request', 'info', searchRequest);
+
+                    searchRequest && displayLine(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
+                    searchRequest &&
+                        searchRequest.forEach((obj: any) => {
+                            displayObject(flatten(obj));
+                        });
 
                     allowTracking() && incrementMetric('req_searches_contentBuilder_assets');
                 }
@@ -106,7 +123,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         const shared = argv.f.split(':')[1] === 'shared' ? true : false;
                         const searchTerm = argv._ && argv._[1];
 
-                        debug('id', 'info', searchTerm)
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
                             folders: {
@@ -141,8 +157,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             }));
 
                         allowTracking() && incrementMetric('req_clones_sharedContent_folders');
-                    } else if (typeof argv.f === 'string' && !argv.f.includes(':') || typeof argv.f === 'number') {
-                        debug('arg', 'info', argv.f)
+                    } else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
 
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
@@ -158,17 +173,16 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             categoryId: argv.f,
                         });
 
-                        debug('Clone Request', 'info', cloneRequest)
-
+                        debug('Clone Request', 'info', cloneRequest);
 
                         const isolatedFoldersUnique =
                             cloneRequest &&
                             cloneRequest.folders &&
                             cloneRequest.folders.length &&
                             uniqueArrayByKey(cloneRequest.folders, 'id');
-                            debug('Unique Folders', 'info', isolatedFoldersUnique)
+                        debug('Unique Folders', 'info', isolatedFoldersUnique);
 
-                            debug('Assets', 'info', cloneRequest.assets)
+                        debug('Assets', 'info', cloneRequest.assets);
 
                         cloneRequest &&
                             cloneRequest.assets &&
@@ -218,7 +232,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             }));
 
                         allowTracking() && incrementMetric('req_clones_sharedContent_assets');
-                    } else if (typeof argv.a === 'string' && !argv.a.includes(':') || argv.a === 'number') {
+                    } else if ((typeof argv.a === 'string' && !argv.a.includes(':')) || argv.a === 'number') {
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
                             folders: {
@@ -230,7 +244,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             }[];
                         } = await contentBuilder.gatherAssetById(argv.a);
 
-                        debug('Clone Request', 'info', cloneRequest)
+                        debug('Clone Request', 'info', cloneRequest);
 
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');

@@ -28,7 +28,6 @@ const yargs_1 = __importDefault(require("yargs"));
 const version_1 = require("../lib/_bldr_sdk/version");
 // Initiate all route switches
 // const InitSwitch = require('../lib/_controllers/init')
-
 const _context_1 = require("../lib/_controllers/_context");
 const config_1 = require("../lib/_controllers/config");
 const add_1 = require("../lib/_controllers/add");
@@ -43,9 +42,8 @@ const initiate_1 = require("../lib/_controllers/initiate");
 const state_1 = require("../lib/_bldr/_processes/state");
 const crypto_1 = require("../lib/_bldr/_utils/crypto");
 const config_2 = require("../lib/_bldr/_processes/config");
-
 const { setEncryption } = new crypto_1.Crypto();
-const { getInstanceConfiguration } = new config_1.Config();
+const { getInstanceConfiguration } = new config_2.Config();
 const { checkForTracking, getState, debug } = new state_1.State();
 // Parse requests and input arguments
 const userInput = yargs_1.default;
@@ -186,9 +184,7 @@ const initCLI = (req, argv) => __awaiter(void 0, void 0, void 0, function* () {
              * See README for config details
              */
             case 'config':
-
                 (0, config_1.ConfigSwitch)(req, argv);
-
                 break;
             /**
              * Add files in bulk or by filepath to the stash.json file
