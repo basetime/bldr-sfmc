@@ -69,6 +69,7 @@ const initCLI = async (req: string, argv: any) => {
                 '--verbose                          ': 'Toggle Verbose Messaging',
                 '--debug                            ': 'Toggle Debugging Mode',
                 '--analytics                        ': 'Toggle Analytics Capturing',
+                '--clear-session                    ': 'Resets Current Session and Forces Token Refresh',
             });
 
             displayLine('status', 'success');

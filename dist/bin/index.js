@@ -76,6 +76,7 @@ const initCLI = (req, argv) => __awaiter(void 0, void 0, void 0, function* () {
                 '--verbose                          ': 'Toggle Verbose Messaging',
                 '--debug                            ': 'Toggle Debugging Mode',
                 '--analytics                        ': 'Toggle Analytics Capturing',
+                '--clear-session                    ': 'Resets Current Session and Forces Token Refresh',
             });
             (0, display_1.displayLine)('status', 'success');
             (0, display_1.displayObject)({
