@@ -415,9 +415,16 @@ export class Push {
                 errors,
             };
         } catch (err: any) {
+            debug('Data Extension Create Error', 'info', err);
+
+            if(err.JSON && err.JSON.Results && err.JSON.Results[0] && err.JSON.Results[0].StatusMessage){
+                displayLine(err.JSON.Results[0].StatusMessage, 'error')
+            }
+
             err.errorMessage && displayLine(err.errorMessage, 'error');
 
             err.response.data && err.response.data.message && displayLine(err.response.data.message, 'error');
+
             err.response.data &&
                 err.response.data.validationErrors &&
                 err.response.data.validationErrors.length &&

@@ -348,6 +348,10 @@ class Push {
                 };
             }
             catch (err) {
+                debug('Data Extension Create Error', 'info', err);
+                if (err.JSON && err.JSON.Results && err.JSON.Results[0] && err.JSON.Results[0].StatusMessage) {
+                    (0, display_1.displayLine)(err.JSON.Results[0].StatusMessage, 'error');
+                }
                 err.errorMessage && (0, display_1.displayLine)(err.errorMessage, 'error');
                 err.response.data && err.response.data.message && (0, display_1.displayLine)(err.response.data.message, 'error');
                 err.response.data &&

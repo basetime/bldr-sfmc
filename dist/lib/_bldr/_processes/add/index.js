@@ -24,7 +24,7 @@ const fileSystem_1 = require("../../../_utils/fileSystem");
 const _utils_1 = require("../../_utils");
 const stash_1 = require("../stash");
 const state_1 = require("../state");
-const { getState } = new state_1.State();
+const { getState, debug } = new state_1.State();
 const { saveStash, displayStashStatus } = new stash_1.Stash();
 /**
  * Handles all Configuration commands
@@ -88,8 +88,10 @@ class Add {
                 const rootPath = (yield (0, fileSystem_1.getRootPath)()) || './';
                 // Get the current working directory that the [add] command was triggered
                 const cwdPath = process.cwd();
+                debug('Folder Path', 'info', { cwdPath, rootPath });
                 // Identify the context for request
                 const contextsArray = sfmcContext.sfmc_context_mapping.map((context) => (0, fileSystem_1.fileExists)(`./${context.name}`) && context.name);
+                debug('contextsArray', 'info', contextsArray);
                 // Isolate context from Array
                 const contexts = contextsArray
                     .filter((ctx) => ctx && ['Data Extensions', 'Shared Data Extensions'].includes(ctx))
@@ -112,6 +114,7 @@ class Add {
                 // Add existing files to the Stash with the updated file content
                 if (!packageJSON) {
                     const organizedFiles = yield this.gatherAllFiles(contextFiles, rootPath);
+                    debug('organizedFiles', 'info', organizedFiles);
                     const { putFiles, postFiles, postFileOptions } = organizedFiles;
                     putFiles && putFiles.length && (yield saveStash(putFiles));
                     yield this.buildNewAssetObjects({
@@ -123,6 +126,7 @@ class Add {
                 }
                 else {
                     const organizedFiles = yield this.gatherAllFilesFromPackage(contextFiles);
+                    debug('organizedFiles in else', 'info', organizedFiles);
                     const { postFiles } = organizedFiles;
                     postFiles && postFiles.length && (yield saveStash(postFiles));
                 }
@@ -154,15 +158,18 @@ class Add {
                 const { context } = (0, _utils_1.getFilePathDetails)(filePath);
                 return filePath.includes(context.name) && context;
             });
+            debug('availableContexts', 'info', availableContexts);
             for (const context in availableContexts) {
                 const contextPaths = contextFiles.filter((file) => file.includes(`/${availableContexts[context].name}/`));
                 const bldrContext = availableContexts[context].context;
                 const manifestContextAssets = manifestJSON[bldrContext] && manifestJSON[bldrContext]['assets'];
+                debug('manifestContextAssets', 'info', manifestContextAssets);
                 // If the Manifest JSON file has an assets Array process files
                 if (manifestContextAssets) {
                     // Iterate through files array to check if existing files
                     for (const path in contextPaths) {
                         const systemFilePath = contextPaths[path];
+                        debug('systemFilePath', 'info', systemFilePath || 'nothing here');
                         // Check Manifest assets if the file path exists
                         // Gets folder path from the manifest asset
                         // Splits system file path into an array
@@ -204,6 +211,7 @@ class Add {
                             const { fileName, folderPath } = yield (0, _utils_1.getFilePathDetails)(systemFilePath);
                             const fileContentRaw = yield (0, promises_1.readFile)(systemFilePath);
                             const fileContent = fileContentRaw.toString();
+                            debug('systemFilePath', 'info', systemFilePath);
                             postFiles.push({
                                 name: fileName,
                                 path: systemFilePath,

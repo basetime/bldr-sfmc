@@ -15,7 +15,7 @@ import { getFilePathDetails, guid } from '../../_utils';
 import { Stash } from '../stash';
 import { State } from '../state';
 
-const { getState } = new State();
+const { getState, debug } = new State();
 
 const { saveStash, displayStashStatus } = new Stash();
 
@@ -84,11 +84,14 @@ export class Add {
             const rootPath = (await getRootPath()) || './';
             // Get the current working directory that the [add] command was triggered
             const cwdPath = process.cwd();
+            debug('Folder Path', 'info', {cwdPath, rootPath});
 
             // Identify the context for request
             const contextsArray = sfmcContext.sfmc_context_mapping.map(
                 (context) => fileExists(`./${context.name}`) && context.name
             );
+
+            debug('contextsArray', 'info', contextsArray);
 
             // Isolate context from Array
             const contexts = contextsArray
@@ -114,6 +117,8 @@ export class Add {
             // Add existing files to the Stash with the updated file content
             if (!packageJSON) {
                 const organizedFiles = await this.gatherAllFiles(contextFiles, rootPath);
+                debug('organizedFiles', 'info', organizedFiles);
+
                 const { putFiles, postFiles, postFileOptions } = organizedFiles;
                 putFiles && putFiles.length && (await saveStash(putFiles));
                 await this.buildNewAssetObjects({
@@ -124,6 +129,8 @@ export class Add {
                 });
             } else {
                 const organizedFiles = await this.gatherAllFilesFromPackage(contextFiles);
+                debug('organizedFiles in else', 'info', organizedFiles);
+
                 const { postFiles } = organizedFiles;
                 postFiles && postFiles.length && (await saveStash(postFiles));
             }
@@ -166,6 +173,8 @@ export class Add {
             return filePath.includes(context.name) && context;
         });
 
+        debug('availableContexts', 'info', availableContexts);
+
         for (const context in availableContexts) {
             const contextPaths = contextFiles.filter((file) => file.includes(`/${availableContexts[context].name}/`));
             const bldrContext = availableContexts[context].context;
@@ -175,11 +184,15 @@ export class Add {
             const manifestContextAssets: ManifestContext[] =
                 manifestJSON[bldrContext] && manifestJSON[bldrContext]['assets'];
 
+        debug('manifestContextAssets', 'info', manifestContextAssets);
+
+
             // If the Manifest JSON file has an assets Array process files
             if (manifestContextAssets) {
                 // Iterate through files array to check if existing files
                 for (const path in contextPaths) {
                     const systemFilePath: any = contextPaths[path];
+                    debug('systemFilePath', 'info', systemFilePath || 'nothing here');
 
                     // Check Manifest assets if the file path exists
                     // Gets folder path from the manifest asset
@@ -227,6 +240,7 @@ export class Add {
                         const { fileName, folderPath } = await getFilePathDetails(systemFilePath);
                         const fileContentRaw = await readFile(systemFilePath);
                         const fileContent = fileContentRaw.toString();
+                        debug('systemFilePath', 'info', systemFilePath);
 
                         postFiles.push({
                             name: fileName,

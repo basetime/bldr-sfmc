@@ -70,7 +70,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                                 break;
                         }
-
                     } else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || argv.f === 'number') {
                         searchRequest =
                             (await contentBuilder.searchFolders({
@@ -78,7 +77,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                                 searchKey: 'Name',
                                 searchTerm: argv.f,
                             })) || [];
-
 
                         debug('Search Request', 'info', searchRequest);
 
@@ -125,7 +123,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         const shared = argv.f.split(':')[1] === 'shared' ? true : false;
                         const searchTerm = argv._ && argv._[1];
 
-                        debug('id', 'info', searchTerm)
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
                             folders: {
@@ -143,6 +140,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             shared
                         );
 
+
+                        debug('Search Request', 'info', cloneRequest);
+
                         const isolatedFoldersUnique =
                             cloneRequest &&
                             cloneRequest.folders &&
@@ -159,11 +159,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                                 folders: isolatedFoldersUnique || [],
                             }));
 
+                        !cloneRequest.assets.length && displayLine('No assets returned, folder is likely empty.', 'info')
                         allowTracking() && incrementMetric('req_clones_sharedContent_folders');
-
                     } else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
-
-
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
                             folders: {
@@ -180,7 +178,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                         debug('Clone Request', 'info', cloneRequest);
 
-
                         const isolatedFoldersUnique =
                             cloneRequest &&
                             cloneRequest.folders &&
@@ -189,7 +186,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                         debug('Unique Folders', 'info', isolatedFoldersUnique);
                         debug('Assets', 'info', cloneRequest.assets);
-
 
                         cloneRequest &&
                             cloneRequest.assets &&
@@ -239,9 +235,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             }));
 
                         allowTracking() && incrementMetric('req_clones_sharedContent_assets');
-
                     } else if ((typeof argv.a === 'string' && !argv.a.includes(':')) || argv.a === 'number') {
-
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
                             folders: {
@@ -253,9 +247,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             }[];
                         } = await contentBuilder.gatherAssetById(argv.a);
 
-
                         debug('Clone Request', 'info', cloneRequest);
-
 
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');

@@ -71,7 +71,6 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                                 break;
                         }
                     }
-
                     else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || argv.f === 'number') {
                         searchRequest =
                             (yield contentBuilder.searchFolders({
@@ -86,7 +85,6 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             searchRequest.forEach((obj) => {
                                 (0, display_1.displayObject)((0, flat_1.default)(obj));
                             });
-
                         allowTracking() && (0, metrics_1.incrementMetric)('req_searches_contentBuilder_folders');
                     }
                 }
@@ -116,11 +114,11 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                     if (typeof argv.f === 'string' && argv.f.includes(':')) {
                         const shared = argv.f.split(':')[1] === 'shared' ? true : false;
                         const searchTerm = argv._ && argv._[1];
-                        debug('id', 'info', searchTerm);
                         const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
                             contentType: 'asset',
                             categoryId: searchTerm,
                         }, shared);
+                        debug('Search Request', 'info', cloneRequest);
                         const isolatedFoldersUnique = cloneRequest &&
                             cloneRequest.folders &&
                             cloneRequest.folders.length &&
@@ -135,11 +133,10 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                                 assets: cloneRequest.assets,
                                 folders: isolatedFoldersUnique || [],
                             }));
+                        !cloneRequest.assets.length && (0, display_1.displayLine)('No assets returned, folder is likely empty.', 'info');
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_folders');
                     }
-
                     else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
-
                         const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
                             contentType: 'asset',
                             categoryId: argv.f,
@@ -184,9 +181,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             }));
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_assets');
                     }
-
                     else if ((typeof argv.a === 'string' && !argv.a.includes(':')) || argv.a === 'number') {
-
                         const cloneRequest = yield contentBuilder.gatherAssetById(argv.a);
                         debug('Clone Request', 'info', cloneRequest);
                         const { assets, folders } = cloneRequest;
