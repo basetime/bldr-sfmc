@@ -1,5 +1,5 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.MappingByActivityTypeId = exports.MappingByActivityType = void 0;
 /**
  * Identify AutomationStudio Activity Details by Activity Type
