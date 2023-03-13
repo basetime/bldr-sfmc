@@ -1,6 +1,7 @@
 import { User_BLDR_Config } from '../../../../_bldr/_processes/_userProcesses/bldr_config';
 import { createFile } from '../../../fileSystem';
 import { displayLine } from '../../../display';
+import { uniqueArrayByKey } from '../../../../_bldr/_utils';
 const { updateFilesFromConfiguration } = new User_BLDR_Config();
 
 /**
@@ -13,7 +14,6 @@ const createAutomationStudioEditableFiles = async (assets: any[]) => {
             const asset = assets[a];
             const assetType = asset.assetType || null;
             const assetTypeName = assetType && assetType.name;
-
             //@ts-ignore
             const id = asset.id;
             const fileName = asset.name || asset.Name;
@@ -26,6 +26,7 @@ const createAutomationStudioEditableFiles = async (assets: any[]) => {
             let ext;
             let dirPath;
 
+            let assetIdKey: string;
             switch (assetTypeName) {
                 case 'queryactivity':
                     content = asset.queryText;
@@ -34,7 +35,7 @@ const createAutomationStudioEditableFiles = async (assets: any[]) => {
                     break;
                 case 'ssjsactivity':
                     content = asset.script;
-                    ext = '.html';
+                    ext = '.js';
                     dirPath = `${folderPath}/${fileName}${ext}`;
                     break;
                 default:
@@ -45,8 +46,8 @@ const createAutomationStudioEditableFiles = async (assets: any[]) => {
 
             content = await updateFilesFromConfiguration(content);
             const createFileResult = await createFile(dirPath, content);
-            createFileResult && displayLine(`Successfully Created [local]: ${asset.name}`, 'success');
-            !createFileResult && displayLine(`Error Creating File [local]: ${asset.name}`, 'error');
+            createFileResult && displayLine(`Successfully Created [local | ${assetTypeName}]: ${asset.name || asset.Name}`, 'success');
+            !createFileResult && displayLine(`Error Creating File [local | ${assetTypeName}]: ${asset.name || asset.Name}`, 'error');
         }
     } catch (err: any) {
         displayLine(`ERROR: ${err.message}`);

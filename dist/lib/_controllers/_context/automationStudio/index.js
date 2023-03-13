@@ -233,40 +233,29 @@ exports.AutomationStudioSwitch = AutomationStudioSwitch;
 const processAutomationCloneRequest = (cloneAutomationRequest) => __awaiter(void 0, void 0, void 0, function* () {
     // Create Automation Assets
     cloneAutomationRequest &&
-        cloneAutomationRequest.formattedAssetResponse &&
-        cloneAutomationRequest.formattedAssetResponse.length &&
-        (yield (0, CreateLocalFiles_1.createAutomationStudioEditableFiles)(cloneAutomationRequest.formattedAssetResponse));
+        cloneAutomationRequest.assets &&
+        cloneAutomationRequest.assets.length &&
+        (yield (0, CreateLocalFiles_1.createAutomationStudioEditableFiles)(cloneAutomationRequest.assets));
     // Create Automation Definitions
     cloneAutomationRequest &&
         cloneAutomationRequest.formattedAutomationDefinitions &&
         cloneAutomationRequest.formattedAutomationDefinitions.length &&
         (yield (0, CreateLocalFiles_1.createAutomationStudioEditableFiles)(cloneAutomationRequest.formattedAutomationDefinitions));
     yield (0, manifestJSON_1.updateManifest)('automationStudio', {
-        assets: cloneAutomationRequest.formattedAssetResponse,
+        assets: cloneAutomationRequest.assets,
     });
     yield (0, manifestJSON_1.updateManifest)('automationStudio', {
         assets: cloneAutomationRequest.formattedAutomationDefinitions,
     });
-    (0, display_1.displayLine)(`>> Cloned ${cloneAutomationRequest.formattedAssetResponse.length} Automations`);
+    (0, display_1.displayLine)(`>> Cloned ${cloneAutomationRequest.assets.length} Automations`);
     (0, display_1.displayLine)(`>> Cloned ${cloneAutomationRequest.formattedAutomationDefinitions.length} Definitions`);
     // Create Automation Dependencies
     Object.keys(cloneAutomationRequest.formattedAutomationDependencies) &&
         Object.keys(cloneAutomationRequest.formattedAutomationDependencies).forEach((context) => __awaiter(void 0, void 0, void 0, function* () {
             (0, display_1.displayLine)(`Cloning Dependencies: ${context}`, 'info');
             const contextDependencies = cloneAutomationRequest.formattedAutomationDependencies[context];
-            let manifestUpdates = {
-                assets: contextDependencies,
-            };
-            switch (context) {
-                case 'contentBuilder':
-                    manifestUpdates.folders =
-                        contextDependencies &&
-                            Array.isArray(contextDependencies) &&
-                            contextDependencies.map((dep) => dep.category);
-                    yield (0, CreateLocalFiles_2.createContentBuilderEditableFiles)(contextDependencies);
-                    break;
-            }
-            yield (0, manifestJSON_1.updateManifest)(context, manifestUpdates);
-            (0, display_1.displayLine)(`>> Cloned ${contextDependencies.length} ${context} Dependencies`);
+            contextDependencies && contextDependencies.assets && contextDependencies.assets.length && (yield (0, CreateLocalFiles_2.createContentBuilderEditableFiles)(contextDependencies.assets));
+            contextDependencies && contextDependencies.assets && contextDependencies.assets.length && (yield (0, manifestJSON_1.updateManifest)(context, contextDependencies));
+            (0, display_1.displayLine)(`>> Cloned ${contextDependencies.assets.length} ${context} Dependencies`);
         }));
 });
