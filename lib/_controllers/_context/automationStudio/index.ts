@@ -180,7 +180,13 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     allowTracking() && incrementMetric(`req_clones_automationStudio_${contentType}_folders`);
                 } else if (typeof argv.f === 'number') {
                     const cloneAutomationRequest: {
-                        formattedAssetResponse: any[];
+                        folders: {
+                            id: string,
+                            name: string,
+                            parentId: number,
+                            folderPath: string
+                        }[]
+                        assets: SFMC_Automation[];
                         formattedAutomationDefinitions: any[];
                         formattedAutomationDependencies: any[];
                     } = await automationStudio.gatherAssetsByCategoryId({
@@ -253,7 +259,13 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     });
                 } else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                     const cloneAutomationRequest: {
-                        formattedAssetResponse: SFMC_Automation[];
+                        folders: {
+                            id: string,
+                            name: string,
+                            parentId: number,
+                            folderPath: string
+                        }[]
+                        assets: SFMC_Automation[];
                         formattedAutomationDefinitions: any[];
                         formattedAutomationDependencies: any[];
                     } = await automationStudio.gatherAssetById(argv.a);
@@ -271,15 +283,21 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
 };
 
 const processAutomationCloneRequest = async (cloneAutomationRequest: {
-    formattedAssetResponse: SFMC_Automation[];
+    folders: {
+        id: string,
+        name: string,
+        parentId: number,
+        folderPath: string
+    }[]
+    assets: SFMC_Automation[];
     formattedAutomationDefinitions: any[];
     formattedAutomationDependencies: any[];
 }) => {
     // Create Automation Assets
     cloneAutomationRequest &&
-        cloneAutomationRequest.formattedAssetResponse &&
-        cloneAutomationRequest.formattedAssetResponse.length &&
-        (await createAutomationStudioEditableFiles(cloneAutomationRequest.formattedAssetResponse));
+        cloneAutomationRequest.assets &&
+        cloneAutomationRequest.assets.length &&
+        (await createAutomationStudioEditableFiles(cloneAutomationRequest.assets));
 
     // Create Automation Definitions
     cloneAutomationRequest &&
@@ -288,40 +306,26 @@ const processAutomationCloneRequest = async (cloneAutomationRequest: {
         (await createAutomationStudioEditableFiles(cloneAutomationRequest.formattedAutomationDefinitions));
 
     await updateManifest('automationStudio', {
-        assets: cloneAutomationRequest.formattedAssetResponse,
+        assets: cloneAutomationRequest.assets,
     });
 
     await updateManifest('automationStudio', {
         assets: cloneAutomationRequest.formattedAutomationDefinitions,
     });
 
-    displayLine(`>> Cloned ${cloneAutomationRequest.formattedAssetResponse.length} Automations`);
+    displayLine(`>> Cloned ${cloneAutomationRequest.assets.length} Automations`);
     displayLine(`>> Cloned ${cloneAutomationRequest.formattedAutomationDefinitions.length} Definitions`);
 
     // Create Automation Dependencies
     Object.keys(cloneAutomationRequest.formattedAutomationDependencies) &&
         Object.keys(cloneAutomationRequest.formattedAutomationDependencies).forEach(async (context: any) => {
             displayLine(`Cloning Dependencies: ${context}`, 'info');
+
             const contextDependencies = cloneAutomationRequest.formattedAutomationDependencies[context];
-            let manifestUpdates: {
-                folders?: any[];
-                assets: any[];
-            } = {
-                assets: contextDependencies,
-            };
+            contextDependencies && contextDependencies.assets && contextDependencies.assets.length && await createContentBuilderEditableFiles(contextDependencies.assets);
 
-            switch (context) {
-                case 'contentBuilder':
-                    manifestUpdates.folders =
-                        contextDependencies &&
-                        Array.isArray(contextDependencies) &&
-                        contextDependencies.map((dep: any) => dep.category);
-                    await createContentBuilderEditableFiles(contextDependencies);
-                    break;
-            }
-
-            await updateManifest(context, manifestUpdates);
-            displayLine(`>> Cloned ${contextDependencies.length} ${context} Dependencies`);
+            contextDependencies && contextDependencies.assets && contextDependencies.assets.length && await updateManifest(context, contextDependencies);
+            displayLine(`>> Cloned ${contextDependencies.assets.length} ${context} Dependencies`);
         });
 };
 
