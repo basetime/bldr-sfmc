@@ -61,8 +61,8 @@ const createFile = async (filePath: string, content: any) => {
     }
 
     await createDirectory(directoryPath);
-    await fsPromises.writeFile(filePath, content)
-    return await fileExists(`./${filePath}`)
+    await fsPromises.writeFile(filePath, content);
+    return await fileExists(`./${filePath}`);
 };
 /**
  *

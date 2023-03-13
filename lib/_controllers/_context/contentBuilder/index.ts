@@ -140,7 +140,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             shared
                         );
 
-
                         debug('Search Request', 'info', cloneRequest);
 
                         const isolatedFoldersUnique =
@@ -159,7 +158,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                                 folders: isolatedFoldersUnique || [],
                             }));
 
-                        !cloneRequest.assets.length && displayLine('No assets returned, folder is likely empty.', 'info')
+                        !cloneRequest.assets.length &&
+                            displayLine('No assets returned, folder is likely empty.', 'info');
                         allowTracking() && incrementMetric('req_clones_sharedContent_folders');
                     } else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
                         const cloneRequest: {

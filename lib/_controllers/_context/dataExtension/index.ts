@@ -155,7 +155,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         categoryId: searchTerm,
                     });
 
-                    debug('Clone Request', 'info', cloneRequest)
+                    debug('Clone Request', 'info', cloneRequest);
 
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         displayLine(
@@ -197,7 +197,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         contentType: 'dataextension',
                         categoryId: argv.f,
                     });
-                    debug('Clone Request', 'info', cloneRequest)
+                    debug('Clone Request', 'info', cloneRequest);
 
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         displayLine(
@@ -245,7 +245,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                             FolderPath: string;
                         }[];
                     } = await emailStudio.gatherAssetById(customerKey, completeResponse, shared);
-                    debug('Clone Request', 'info', cloneRequest)
+                    debug('Clone Request', 'info', cloneRequest);
 
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         displayLine(
@@ -274,7 +274,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                         }));
 
                     allowTracking() && incrementMetric('req_clones_dataExtension_assets');
-                } else if ((typeof argv.a === 'string' && !argv.a.includes(':') || typeof argv.a === 'number')) {
+                } else if ((typeof argv.a === 'string' && !argv.a.includes(':')) || typeof argv.a === 'number') {
                     const cloneRequest: {
                         assets: SFMC_Data_Extension_Asset[];
                         folders: {
@@ -285,7 +285,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                             FolderPath: string;
                         }[];
                     } = await emailStudio.gatherAssetById(argv.a);
-                    debug('Clone Request', 'info', cloneRequest)
+                    debug('Clone Request', 'info', cloneRequest);
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         displayLine(
                             `Could not find ${argv.a}. If it's a shared item, update your command with '-a:shared'`,

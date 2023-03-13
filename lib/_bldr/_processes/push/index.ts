@@ -417,8 +417,8 @@ export class Push {
         } catch (err: any) {
             debug('Data Extension Create Error', 'info', err);
 
-            if(err.JSON && err.JSON.Results && err.JSON.Results[0] && err.JSON.Results[0].StatusMessage){
-                displayLine(err.JSON.Results[0].StatusMessage, 'error')
+            if (err.JSON && err.JSON.Results && err.JSON.Results[0] && err.JSON.Results[0].StatusMessage) {
+                displayLine(err.JSON.Results[0].StatusMessage, 'error');
             }
 
             err.errorMessage && displayLine(err.errorMessage, 'error');

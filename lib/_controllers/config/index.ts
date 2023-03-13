@@ -67,8 +67,8 @@ const ConfigSwitch = async (req: any, argv: Argv) => {
         return toggleDebug();
     }
 
-    if(argv['clear-session']){
-        return clearSession()
+    if (argv['clear-session']) {
+        return clearSession();
     }
     return;
 };

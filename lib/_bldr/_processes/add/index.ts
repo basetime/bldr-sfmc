@@ -84,7 +84,7 @@ export class Add {
             const rootPath = (await getRootPath()) || './';
             // Get the current working directory that the [add] command was triggered
             const cwdPath = process.cwd();
-            debug('Folder Path', 'info', {cwdPath, rootPath});
+            debug('Folder Path', 'info', { cwdPath, rootPath });
 
             // Identify the context for request
             const contextsArray = sfmcContext.sfmc_context_mapping.map(
@@ -184,8 +184,7 @@ export class Add {
             const manifestContextAssets: ManifestContext[] =
                 manifestJSON[bldrContext] && manifestJSON[bldrContext]['assets'];
 
-        debug('manifestContextAssets', 'info', manifestContextAssets);
-
+            debug('manifestContextAssets', 'info', manifestContextAssets);
 
             // If the Manifest JSON file has an assets Array process files
             if (manifestContextAssets) {

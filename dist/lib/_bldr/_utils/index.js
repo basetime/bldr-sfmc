@@ -1,12 +1,20 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.isDirEmpty = exports.getFilePathDetails = exports.sfmc_context = exports.uniqueArrayByKey = exports.assignObject = exports.guid = void 0;
+'use strict';
+var __importDefault =
+    (this && this.__importDefault) ||
+    function (mod) {
+        return mod && mod.__esModule ? mod : { default: mod };
+    };
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.isDirEmpty =
+    exports.getFilePathDetails =
+    exports.sfmc_context =
+    exports.uniqueArrayByKey =
+    exports.assignObject =
+    exports.guid =
+        void 0;
 const { sfmc_context_mapping } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping');
 const { v4: uuidv4 } = require('uuid');
-const fs_1 = __importDefault(require("fs"));
+const fs_1 = __importDefault(require('fs'));
 /**
  *
  * @returns GUID
@@ -42,7 +50,8 @@ exports.uniqueArrayByKey = uniqueArrayByKey;
  * ```
  *
  */
-const sfmc_context = (systemFilePath) => sfmc_context_mapping.filter((context) => new RegExp(context.name).test(systemFilePath));
+const sfmc_context = (systemFilePath) =>
+    sfmc_context_mapping.filter((context) => new RegExp(context.name).test(systemFilePath));
 exports.sfmc_context = sfmc_context;
 /**
  *
@@ -70,12 +79,11 @@ const getFilePathDetails = (systemFilePath) => {
     const fileExtension = fileName && fileName.substring(fileName.indexOf('.') + 1);
     fileName = fileName && fileName.substring(0, fileName.indexOf('.'));
     const folderName = systemFilePathArray && systemFilePathArray.slice(-1).pop();
-    const context = (contextDetails &&
-        contextDetails.length &&
-        contextDetails.length > 1 &&
-        contextDetails
-            .map((context) => systemFilePathArray.includes(context.name) && context)
-            .filter(Boolean)) ||
+    const context =
+        (contextDetails &&
+            contextDetails.length &&
+            contextDetails.length > 1 &&
+            contextDetails.map((context) => systemFilePathArray.includes(context.name) && context).filter(Boolean)) ||
         contextDetails;
     const projectPath = context && context.length && systemFilePath.substring(systemFilePath.indexOf(context[0].name));
     const projectPathArray = projectPath.split('/');

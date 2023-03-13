@@ -150,14 +150,10 @@ export class State {
         }
     };
 
-
     clearSession = async () => {
-        await deletePassword(
-            'bldr',
-            'currentSession'
-        );
+        await deletePassword('bldr', 'currentSession');
 
-        const sessionDeleted = await getPassword('bldr', 'currentSession') ? false : true;
+        const sessionDeleted = (await getPassword('bldr', 'currentSession')) ? false : true;
         return sessionDeleted;
-    }
+    };
 }

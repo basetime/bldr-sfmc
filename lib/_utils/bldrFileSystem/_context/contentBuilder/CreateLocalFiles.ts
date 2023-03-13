@@ -14,7 +14,7 @@ const createContentBuilderEditableFiles = async (assets: SFMC_Content_Builder_As
         for (const a in assets) {
             const asset = assets[a];
             const assetType = (asset.assetType && asset.assetType.name) || null;
-            const folderPath = asset && asset.category && asset.category.folderPath || null;
+            const folderPath = (asset && asset.category && asset.category.folderPath) || null;
             const id = asset.id;
             const fileName = asset.name;
 
