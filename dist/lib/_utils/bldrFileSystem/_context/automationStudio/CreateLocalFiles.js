@@ -24,10 +24,12 @@ const createAutomationStudioEditableFiles = (assets) => __awaiter(void 0, void 0
             const asset = assets[a];
             const assetType = asset.assetType || null;
             const assetTypeName = assetType && assetType.name;
-            //@ts-ignore
-            const id = asset.id;
             const fileName = asset.name || asset.Name;
             let folderPath = asset.category.folderPath || (assetType && assetType.folder);
+            if (asset && asset.hasBeenDeleted && asset.hasBeenDeleted === true) {
+                (0, display_1.displayLine)(`Error Creating File [local | ${assetTypeName}]: Automation Definition Deleted`, 'error');
+                return;
+            }
             folderPath === 'my automations' ? 'Automation Studio/my automations' : folderPath;
             folderPath = folderPath.includes('Automation Studio') ? folderPath : `Automation Studio/${folderPath}`;
             let content;

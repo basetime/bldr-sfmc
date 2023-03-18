@@ -128,7 +128,7 @@ class Push {
                     putResults.errors &&
                     putResults.errors.length &&
                     putResults.errors.forEach((result) => {
-                        (0, display_1.displayLine)(result.name, 'error');
+                        typeof result !== 'string' && result.name && (0, display_1.displayLine)(result.name, 'error') || (0, display_1.displayLine)(result, 'error');
                     });
                 isVerbose() &&
                     putResults &&
@@ -144,7 +144,7 @@ class Push {
                     postResults.errors &&
                     postResults.errors.length &&
                     postResults.errors.forEach((result) => {
-                        (0, display_1.displayLine)(result.name, 'error');
+                        typeof result !== 'string' && result.name && (0, display_1.displayLine)(result.name, 'error') || (0, display_1.displayLine)(result, 'error');
                     });
                 isVerbose() &&
                     postResults &&
@@ -206,17 +206,24 @@ class Push {
                                     debug('Automation Studio Update', 'info', assetResponse);
                                 }
                                 else {
+                                    const folderPath = sfmcUpdateObject.bldr.folderPath;
                                     // sfmcAPIObject = stashFileObject?.post?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject.post)
                                     // assetResponse = await sdk.sfmc.automation.postAsset(sfmcAPIObject);
                                 }
-                                if (Object.prototype.hasOwnProperty.call(assetResponse, 'key')) {
+                                if (Object.prototype.hasOwnProperty.call(assetResponse, 'key') ||
+                                    Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')) {
                                     const objectIdKey = sfmcUpdateObject.assetType.objectIdKey;
                                     sfmcAPIObject.key = assetResponse.key;
                                     sfmcAPIObject[objectIdKey] = assetResponse[objectIdKey];
                                     success.push(sfmcAPIObject);
                                 }
                                 else {
-                                    errors.push(assetResponse.message);
+                                    assetResponse.response.data.errors &&
+                                        Array.isArray(assetResponse.response.data.errors) &&
+                                        assetResponse.response.data.errors.forEach((error) => {
+                                            errors.push(error.message);
+                                        });
+                                    // assetResponse.message && errors.push(assetResponse.message);
                                 }
                                 break;
                             case 'contentBuilder':
@@ -348,12 +355,16 @@ class Push {
                 };
             }
             catch (err) {
-                debug('Data Extension Create Error', 'info', err);
+                debug('Create/Update Error', 'error', err);
                 if (err.JSON && err.JSON.Results && err.JSON.Results[0] && err.JSON.Results[0].StatusMessage) {
                     (0, display_1.displayLine)(err.JSON.Results[0].StatusMessage, 'error');
                 }
                 err.errorMessage && (0, display_1.displayLine)(err.errorMessage, 'error');
                 err.response.data && err.response.data.message && (0, display_1.displayLine)(err.response.data.message, 'error');
+                err.response.data &&
+                    err.response.data.errors &&
+                    Array.isArray(err.response.data.errors) &&
+                    err.response.data.errors.forEach((error) => console.log(error));
                 err.response.data &&
                     err.response.data.validationErrors &&
                     err.response.data.validationErrors.length &&

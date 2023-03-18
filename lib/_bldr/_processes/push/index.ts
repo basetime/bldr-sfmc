@@ -147,7 +147,7 @@ export class Push {
                 putResults.errors &&
                 putResults.errors.length &&
                 putResults.errors.forEach((result) => {
-                    displayLine(result.name, 'error');
+                    typeof result !== 'string' && result.name && displayLine(result.name, 'error') || displayLine(result, 'error');
                 });
             isVerbose() &&
                 putResults &&
@@ -158,12 +158,13 @@ export class Push {
                 postResults.errors &&
                 postResults.errors.length &&
                 displayLine(`Unsuccessfully Created Assets`, 'info');
+
             isVerbose() &&
                 postResults &&
                 postResults.errors &&
                 postResults.errors.length &&
                 postResults.errors.forEach((result) => {
-                    displayLine(result.name, 'error');
+                    typeof result !== 'string' && result.name && displayLine(result.name, 'error') || displayLine(result, 'error');
                 });
             isVerbose() &&
                 postResults &&
@@ -204,7 +205,6 @@ export class Push {
                 const folderPath = stashFileObject.bldr && stashFileObject.bldr.folderPath;
                 const stashFileContext = stashFileObject.bldr && stashFileObject.bldr.context.context;
                 const method = Object.prototype.hasOwnProperty.call(stashFileObject.bldr, 'id') ? 'put' : 'post';
-
                 let manifestJSON = await readManifest();
 
                 let sfmcUpdateObject: any;
@@ -242,17 +242,27 @@ export class Push {
                                 assetResponse = await sdk.sfmc.automation.patchAutomationAsset(sfmcAPIObject);
                                 debug('Automation Studio Update', 'info', assetResponse);
                             } else {
+                                const folderPath = sfmcUpdateObject.bldr.folderPath;
                                 // sfmcAPIObject = stashFileObject?.post?.fileContent && await setAutomationStudioDefinition(sfmcUpdateObject, stashFileObject.post)
                                 // assetResponse = await sdk.sfmc.automation.postAsset(sfmcAPIObject);
                             }
 
-                            if (Object.prototype.hasOwnProperty.call(assetResponse, 'key')) {
+                            if (
+                                Object.prototype.hasOwnProperty.call(assetResponse, 'key') ||
+                                Object.prototype.hasOwnProperty.call(assetResponse, 'customerKey')
+                            ) {
                                 const objectIdKey = sfmcUpdateObject.assetType.objectIdKey;
                                 sfmcAPIObject.key = assetResponse.key;
                                 sfmcAPIObject[objectIdKey] = assetResponse[objectIdKey];
                                 success.push(sfmcAPIObject);
                             } else {
-                                errors.push(assetResponse.message);
+                                assetResponse.response.data.errors &&
+                                    Array.isArray(assetResponse.response.data.errors) &&
+                                    assetResponse.response.data.errors.forEach((error: { message: string }) => {
+                                        errors.push(error.message);
+                                    });
+
+                                // assetResponse.message && errors.push(assetResponse.message);
                             }
                             break;
                         case 'contentBuilder':
@@ -410,12 +420,13 @@ export class Push {
                 }
             }
 
+
             return {
                 success,
                 errors,
             };
         } catch (err: any) {
-            debug('Data Extension Create Error', 'info', err);
+            debug('Create/Update Error', 'error', err);
 
             if (err.JSON && err.JSON.Results && err.JSON.Results[0] && err.JSON.Results[0].StatusMessage) {
                 displayLine(err.JSON.Results[0].StatusMessage, 'error');
@@ -424,11 +435,15 @@ export class Push {
             err.errorMessage && displayLine(err.errorMessage, 'error');
 
             err.response.data && err.response.data.message && displayLine(err.response.data.message, 'error');
-
+            err.response.data &&
+                err.response.data.errors &&
+                Array.isArray(err.response.data.errors) &&
+                err.response.data.errors.forEach((error: { message: string }) => console.log(error));
             err.response.data &&
                 err.response.data.validationErrors &&
                 err.response.data.validationErrors.length &&
                 displayLine(err.response.data.validationErrors[0].message, 'error');
+
             err.response.data &&
                 err.response.data.validationErrors &&
                 err.response.data.validationErrors.length &&
