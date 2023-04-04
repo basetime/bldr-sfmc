@@ -181,11 +181,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                 } else if (typeof argv.f === 'number') {
                     const cloneAutomationRequest: {
                         folders: {
-                            id: string,
-                            name: string,
-                            parentId: number,
-                            folderPath: string
-                        }[]
+                            id: string;
+                            name: string;
+                            parentId: number;
+                            folderPath: string;
+                        }[];
                         assets: SFMC_Automation[];
                         formattedAutomationDefinitions: any[];
                         formattedAutomationDependencies: any[];
@@ -260,11 +260,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                 } else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                     const cloneAutomationRequest: {
                         folders: {
-                            id: string,
-                            name: string,
-                            parentId: number,
-                            folderPath: string
-                        }[]
+                            id: string;
+                            name: string;
+                            parentId: number;
+                            folderPath: string;
+                        }[];
                         assets: SFMC_Automation[];
                         formattedAutomationDefinitions: any[];
                         formattedAutomationDependencies: any[];
@@ -284,11 +284,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
 
 const processAutomationCloneRequest = async (cloneAutomationRequest: {
     folders: {
-        id: string,
-        name: string,
-        parentId: number,
-        folderPath: string
-    }[]
+        id: string;
+        name: string;
+        parentId: number;
+        folderPath: string;
+    }[];
     assets: SFMC_Automation[];
     formattedAutomationDefinitions: any[];
     formattedAutomationDependencies: any[];
@@ -322,9 +322,15 @@ const processAutomationCloneRequest = async (cloneAutomationRequest: {
             displayLine(`Cloning Dependencies: ${context}`, 'info');
 
             const contextDependencies = cloneAutomationRequest.formattedAutomationDependencies[context];
-            contextDependencies && contextDependencies.assets && contextDependencies.assets.length && await createContentBuilderEditableFiles(contextDependencies.assets);
+            contextDependencies &&
+                contextDependencies.assets &&
+                contextDependencies.assets.length &&
+                (await createContentBuilderEditableFiles(contextDependencies.assets));
 
-            contextDependencies && contextDependencies.assets && contextDependencies.assets.length && await updateManifest(context, contextDependencies);
+            contextDependencies &&
+                contextDependencies.assets &&
+                contextDependencies.assets.length &&
+                (await updateManifest(context, contextDependencies));
             displayLine(`>> Cloned ${contextDependencies.assets.length} ${context} Dependencies`);
         });
 };

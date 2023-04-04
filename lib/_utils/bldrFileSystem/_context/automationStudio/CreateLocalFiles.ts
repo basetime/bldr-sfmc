@@ -17,9 +17,9 @@ const createAutomationStudioEditableFiles = async (assets: any[]) => {
             const fileName = asset.name || asset.Name;
             let folderPath = asset.category.folderPath || (assetType && assetType.folder);
 
-            if(asset && asset.hasBeenDeleted && asset.hasBeenDeleted === true){
-                displayLine(`Error Creating File [local | ${assetTypeName}]: Automation Definition Deleted`, 'error')
-                return
+            if (asset && asset.hasBeenDeleted && asset.hasBeenDeleted === true) {
+                displayLine(`Error Creating File [local | ${assetTypeName}]: Automation Definition Deleted`, 'error');
+                return;
             }
 
             folderPath === 'my automations' ? 'Automation Studio/my automations' : folderPath;
@@ -49,8 +49,10 @@ const createAutomationStudioEditableFiles = async (assets: any[]) => {
 
             content = await updateFilesFromConfiguration(content);
             const createFileResult = await createFile(dirPath, content);
-            createFileResult && displayLine(`Successfully Created [local | ${assetTypeName}]: ${asset.name || asset.Name}`, 'success');
-            !createFileResult && displayLine(`Error Creating File [local | ${assetTypeName}]: ${asset.name || asset.Name}`, 'error');
+            createFileResult &&
+                displayLine(`Successfully Created [local | ${assetTypeName}]: ${asset.name || asset.Name}`, 'success');
+            !createFileResult &&
+                displayLine(`Error Creating File [local | ${assetTypeName}]: ${asset.name || asset.Name}`, 'error');
         }
     } catch (err: any) {
         displayLine(`ERROR: ${err.message}`);

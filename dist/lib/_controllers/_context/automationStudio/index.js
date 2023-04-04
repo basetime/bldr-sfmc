@@ -254,8 +254,14 @@ const processAutomationCloneRequest = (cloneAutomationRequest) => __awaiter(void
         Object.keys(cloneAutomationRequest.formattedAutomationDependencies).forEach((context) => __awaiter(void 0, void 0, void 0, function* () {
             (0, display_1.displayLine)(`Cloning Dependencies: ${context}`, 'info');
             const contextDependencies = cloneAutomationRequest.formattedAutomationDependencies[context];
-            contextDependencies && contextDependencies.assets && contextDependencies.assets.length && (yield (0, CreateLocalFiles_2.createContentBuilderEditableFiles)(contextDependencies.assets));
-            contextDependencies && contextDependencies.assets && contextDependencies.assets.length && (yield (0, manifestJSON_1.updateManifest)(context, contextDependencies));
+            contextDependencies &&
+                contextDependencies.assets &&
+                contextDependencies.assets.length &&
+                (yield (0, CreateLocalFiles_2.createContentBuilderEditableFiles)(contextDependencies.assets));
+            contextDependencies &&
+                contextDependencies.assets &&
+                contextDependencies.assets.length &&
+                (yield (0, manifestJSON_1.updateManifest)(context, contextDependencies));
             (0, display_1.displayLine)(`>> Cloned ${contextDependencies.assets.length} ${context} Dependencies`);
         }));
 });

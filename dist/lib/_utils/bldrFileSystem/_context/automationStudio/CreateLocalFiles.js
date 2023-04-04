@@ -54,8 +54,10 @@ const createAutomationStudioEditableFiles = (assets) => __awaiter(void 0, void 0
             }
             content = yield updateFilesFromConfiguration(content);
             const createFileResult = yield (0, fileSystem_1.createFile)(dirPath, content);
-            createFileResult && (0, display_1.displayLine)(`Successfully Created [local | ${assetTypeName}]: ${asset.name || asset.Name}`, 'success');
-            !createFileResult && (0, display_1.displayLine)(`Error Creating File [local | ${assetTypeName}]: ${asset.name || asset.Name}`, 'error');
+            createFileResult &&
+                (0, display_1.displayLine)(`Successfully Created [local | ${assetTypeName}]: ${asset.name || asset.Name}`, 'success');
+            !createFileResult &&
+                (0, display_1.displayLine)(`Error Creating File [local | ${assetTypeName}]: ${asset.name || asset.Name}`, 'error');
         }
     }
     catch (err) {

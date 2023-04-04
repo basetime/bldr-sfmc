@@ -128,7 +128,8 @@ class Push {
                     putResults.errors &&
                     putResults.errors.length &&
                     putResults.errors.forEach((result) => {
-                        typeof result !== 'string' && result.name && (0, display_1.displayLine)(result.name, 'error') || (0, display_1.displayLine)(result, 'error');
+                        (typeof result !== 'string' && result.name && (0, display_1.displayLine)(result.name, 'error')) ||
+                            (0, display_1.displayLine)(result, 'error');
                     });
                 isVerbose() &&
                     putResults &&
@@ -144,7 +145,8 @@ class Push {
                     postResults.errors &&
                     postResults.errors.length &&
                     postResults.errors.forEach((result) => {
-                        typeof result !== 'string' && result.name && (0, display_1.displayLine)(result.name, 'error') || (0, display_1.displayLine)(result, 'error');
+                        (typeof result !== 'string' && result.name && (0, display_1.displayLine)(result.name, 'error')) ||
+                            (0, display_1.displayLine)(result, 'error');
                     });
                 isVerbose() &&
                     postResults &&

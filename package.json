@@ -1,6 +1,6 @@
 {
     "name": "@basetime/bldr-sfmc",
-    "version": "1.6.5-beta.4",
+    "version": "1.7.0",
     "description": "CLI application for SFMC Development workflow and package deployment",
     "main": "./dist/bin/index.js",
     "scripts": {
@@ -12,7 +12,8 @@
         "prebuild": "node -p \"'export const version = ' + JSON.stringify(require('./package.json').version) + ';'\" > lib/_bldr_sdk/version.ts",
         "build": "npm run prebuild && tsc",
         "clean": "npx rimraf dist",
-        "deploy": "npm run build && npm publish",
+        "deploy": "npm run format:write && npm run build && npm publish",
+        "deploy:beta": "npm run format:write && npm run build && npm publish --tag beta",
         "updateLink": "npm run clean && npm run build && npm rm @basetime/bldr-sfmc-ts -g && npm link @basetime/bldr-sfmc-sdk && npm link && cd dist/bin && chmod ugo+rwx index.js"
     },
     "bin": {
@@ -32,7 +33,7 @@
     ],
     "license": "BSD-3-Clause",
     "dependencies": {
-        "@basetime/bldr-sfmc-sdk": "^1.1.5-beta.5",
+        "@basetime/bldr-sfmc-sdk": "^1.2.0",
         "@nodelib/fs.walk": "^1.2.8",
         "axios": "^0.26.0",
         "boxen": "^4.2.0",

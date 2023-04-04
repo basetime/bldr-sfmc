@@ -147,7 +147,8 @@ export class Push {
                 putResults.errors &&
                 putResults.errors.length &&
                 putResults.errors.forEach((result) => {
-                    typeof result !== 'string' && result.name && displayLine(result.name, 'error') || displayLine(result, 'error');
+                    (typeof result !== 'string' && result.name && displayLine(result.name, 'error')) ||
+                        displayLine(result, 'error');
                 });
             isVerbose() &&
                 putResults &&
@@ -164,7 +165,8 @@ export class Push {
                 postResults.errors &&
                 postResults.errors.length &&
                 postResults.errors.forEach((result) => {
-                    typeof result !== 'string' && result.name && displayLine(result.name, 'error') || displayLine(result, 'error');
+                    (typeof result !== 'string' && result.name && displayLine(result.name, 'error')) ||
+                        displayLine(result, 'error');
                 });
             isVerbose() &&
                 postResults &&
@@ -419,7 +421,6 @@ export class Push {
                     }
                 }
             }
-
 
             return {
                 success,
