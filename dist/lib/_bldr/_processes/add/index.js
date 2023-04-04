@@ -62,6 +62,7 @@ class Add {
                 // Add existing files to the Stash with the updated file content
                 const organizedFiles = yield this.gatherAllFiles(contextFiles, rootPath);
                 const { putFiles, postFiles, postFileOptions } = organizedFiles;
+                console.log({ putFiles, postFiles, postFileOptions });
                 putFiles && putFiles.length && (yield saveStash(putFiles));
                 yield this.buildNewAssetObjects({
                     postFileOptions,
