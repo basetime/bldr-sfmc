@@ -65,7 +65,9 @@ exports.sfmc_context = sfmc_context;
  */
 const getFilePathDetails = (systemFilePath) => {
     const contextDetails = sfmc_context(systemFilePath);
-    const systemFilePathArray = systemFilePath.split('/');
+    const os = process.platform;
+    const win = os.startsWith('win');
+    const systemFilePathArray = !win ? systemFilePath.split('/') : systemFilePath.split('\\');
     let fileName = systemFilePathArray && systemFilePathArray.pop();
     const fileExtension = fileName && fileName.substring(fileName.indexOf('.') + 1);
     fileName = fileName && fileName.substring(0, fileName.indexOf('.'));
@@ -78,9 +80,16 @@ const getFilePathDetails = (systemFilePath) => {
             .filter(Boolean)) ||
         contextDetails;
     const projectPath = context && context.length && systemFilePath.substring(systemFilePath.indexOf(context[0].name));
-    const projectPathArray = projectPath.split('/');
+    const projectPathArray = !win ? projectPath.split('/') : projectPath.split('\\');
     projectPathArray.pop();
-    const folderPath = projectPathArray.join('/');
+    const folderPath = !win ? projectPathArray.join('/') : projectPathArray.join('\\');
+    console.log('details', {
+        fileName,
+        fileExtension,
+        folderPath,
+        folderName,
+        context: context[0],
+    });
     return {
         fileName,
         fileExtension,

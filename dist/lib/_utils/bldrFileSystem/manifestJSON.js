@@ -20,8 +20,10 @@ const store_1 = require("../../_bldr_sdk/store");
 const fileSystem_1 = require("../fileSystem");
 const lodash_isequal_1 = __importDefault(require("lodash.isequal"));
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const fileSystem_2 = require("../fileSystem");
 const _1 = require(".");
+const _2 = require(".");
 const { updateFilesFromConfiguration } = new bldr_config_1.User_BLDR_Config();
 var ObjectIdKeys;
 (function (ObjectIdKeys) {
@@ -36,7 +38,8 @@ const updateManifest = (context, content) => __awaiter(void 0, void 0, void 0, f
         throw new Error('Context is required');
     }
     const rootPath = yield (0, fileSystem_2.getRootPath)();
-    const manifestPath = rootPath ? `${rootPath}.local.manifest.json` : `./.local.manifest.json`;
+    console.log('m', { rootPath });
+    const manifestPath = path_1.default.resolve(_2.normalizedManifestJSONPath);
     if (!(0, fileSystem_2.fileExists)(manifestPath)) {
         const init = {};
         const state = (0, _utils_1.assignObject)(store_1.state_conf.get());

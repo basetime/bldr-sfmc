@@ -12,20 +12,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createDirectory = exports.createAllDirectories = exports.readPackageManifest = exports.readManifest = exports.createEnv = exports.scrubBldrSfmcEnv = exports.replaceBldrSfmcEnv = exports.readBldrSfmcEnvTemplate = exports.readBldrSfmcEnv = void 0;
+exports.normalizedPackageManifestJSONPath = exports.normalizedManifestJSONPath = exports.normalizedGitIgnorePath = exports.normalizedTemplateENVPath = exports.normalizedENVPath = exports.normalizedRoot = exports.resolvedRoot = exports.createDirectory = exports.createAllDirectories = exports.readPackageManifest = exports.readManifest = exports.createEnv = exports.scrubBldrSfmcEnv = exports.replaceBldrSfmcEnv = exports.readBldrSfmcEnvTemplate = exports.readBldrSfmcEnv = void 0;
 const fileSystem_1 = require("../fileSystem");
 const fileSystem_2 = require("../fileSystem");
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const fsPromises = require('fs').promises;
+const resolvedRoot = path_1.default.resolve('./');
+exports.resolvedRoot = resolvedRoot;
+const normalizedRoot = path_1.default.normalize('./');
+exports.normalizedRoot = normalizedRoot;
+const normalizedENVPath = path_1.default.join(normalizedRoot, '.sfmc.env.json');
+exports.normalizedENVPath = normalizedENVPath;
+const normalizedTemplateENVPath = path_1.default.join(normalizedRoot, '.sfmc.env.json');
+exports.normalizedTemplateENVPath = normalizedTemplateENVPath;
+const normalizedGitIgnorePath = path_1.default.join(normalizedRoot, '.gitignore');
+exports.normalizedGitIgnorePath = normalizedGitIgnorePath;
+const normalizedManifestJSONPath = path_1.default.join(normalizedRoot, '.local.manifest.json');
+exports.normalizedManifestJSONPath = normalizedManifestJSONPath;
+const normalizedPackageManifestJSONPath = path_1.default.join(normalizedRoot, 'package.manifest.json');
+exports.normalizedPackageManifestJSONPath = normalizedPackageManifestJSONPath;
 /**
  * Reads .sfmc.config.json file
  *
  * @returns
  */
 const readBldrSfmcEnv = () => __awaiter(void 0, void 0, void 0, function* () {
-    const rootPath = yield (0, fileSystem_1.getRootPath)();
-    if ((0, fileSystem_1.fileExists)(`${rootPath}.sfmc.env.json`)) {
-        const config = fs_1.default.readFileSync(`${rootPath}.sfmc.env.json`);
+    const rootPath = (yield (0, fileSystem_1.getRootPath)()) || path_1.default.normalize('./');
+    // Get manifest JSON file
+    const envPath = path_1.default.join(rootPath, '.sfmc.env.json');
+    if ((0, fileSystem_1.fileExists)(envPath)) {
+        const config = fs_1.default.readFileSync(envPath);
         return JSON.parse(config.toString());
     }
 });
@@ -36,9 +53,11 @@ exports.readBldrSfmcEnv = readBldrSfmcEnv;
  * @returns
  */
 const readBldrSfmcEnvTemplate = () => __awaiter(void 0, void 0, void 0, function* () {
-    const rootPath = yield (0, fileSystem_1.getRootPath)();
-    if ((0, fileSystem_1.fileExists)(`${rootPath}template.sfmc.env.json`)) {
-        const config = fs_1.default.readFileSync(`${rootPath}template.sfmc.env.json`);
+    const rootPath = (yield (0, fileSystem_1.getRootPath)()) || path_1.default.normalize('./');
+    // Get manifest JSON file
+    const envPath = path_1.default.join(rootPath, 'template.sfmc.env.json');
+    if ((0, fileSystem_1.fileExists)(envPath)) {
+        const config = fs_1.default.readFileSync(envPath);
         return JSON.parse(config.toString());
     }
 });
@@ -50,22 +69,27 @@ const createEnv = (config = null, template = true) => __awaiter(void 0, void 0, 
         authentication_uri: '',
         parentMID: '',
     };
-    const dirPath = yield (0, fileSystem_1.getRootPath)();
-    yield (0, fileSystem_2.createFile)(`${dirPath}.sfmc.env.json`, JSON.stringify(configTemplate, null, 2));
+    const rootPath = (yield (0, fileSystem_1.getRootPath)()) || path_1.default.normalize('./');
+    // Get manifest JSON file
+    const envPath = path_1.default.join(rootPath, '.sfmc.env.json');
+    const templateEnvPath = path_1.default.join(rootPath, 'template.sfmc.env.json');
+    yield (0, fileSystem_2.createFile)(envPath, JSON.stringify(configTemplate, null, 2));
     if (template) {
-        yield (0, fileSystem_2.createFile)(`${dirPath}template.sfmc.env.json`, JSON.stringify(configTemplate, null, 2));
+        yield (0, fileSystem_2.createFile)(templateEnvPath, JSON.stringify(configTemplate, null, 2));
     }
-    if ((0, fileSystem_1.fileExists)(`${dirPath}.gitignore`)) {
-        yield (0, fileSystem_1.appendFile)(`${dirPath}.gitignore`, `\n#sfmc env \n.sfmc.env.json`);
+    if ((0, fileSystem_1.fileExists)(path_1.default.join(rootPath, '.gitignore'))) {
+        yield (0, fileSystem_1.appendFile)(path_1.default.join(rootPath, '.gitignore'), `\n#sfmc env \n.sfmc.env.json`);
     }
     else {
-        yield (0, fileSystem_2.createFile)(`${dirPath}.gitignore`, `\n#sfmc env \n.sfmc.env.json`);
+        yield (0, fileSystem_2.createFile)(path_1.default.join(rootPath, '.gitignore'), `\n#sfmc env \n.sfmc.env.json`);
     }
 });
 exports.createEnv = createEnv;
 const scrubBldrSfmcEnv = (content) => __awaiter(void 0, void 0, void 0, function* () {
-    const dirPath = yield (0, fileSystem_1.getRootPath)();
-    if ((0, fileSystem_1.fileExists)(`${dirPath}.sfmc.env.json`)) {
+    const rootPath = (yield (0, fileSystem_1.getRootPath)()) || path_1.default.normalize('./');
+    // Get manifest JSON file
+    const envPath = path_1.default.join(rootPath, '.sfmc.env.json');
+    if ((0, fileSystem_1.fileExists)(envPath)) {
         const config = yield readBldrSfmcEnv();
         for (const c in config) {
             const key = c;
@@ -80,7 +104,7 @@ const scrubBldrSfmcEnv = (content) => __awaiter(void 0, void 0, void 0, function
 exports.scrubBldrSfmcEnv = scrubBldrSfmcEnv;
 const replaceBldrSfmcEnv = (content) => __awaiter(void 0, void 0, void 0, function* () {
     const dirPath = yield (0, fileSystem_1.getRootPath)();
-    if ((0, fileSystem_1.fileExists)(`${dirPath}.sfmc.env.json`)) {
+    if ((0, fileSystem_1.fileExists)(normalizedENVPath)) {
         const config = yield readBldrSfmcEnv();
         for (const c in config) {
             const key = c;
@@ -99,9 +123,11 @@ exports.replaceBldrSfmcEnv = replaceBldrSfmcEnv;
  * @returns
  */
 const readManifest = () => __awaiter(void 0, void 0, void 0, function* () {
-    const rootPath = yield (0, fileSystem_1.getRootPath)();
-    if ((0, fileSystem_1.fileExists)(`${rootPath}.local.manifest.json`)) {
-        const config = fs_1.default.readFileSync(`${rootPath}.local.manifest.json`);
+    const rootPath = (yield (0, fileSystem_1.getRootPath)()) || path_1.default.normalize('./');
+    // Get manifest JSON file
+    const manifestPath = path_1.default.join(rootPath, '.local.manifest.json');
+    if ((0, fileSystem_1.fileExists)(manifestPath)) {
+        const config = fs_1.default.readFileSync(manifestPath);
         return JSON.parse(config.toString());
     }
 });
@@ -112,9 +138,11 @@ exports.readManifest = readManifest;
  * @returns
  */
 const readPackageManifest = () => __awaiter(void 0, void 0, void 0, function* () {
-    const rootPath = yield (0, fileSystem_1.getRootPath)();
-    if ((0, fileSystem_1.fileExists)(`${rootPath}package.manifest.json`)) {
-        const config = fs_1.default.readFileSync(`${rootPath}package.manifest.json`);
+    const rootPath = (yield (0, fileSystem_1.getRootPath)()) || path_1.default.normalize('./');
+    // Get manifest JSON file
+    const packagePath = path_1.default.join(rootPath, 'package.manifest.json');
+    if ((0, fileSystem_1.fileExists)(packagePath)) {
+        const config = fs_1.default.readFileSync(packagePath);
         return JSON.parse(config.toString());
     }
 });

@@ -19,30 +19,31 @@ const fs_1 = __importDefault(require("fs"));
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const state_1 = require("../../_bldr/_processes/state");
+const bldrFileSystem_1 = require("../bldrFileSystem");
 const { debug } = new state_1.State();
 /**
  *
  * @param filePath
  * @returns
  */
-const fileExists = (filePath) => fs_1.default.existsSync(filePath);
+const fileExists = (filePath) => fs_1.default.existsSync(path_1.default.normalize(filePath));
 exports.fileExists = fileExists;
 /**
  *
  * @returns
  */
 const getRootPath = () => {
+    const root = path_1.default.resolve('./');
     const rootArr = sfmcContext.sfmc_context_mapping.map(({ name }) => {
-        const dirPath = path_1.default.resolve('./');
-        if (dirPath.includes(name)) {
-            return dirPath.split(name)[0];
+        if (root.includes(name)) {
+            return root.split(name)[0];
         }
         return null;
     });
     if (rootArr.filter(Boolean)[0]) {
         return rootArr.filter(Boolean)[0];
     }
-    return './';
+    return path_1.default.normalize('./');
 };
 exports.getRootPath = getRootPath;
 /**
@@ -72,7 +73,7 @@ const createFile = (filePath, content) => __awaiter(void 0, void 0, void 0, func
     }
     yield createDirectory(directoryPath);
     yield promises_1.default.writeFile(filePath, content);
-    return yield fileExists(`./${filePath}`);
+    return yield fileExists(path_1.default.join(bldrFileSystem_1.resolvedRoot, filePath));
 });
 exports.createFile = createFile;
 /**
@@ -110,7 +111,7 @@ const getAllFiles = () => __awaiter(void 0, void 0, void 0, function* () {
     const cwdPath = process.cwd();
     // Identify the context for request
     const contexts = sfmcContext.sfmc_context_mapping
-        .map((ctx) => fileExists(`./${ctx.rootName}`) && ctx.rootName)
+        .map((ctx) => fileExists(path_1.default.join(bldrFileSystem_1.resolvedRoot, ctx.rootName)) && ctx.rootName)
         .filter(Boolean);
     // Store all complete file paths for files in CWD and subdirectories
     let ctxFiles = new Array();

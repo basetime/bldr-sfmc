@@ -7,6 +7,7 @@ import fs from 'fs';
 import fsPromises from 'fs/promises';
 import path from 'path';
 import { State } from '../../_bldr/_processes/state';
+import { resolvedRoot } from '../bldrFileSystem';
 
 const { debug } = new State();
 /**
@@ -14,16 +15,16 @@ const { debug } = new State();
  * @param filePath
  * @returns
  */
-const fileExists = (filePath: string) => fs.existsSync(filePath);
+const fileExists = (filePath: string) => fs.existsSync(path.normalize(filePath));
 /**
  *
  * @returns
  */
 const getRootPath = () => {
+    const root = path.resolve('./');
     const rootArr = sfmcContext.sfmc_context_mapping.map(({ name }) => {
-        const dirPath = path.resolve('./');
-        if (dirPath.includes(name)) {
-            return dirPath.split(name)[0];
+        if (root.includes(name)) {
+            return root.split(name)[0];
         }
 
         return null;
@@ -33,7 +34,7 @@ const getRootPath = () => {
         return rootArr.filter(Boolean)[0];
     }
 
-    return './';
+    return path.normalize('./');
 };
 /**
  *
@@ -62,7 +63,7 @@ const createFile = async (filePath: string, content: any) => {
 
     await createDirectory(directoryPath);
     await fsPromises.writeFile(filePath, content);
-    return await fileExists(`./${filePath}`);
+    return await fileExists(path.join(resolvedRoot, filePath));
 };
 /**
  *
@@ -99,7 +100,7 @@ const getAllFiles = async () => {
 
     // Identify the context for request
     const contexts = sfmcContext.sfmc_context_mapping
-        .map((ctx) => fileExists(`./${ctx.rootName}`) && ctx.rootName)
+        .map((ctx) => fileExists(path.join(resolvedRoot, ctx.rootName)) && ctx.rootName)
         .filter(Boolean);
 
     // Store all complete file paths for files in CWD and subdirectories

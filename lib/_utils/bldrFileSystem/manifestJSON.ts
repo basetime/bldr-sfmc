@@ -5,11 +5,11 @@ import { state_conf } from '../../_bldr_sdk/store';
 import { createFile } from '../fileSystem';
 import isEqual from 'lodash.isequal';
 import fs from 'fs';
-
+import path from 'path';
 import { fileExists, getRootPath } from '../fileSystem';
 import { displayLine } from '../display';
 import { scrubBldrSfmcEnv } from '.';
-
+import { normalizedManifestJSONPath } from '.';
 const { updateFilesFromConfiguration } = new User_BLDR_Config();
 
 enum ObjectIdKeys {
@@ -33,7 +33,8 @@ const updateManifest = async (
     }
 
     const rootPath = await getRootPath();
-    const manifestPath = rootPath ? `${rootPath}.local.manifest.json` : `./.local.manifest.json`;
+    console.log('m', { rootPath });
+    const manifestPath = path.resolve(normalizedManifestJSONPath);
 
     if (!fileExists(manifestPath)) {
         const init = {};

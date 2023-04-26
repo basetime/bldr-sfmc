@@ -1,17 +1,27 @@
 import { getRootPath, fileExists, appendFile } from '../fileSystem';
 import { createFile } from '../fileSystem';
 import fs from 'fs';
+import path from 'path';
 const fsPromises = require('fs').promises;
 
+const resolvedRoot = path.resolve('./');
+const normalizedRoot = path.normalize('./');
+const normalizedENVPath = path.join(normalizedRoot, '.sfmc.env.json');
+const normalizedTemplateENVPath = path.join(normalizedRoot, '.sfmc.env.json');
+const normalizedGitIgnorePath = path.join(normalizedRoot, '.gitignore');
+const normalizedManifestJSONPath = path.join(normalizedRoot, '.local.manifest.json');
+const normalizedPackageManifestJSONPath = path.join(normalizedRoot, 'package.manifest.json');
 /**
  * Reads .sfmc.config.json file
  *
  * @returns
  */
 const readBldrSfmcEnv = async () => {
-    const rootPath = await getRootPath();
-    if (fileExists(`${rootPath}.sfmc.env.json`)) {
-        const config = fs.readFileSync(`${rootPath}.sfmc.env.json`);
+    const rootPath = (await getRootPath()) || path.normalize('./');
+    // Get manifest JSON file
+    const envPath = path.join(rootPath, '.sfmc.env.json');
+    if (fileExists(envPath)) {
+        const config = fs.readFileSync(envPath);
         return JSON.parse(config.toString());
     }
 };
@@ -22,9 +32,11 @@ const readBldrSfmcEnv = async () => {
  * @returns
  */
 const readBldrSfmcEnvTemplate = async () => {
-    const rootPath = await getRootPath();
-    if (fileExists(`${rootPath}template.sfmc.env.json`)) {
-        const config = fs.readFileSync(`${rootPath}template.sfmc.env.json`);
+    const rootPath = (await getRootPath()) || path.normalize('./');
+    // Get manifest JSON file
+    const envPath = path.join(rootPath, 'template.sfmc.env.json');
+    if (fileExists(envPath)) {
+        const config = fs.readFileSync(envPath);
         return JSON.parse(config.toString());
     }
 };
@@ -37,24 +49,30 @@ const createEnv = async (config = null, template = true) => {
         parentMID: '',
     };
 
-    const dirPath = await getRootPath();
-    await createFile(`${dirPath}.sfmc.env.json`, JSON.stringify(configTemplate, null, 2));
+    const rootPath = (await getRootPath()) || path.normalize('./');
+    // Get manifest JSON file
+    const envPath = path.join(rootPath, '.sfmc.env.json');
+    const templateEnvPath = path.join(rootPath, 'template.sfmc.env.json');
+
+    await createFile(envPath, JSON.stringify(configTemplate, null, 2));
 
     if (template) {
-        await createFile(`${dirPath}template.sfmc.env.json`, JSON.stringify(configTemplate, null, 2));
+        await createFile(templateEnvPath, JSON.stringify(configTemplate, null, 2));
     }
 
-    if (fileExists(`${dirPath}.gitignore`)) {
-        await appendFile(`${dirPath}.gitignore`, `\n#sfmc env \n.sfmc.env.json`);
+    if (fileExists(path.join(rootPath, '.gitignore'))) {
+        await appendFile(path.join(rootPath, '.gitignore'), `\n#sfmc env \n.sfmc.env.json`);
     } else {
-        await createFile(`${dirPath}.gitignore`, `\n#sfmc env \n.sfmc.env.json`);
+        await createFile(path.join(rootPath, '.gitignore'), `\n#sfmc env \n.sfmc.env.json`);
     }
 };
 
 const scrubBldrSfmcEnv = async (content: string) => {
-    const dirPath = await getRootPath();
+    const rootPath = (await getRootPath()) || path.normalize('./');
+    // Get manifest JSON file
+    const envPath = path.join(rootPath, '.sfmc.env.json');
 
-    if (fileExists(`${dirPath}.sfmc.env.json`)) {
+    if (fileExists(envPath)) {
         const config = await readBldrSfmcEnv();
 
         for (const c in config) {
@@ -71,7 +89,7 @@ const scrubBldrSfmcEnv = async (content: string) => {
 
 const replaceBldrSfmcEnv = async (content: string) => {
     const dirPath = await getRootPath();
-    if (fileExists(`${dirPath}.sfmc.env.json`)) {
+    if (fileExists(normalizedENVPath)) {
         const config = await readBldrSfmcEnv();
 
         for (const c in config) {
@@ -92,9 +110,12 @@ const replaceBldrSfmcEnv = async (content: string) => {
  * @returns
  */
 const readManifest = async () => {
-    const rootPath = await getRootPath();
-    if (fileExists(`${rootPath}.local.manifest.json`)) {
-        const config = fs.readFileSync(`${rootPath}.local.manifest.json`);
+    const rootPath = (await getRootPath()) || path.normalize('./');
+    // Get manifest JSON file
+    const manifestPath = path.join(rootPath, '.local.manifest.json');
+
+    if (fileExists(manifestPath)) {
+        const config = fs.readFileSync(manifestPath);
         return JSON.parse(config.toString());
     }
 };
@@ -104,9 +125,12 @@ const readManifest = async () => {
  * @returns
  */
 const readPackageManifest = async () => {
-    const rootPath = await getRootPath();
-    if (fileExists(`${rootPath}package.manifest.json`)) {
-        const config = fs.readFileSync(`${rootPath}package.manifest.json`);
+    const rootPath = (await getRootPath()) || path.normalize('./');
+    // Get manifest JSON file
+    const packagePath = path.join(rootPath, 'package.manifest.json');
+
+    if (fileExists(packagePath)) {
+        const config = fs.readFileSync(packagePath);
         return JSON.parse(config.toString());
     }
 };
@@ -137,4 +161,11 @@ export {
     readPackageManifest,
     createAllDirectories,
     createDirectory,
+    resolvedRoot,
+    normalizedRoot,
+    normalizedENVPath,
+    normalizedTemplateENVPath,
+    normalizedGitIgnorePath,
+    normalizedManifestJSONPath,
+    normalizedPackageManifestJSONPath,
 };
