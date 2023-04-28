@@ -3,10 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isDirEmpty = exports.getFilePathDetails = exports.sfmc_context = exports.uniqueArrayByKey = exports.assignObject = exports.guid = void 0;
+exports.isDirEmpty = exports.getFilePathDetails = exports.sfmc_context = exports.uniqueArrayByKey = exports.assignObject = exports.guid = exports.isWindows = void 0;
 const { sfmc_context_mapping } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping');
 const { v4: uuidv4 } = require('uuid');
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const isWindows = () => process.platform.startsWith('win');
+exports.isWindows = isWindows;
 /**
  *
  * @returns GUID
@@ -48,55 +51,38 @@ exports.sfmc_context = sfmc_context;
  *
  * @param systemFilePath
  * @returns
- *
- * ```
- *  {
- *    fileName: string;
- *    fileExtension: string;
- *    folderPath: string;
- *    folderName: string;
- *    context: {
- *      name: string;
- *      context: string;
- *      contentType: string;
- *    }
- *  }
- * ```
  */
 const getFilePathDetails = (systemFilePath) => {
     const contextDetails = sfmc_context(systemFilePath);
-    const os = process.platform;
-    const win = os.startsWith('win');
-    const systemFilePathArray = !win ? systemFilePath.split('/') : systemFilePath.split('\\');
-    let fileName = systemFilePathArray && systemFilePathArray.pop();
-    const fileExtension = fileName && fileName.substring(fileName.indexOf('.') + 1);
-    fileName = fileName && fileName.substring(0, fileName.indexOf('.'));
-    const folderName = systemFilePathArray && systemFilePathArray.slice(-1).pop();
-    const context = (contextDetails &&
-        contextDetails.length &&
-        contextDetails.length > 1 &&
-        contextDetails
-            .map((context) => systemFilePathArray.includes(context.name) && context)
-            .filter(Boolean)) ||
-        contextDetails;
-    const projectPath = context && context.length && systemFilePath.substring(systemFilePath.indexOf(context[0].name));
-    const projectPathArray = !win ? projectPath.split('/') : projectPath.split('\\');
-    projectPathArray.pop();
-    const folderPath = !win ? projectPathArray.join('/') : projectPathArray.join('\\');
-    console.log('details', {
-        fileName,
-        fileExtension,
-        folderPath,
-        folderName,
-        context: context[0],
-    });
-    return {
-        fileName,
-        fileExtension,
-        folderPath,
-        folderName,
-        context: context[0],
-    };
+    const parsedFilePath = path_1.default.parse(systemFilePath);
+    const parsedOutput = Object.assign(Object.assign({}, parsedFilePath), { formattedDir: isWindows() ? parsedFilePath.dir.replace(new RegExp(/\\/, 'g'), '/') : parsedFilePath.dir, dirName: parsedFilePath.dir.split('/').pop(), context: contextDetails[0] });
+    return parsedOutput;
+    // const os = process.platform;
+    // const win = os.startsWith('win');
+    // const systemFilePathArray: string[] = !win ? systemFilePath.split('/') : systemFilePath.split('\\');
+    // let fileName = systemFilePathArray && systemFilePathArray.pop();
+    // const fileExtension = fileName && fileName.substring(fileName.indexOf('.') + 1);
+    // fileName = fileName && fileName.substring(0, fileName.indexOf('.'));
+    // const folderName = systemFilePathArray && systemFilePathArray.slice(-1).pop();
+    // const context =
+    //     (contextDetails &&
+    //         contextDetails.length &&
+    //         contextDetails.length > 1 &&
+    //         contextDetails
+    //             .map((context: { name: string }) => systemFilePathArray.includes(context.name) && context)
+    //             .filter(Boolean)) ||
+    //     contextDetails;
+    // const projectPath = context && context.length && systemFilePath.substring(systemFilePath.indexOf(context[0].name));
+    // const projectPathArray = !win ? projectPath.split('/') : projectPath.split('\\');
+    // projectPathArray.pop();
+    // const folderPath = !win ? projectPathArray.join('/') : projectPathArray.join('\\');
+    // return {
+    //     fileName,
+    //     fileExtension,
+    //     folderPath,
+    //     folderName,
+    //     context: context[0],
+    // };
 };
 exports.getFilePathDetails = getFilePathDetails;
 function isDirEmpty(dirname) {

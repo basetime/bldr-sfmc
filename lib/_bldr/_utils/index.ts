@@ -1,6 +1,10 @@
 const { sfmc_context_mapping } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping');
 const { v4: uuidv4 } = require('uuid');
 import fs from 'fs';
+import path from 'path';
+
+const isWindows = () => process.platform.startsWith('win');
+
 /**
  *
  * @returns GUID
@@ -39,59 +43,49 @@ const sfmc_context = (systemFilePath: string) =>
  *
  * @param systemFilePath
  * @returns
- *
- * ```
- *  {
- *    fileName: string;
- *    fileExtension: string;
- *    folderPath: string;
- *    folderName: string;
- *    context: {
- *      name: string;
- *      context: string;
- *      contentType: string;
- *    }
- *  }
- * ```
  */
 const getFilePathDetails = (systemFilePath: string) => {
     const contextDetails = sfmc_context(systemFilePath);
-    const os = process.platform;
-    const win = os.startsWith('win');
-    const systemFilePathArray: string[] = !win ? systemFilePath.split('/') : systemFilePath.split('\\');
+    const parsedFilePath = path.parse(systemFilePath);
 
-    let fileName = systemFilePathArray && systemFilePathArray.pop();
-    const fileExtension = fileName && fileName.substring(fileName.indexOf('.') + 1);
-    fileName = fileName && fileName.substring(0, fileName.indexOf('.'));
-    const folderName = systemFilePathArray && systemFilePathArray.slice(-1).pop();
-    const context =
-        (contextDetails &&
-            contextDetails.length &&
-            contextDetails.length > 1 &&
-            contextDetails
-                .map((context: { name: string }) => systemFilePathArray.includes(context.name) && context)
-                .filter(Boolean)) ||
-        contextDetails;
-
-    const projectPath = context && context.length && systemFilePath.substring(systemFilePath.indexOf(context[0].name));
-    const projectPathArray = !win ? projectPath.split('/') : projectPath.split('\\');
-    projectPathArray.pop();
-    const folderPath = !win ? projectPathArray.join('/') : projectPathArray.join('\\');
-
-    console.log('details', {
-        fileName,
-        fileExtension,
-        folderPath,
-        folderName,
-        context: context[0],
-    });
-    return {
-        fileName,
-        fileExtension,
-        folderPath,
-        folderName,
-        context: context[0],
+    const parsedOutput = {
+        ...parsedFilePath,
+        formattedDir: isWindows() ? parsedFilePath.dir.replace(new RegExp(/\\/, 'g'), '/') : parsedFilePath.dir,
+        dirName: parsedFilePath.dir.split('/').pop(),
+        context: contextDetails[0],
     };
+
+    return parsedOutput;
+
+    // const os = process.platform;
+    // const win = os.startsWith('win');
+    // const systemFilePathArray: string[] = !win ? systemFilePath.split('/') : systemFilePath.split('\\');
+
+    // let fileName = systemFilePathArray && systemFilePathArray.pop();
+    // const fileExtension = fileName && fileName.substring(fileName.indexOf('.') + 1);
+    // fileName = fileName && fileName.substring(0, fileName.indexOf('.'));
+    // const folderName = systemFilePathArray && systemFilePathArray.slice(-1).pop();
+    // const context =
+    //     (contextDetails &&
+    //         contextDetails.length &&
+    //         contextDetails.length > 1 &&
+    //         contextDetails
+    //             .map((context: { name: string }) => systemFilePathArray.includes(context.name) && context)
+    //             .filter(Boolean)) ||
+    //     contextDetails;
+
+    // const projectPath = context && context.length && systemFilePath.substring(systemFilePath.indexOf(context[0].name));
+    // const projectPathArray = !win ? projectPath.split('/') : projectPath.split('\\');
+    // projectPathArray.pop();
+    // const folderPath = !win ? projectPathArray.join('/') : projectPathArray.join('\\');
+
+    // return {
+    //     fileName,
+    //     fileExtension,
+    //     folderPath,
+    //     folderName,
+    //     context: context[0],
+    // };
 };
 
 function isDirEmpty(dirname: string) {
@@ -100,4 +94,4 @@ function isDirEmpty(dirname: string) {
     });
 }
 
-export { guid, assignObject, uniqueArrayByKey, sfmc_context, getFilePathDetails, isDirEmpty };
+export { isWindows, guid, assignObject, uniqueArrayByKey, sfmc_context, getFilePathDetails, isDirEmpty };

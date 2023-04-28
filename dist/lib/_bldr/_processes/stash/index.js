@@ -25,8 +25,8 @@ class Stash {
             (0, display_1.displayLine)('Staged Files', 'info');
             if (stashArr && stashArr.length) {
                 stashArr.forEach((stashObject) => {
-                    const { folderPath, fileName } = (0, index_1.getFilePathDetails)(stashObject.path);
-                    (0, display_1.displayLine)(`${folderPath}/${fileName}`);
+                    const { ext, name } = (0, index_1.getFilePathDetails)(stashObject.path);
+                    (0, display_1.displayLine)(`${stashObject.bldr.folderPath}/${name}${ext}`);
                 });
             }
             else {

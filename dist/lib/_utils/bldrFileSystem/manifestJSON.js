@@ -23,7 +23,6 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const fileSystem_2 = require("../fileSystem");
 const _1 = require(".");
-const _2 = require(".");
 const { updateFilesFromConfiguration } = new bldr_config_1.User_BLDR_Config();
 var ObjectIdKeys;
 (function (ObjectIdKeys) {
@@ -37,9 +36,9 @@ const updateManifest = (context, content) => __awaiter(void 0, void 0, void 0, f
     if (!context) {
         throw new Error('Context is required');
     }
-    const rootPath = yield (0, fileSystem_2.getRootPath)();
-    console.log('m', { rootPath });
-    const manifestPath = path_1.default.resolve(_2.normalizedManifestJSONPath);
+    const rootPath = (yield (0, fileSystem_2.getRootPath)()) || path_1.default.normalize('./');
+    const manifestPath = path_1.default.normalize(`${rootPath}/.local.manifest.json`);
+    console.log({ manifestPath, exists: (0, fileSystem_2.fileExists)(manifestPath) });
     if (!(0, fileSystem_2.fileExists)(manifestPath)) {
         const init = {};
         const state = (0, _utils_1.assignObject)(store_1.state_conf.get());

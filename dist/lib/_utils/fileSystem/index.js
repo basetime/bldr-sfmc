@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllFiles = exports.getBldrVersion = exports.createDirectory = exports.appendFile = exports.createFile = exports.fileExists = exports.getRootPath = void 0;
+exports.isProjectRoot = exports.getAllFiles = exports.getBldrVersion = exports.createDirectory = exports.appendFile = exports.createFile = exports.fileExists = exports.getRootPath = void 0;
 const sfmcContext = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping');
 const getFiles = require('node-recursive-directory');
 const fs_1 = __importDefault(require("fs"));
@@ -20,7 +20,14 @@ const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const state_1 = require("../../_bldr/_processes/state");
 const bldrFileSystem_1 = require("../bldrFileSystem");
+const _utils_1 = require("../../_bldr/_utils");
 const { debug } = new state_1.State();
+const isProjectRoot = () => {
+    // Get the current working directory that the [add] command was triggered
+    const cwdPath = process.cwd();
+    return !sfmcContext.sfmc_context_mapping.some((context) => context.name && typeof context.name === 'string' && cwdPath.endsWith(context.name));
+};
+exports.isProjectRoot = isProjectRoot;
 /**
  *
  * @param filePath
@@ -65,13 +72,12 @@ exports.createDirectory = createDirectory;
  * @param content
  */
 const createFile = (filePath, content) => __awaiter(void 0, void 0, void 0, function* () {
-    const dirPathArr = filePath.split('/');
-    dirPathArr.pop();
-    const directoryPath = dirPathArr.join('/');
+    const filePathDetails = yield (0, _utils_1.getFilePathDetails)(filePath);
+    const directoryPath = filePathDetails.dir;
     if (typeof content === 'object') {
         content = JSON.stringify(content, null, 2);
     }
-    yield createDirectory(directoryPath);
+    directoryPath && (yield createDirectory(directoryPath));
     yield promises_1.default.writeFile(filePath, content);
     return yield fileExists(path_1.default.join(bldrFileSystem_1.resolvedRoot, filePath));
 });
@@ -116,7 +122,7 @@ const getAllFiles = () => __awaiter(void 0, void 0, void 0, function* () {
     // Store all complete file paths for files in CWD and subdirectories
     let ctxFiles = new Array();
     // if dir is root folder
-    if (dirPath === './') {
+    if (isProjectRoot()) {
         // iterate all contexts and add files
         for (const c in contexts) {
             ctxFiles.push(...(yield getFiles(`./${contexts[c]}`)));

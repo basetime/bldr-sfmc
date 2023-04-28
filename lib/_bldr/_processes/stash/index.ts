@@ -17,9 +17,8 @@ export class Stash {
 
         if (stashArr && stashArr.length) {
             stashArr.forEach((stashObject: StashItem) => {
-                const { folderPath, fileName } = getFilePathDetails(stashObject.path);
-
-                displayLine(`${folderPath}/${fileName}`);
+                const { ext, name } = getFilePathDetails(stashObject.path);
+                displayLine(`${stashObject.bldr.folderPath}/${name}${ext}`);
             });
         } else {
             displayLine('No Files Staged');

@@ -32,10 +32,8 @@ const updateManifest = async (
         throw new Error('Context is required');
     }
 
-    const rootPath = await getRootPath();
-    console.log('m', { rootPath });
-    const manifestPath = path.resolve(normalizedManifestJSONPath);
-
+    const rootPath = (await getRootPath()) || path.normalize('./');
+    const manifestPath = path.normalize(`${rootPath}/.local.manifest.json`);
     if (!fileExists(manifestPath)) {
         const init = {};
         const state = assignObject(state_conf.get());

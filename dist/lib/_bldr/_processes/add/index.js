@@ -43,12 +43,10 @@ class Add {
          */
         this.addFiles = (argv) => __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log({ argv });
                 const stateObject = getState();
                 const instance = stateObject && stateObject.instance;
                 // Get the root directory for the project being worked on
                 const rootPath = bldrFileSystem_1.normalizedRoot;
-                console.log({ rootPath });
                 // Get the current working directory that the [add] command was triggered
                 const cwdPath = process.cwd();
                 // Get Arguments Array
@@ -60,16 +58,13 @@ class Add {
                 // Compile full folder paths based on CWD path and user provided paths
                 for (const a in argvArr) {
                     const normalizedPath = path_1.default.normalize(argvArr[a]);
-                    console.log({ normalizedPath });
                     contextFiles.push(path_1.default.join(cwdPath, normalizedPath));
                 }
-                console.log({ contextFiles });
                 // Gather all file content/details for each file path
                 // Separate out existing files and newly created files
                 // Add existing files to the Stash with the updated file content
                 const organizedFiles = yield this.gatherAllFiles(contextFiles, rootPath);
                 const { putFiles, postFiles, postFileOptions } = organizedFiles;
-                console.log({ putFiles, postFiles, postFileOptions });
                 putFiles && putFiles.length && (yield saveStash(putFiles));
                 yield this.buildNewAssetObjects({
                     postFileOptions,
@@ -88,26 +83,28 @@ class Add {
          * Prepares JSON for POST/PUT to SFMC APIs
          * Will add all files starting at the CWD request was made, including all files in subfolders
          */
-        this.addAllFiles = (packageJSON = null) => __awaiter(this, void 0, void 0, function* () {
+        this.addAllFiles = (packageManifestJSON = null) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const stateObject = getState();
                 const instance = stateObject && stateObject.instance;
                 // Get the root directory for the project being worked on
-                const rootPath = (yield (0, fileSystem_1.getRootPath)()) || './';
+                const rootPath = bldrFileSystem_1.normalizedRoot;
                 // Get the current working directory that the [add] command was triggered
                 const cwdPath = process.cwd();
                 debug('Folder Path', 'info', { cwdPath, rootPath });
                 // Identify the context for request
-                const contextsArray = sfmcContext.sfmc_context_mapping.map((context) => (0, fileSystem_1.fileExists)(`./${context.name}`) && context.name);
+                const contextsArray = sfmcContext.sfmc_context_mapping
+                    .map((context) => (0, fileSystem_1.fileExists)(path_1.default.join(path_1.default.resolve('./'), context.name)) && context.name)
+                    .filter(Boolean);
                 debug('contextsArray', 'info', contextsArray);
                 // Isolate context from Array
                 const contexts = contextsArray
-                    .filter((ctx) => ctx && ['Data Extensions', 'Shared Data Extensions'].includes(ctx))
+                    .filter((ctx) => ctx && !['Automation Studio'].includes(ctx) && ctx)
                     .filter(Boolean);
                 // Store all complete file paths for files in CWD and subdirectories
                 let contextFiles = [];
                 // if dir is root folder
-                if (rootPath === path_1.default.normalize('./')) {
+                if ((0, fileSystem_1.isProjectRoot)()) {
                     // iterate all contexts and add files
                     for (const c in contexts) {
                         contextFiles.push(...(yield getFiles(`./${contexts[c]}`)));
@@ -120,7 +117,7 @@ class Add {
                 // Gather all file content/details for each file path
                 // Separate out existing files and newly created files
                 // Add existing files to the Stash with the updated file content
-                if (!packageJSON) {
+                if (!packageManifestJSON) {
                     const organizedFiles = yield this.gatherAllFiles(contextFiles, rootPath);
                     debug('organizedFiles', 'info', organizedFiles);
                     const { putFiles, postFiles, postFileOptions } = organizedFiles;
@@ -160,17 +157,13 @@ class Add {
             // Read ManifestJSON file from root dir
             const manifestFile = yield (0, promises_1.readFile)(manifestPath);
             const manifestJSON = JSON.parse(manifestFile);
-            console.log({ manifestJSON });
             // Initiate configuration for new file prompts
             let postFileOptions = {};
-            console.log({ contextFiles });
             // Get all available contexts to check for files
             const availableContexts = contextFiles.map((filePath) => {
                 const { context } = (0, _utils_1.getFilePathDetails)(path_1.default.normalize(filePath));
-                console.log({ filePath, context });
                 return filePath.includes(context.name) && context;
             });
-            console.log({ availableContexts });
             debug('availableContexts', 'info', availableContexts);
             for (const context in availableContexts) {
                 const folderNameRegex = new RegExp('[\\\\/]+' + availableContexts[context].name + '[\\\\/]+', 'i');
@@ -178,13 +171,11 @@ class Add {
                 const bldrContext = availableContexts[context].context;
                 const manifestContextAssets = manifestJSON[bldrContext] && manifestJSON[bldrContext]['assets'];
                 debug('manifestContextAssets', 'info', manifestContextAssets);
-                console.log({ manifestContextAssets });
                 // If the Manifest JSON file has an assets Array process files
                 if (manifestContextAssets) {
                     // Iterate through files array to check if existing files
                     for (const path in contextPaths) {
                         const systemFilePath = contextPaths[path];
-                        console.log({ systemFilePath });
                         debug('systemFilePath', 'info', systemFilePath || 'nothing here');
                         // Check Manifest assets if the file path exists
                         // Gets folder path from the manifest asset
@@ -193,14 +184,12 @@ class Add {
                         // Tests if the system file path includes the folder path of the current asset
                         // Tests if the system file name is the same as the assets name
                         const existingAsset = manifestContextAssets.find((asset) => {
-                            const { fileName, folderPath } = (0, _utils_1.getFilePathDetails)(systemFilePath);
-                            console.log('test', fileName, folderPath);
-                            return asset.category.folderPath === folderPath && fileName === asset.name && asset;
+                            const { name, formattedDir } = (0, _utils_1.getFilePathDetails)(systemFilePath);
+                            return formattedDir.endsWith(asset.category.folderPath) && name === asset.name && asset;
                         });
                         if (existingAsset) {
                             const fileContentRaw = yield (0, promises_1.readFile)(systemFilePath);
                             const fileContent = fileContentRaw.toString();
-                            console.log({ fileContent });
                             debug('existing - fileContentRaw', 'info', fileContentRaw || 'nothing here');
                             const objectIdKey = (_a = existingAsset.assetType) === null || _a === void 0 ? void 0 : _a.objectIdKey;
                             const existingSchema = {
@@ -218,7 +207,6 @@ class Add {
                             else if (objectIdKey) {
                                 existingSchema.bldr.id = existingAsset[objectIdKey];
                             }
-                            console.log({ existingSchema });
                             // If the file exists build the stash object for a put request
                             putFiles.push(existingSchema);
                             // Once stash file is processed remove the filepath from items waiting for processing
@@ -228,16 +216,16 @@ class Add {
                             // If the file does not exist build the stash object for a post request
                             // Also Build the options for CLI prompt
                             const bldrId = yield (0, _utils_1.guid)();
-                            const { fileName, folderPath } = yield (0, _utils_1.getFilePathDetails)(systemFilePath);
+                            const { name, dirName, dir } = yield (0, _utils_1.getFilePathDetails)(systemFilePath);
                             const fileContentRaw = yield (0, promises_1.readFile)(systemFilePath);
                             const fileContent = fileContentRaw.toString();
                             debug('new - fileContentRaw', 'info', fileContentRaw || 'nothing here');
                             postFiles.push({
-                                name: fileName,
+                                name: name,
                                 path: systemFilePath,
                                 bldr: {
                                     context: availableContexts[context],
-                                    folderPath,
+                                    folderPath: dir,
                                     bldrId,
                                 },
                                 fileContent,
@@ -245,7 +233,7 @@ class Add {
                             if (availableContexts[context]['context'] === 'contentBuilder') {
                                 postFileOptions[bldrId] = {
                                     type: 'list',
-                                    describe: `What type of asset is ${folderPath}/${fileName}`,
+                                    describe: `What type of asset is ${dirName}/${name}`,
                                     choices: ['htmlemail', 'codesnippetblock', 'htmlblock'],
                                     prompt: 'always',
                                 };
@@ -294,7 +282,7 @@ class Add {
                     // Iterate through files array to check if existing files
                     for (const path in contextPaths) {
                         const systemFilePath = contextPaths[path];
-                        const { fileName, folderPath } = (0, _utils_1.getFilePathDetails)(systemFilePath);
+                        const { name, dirName } = (0, _utils_1.getFilePathDetails)(systemFilePath);
                         // Check Manifest assets if the file path exists
                         // Gets folder path from the manifest asset
                         // Splits system file path into an array
@@ -302,13 +290,13 @@ class Add {
                         // Tests if the system file path includes the folder path of the current asset
                         // Tests if the system file name is the same as the assets name
                         const packageAsset = manifestContextAssets.find((asset) => {
-                            const { fileName, folderPath } = (0, _utils_1.getFilePathDetails)(systemFilePath);
-                            return asset.category.folderPath === folderPath && fileName === asset.name && asset;
+                            const { name, formattedDir } = (0, _utils_1.getFilePathDetails)(systemFilePath);
+                            return formattedDir.endsWith(asset.category.folderPath) && name === asset.name && asset;
                         });
                         const fileContentRaw = yield (0, promises_1.readFile)(systemFilePath);
                         const fileContent = fileContentRaw.toString();
                         const existingSchema = {
-                            name: fileName,
+                            name: name,
                             path: systemFilePath,
                             bldr: {
                                 context: availableContexts[context],

@@ -8,8 +8,18 @@ import fsPromises from 'fs/promises';
 import path from 'path';
 import { State } from '../../_bldr/_processes/state';
 import { resolvedRoot } from '../bldrFileSystem';
+import { getFilePathDetails } from '../../_bldr/_utils';
 
 const { debug } = new State();
+
+const isProjectRoot = () => {
+    // Get the current working directory that the [add] command was triggered
+    const cwdPath = process.cwd();
+    return !sfmcContext.sfmc_context_mapping.some(
+        (context) => context.name && typeof context.name === 'string' && cwdPath.endsWith(context.name)
+    );
+};
+
 /**
  *
  * @param filePath
@@ -53,15 +63,14 @@ const createDirectory = async (directoryPath: string) => {
  * @param content
  */
 const createFile = async (filePath: string, content: any) => {
-    const dirPathArr = filePath.split('/');
-    dirPathArr.pop();
-    const directoryPath = dirPathArr.join('/');
+    const filePathDetails = await getFilePathDetails(filePath);
+    const directoryPath = filePathDetails.dir;
 
     if (typeof content === 'object') {
         content = JSON.stringify(content, null, 2);
     }
 
-    await createDirectory(directoryPath);
+    directoryPath && (await createDirectory(directoryPath));
     await fsPromises.writeFile(filePath, content);
     return await fileExists(path.join(resolvedRoot, filePath));
 };
@@ -107,7 +116,7 @@ const getAllFiles = async () => {
     let ctxFiles = new Array();
 
     // if dir is root folder
-    if (dirPath === './') {
+    if (isProjectRoot()) {
         // iterate all contexts and add files
         for (const c in contexts) {
             ctxFiles.push(...(await getFiles(`./${contexts[c]}`)));
@@ -120,4 +129,4 @@ const getAllFiles = async () => {
     return ctxFiles;
 };
 
-export { getRootPath, fileExists, createFile, appendFile, createDirectory, getBldrVersion, getAllFiles };
+export { getRootPath, fileExists, createFile, appendFile, createDirectory, getBldrVersion, getAllFiles, isProjectRoot };
