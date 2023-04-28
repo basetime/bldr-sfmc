@@ -247,11 +247,6 @@ class Push {
                                         manifestJSON[stashFileContext === 'contentBuilder' ? 'contentBuilder' : 'sharedContent']['folders'];
                                 // Get Category Data
                                 sfmcUpdateObject.category = manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
-                                console.log('find', manifestContextFolders.find((manifestFolder) => {
-                                    console.log(manifestFolder, folderPath);
-                                    return manifestFolder.folderPath === folderPath;
-                                }));
-                                console.log({ createdFolders, manifestContextFolders, sfmcUpdateObject });
                                 // Set Asset Definition Schema
                                 sfmcAPIObject = yield (0, definitions_2.setContentBuilderDefinition)(sfmcUpdateObject, stashFileObject.fileContent);
                                 debug('Content Builder Payload', 'info', sfmcAPIObject);

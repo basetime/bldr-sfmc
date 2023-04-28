@@ -24,17 +24,11 @@ const addNewFolders = async (
     }
 ) => {
     try {
-        console.log({ folder });
         let createdFolderCount = 0;
-        console.log(process.platform.startsWith('win'));
-        const isWin = await isWindows();
-
         // Split path into array to check each individually
         const stashItemFolderArray = folder.path.split('/');
         // Grab root folder from path
         const rootContextFolder = stashItemFolderArray.shift();
-        console.log({ rootContextFolder });
-        console.log({ stashItemFolderArray });
 
         // Get .local.manifest.json file
         let manifestJSON = await readManifest();
@@ -61,7 +55,6 @@ const addNewFolders = async (
 
             // Compile path to check against
             checkPath = `${checkPath}${'/'}${folderName}`;
-            console.log({ checkPath });
 
             manifestJSON = await readManifest();
             manifestFolderCategories = manifestJSON[folder.context.context]['folders'].map(
@@ -78,9 +71,6 @@ const addNewFolders = async (
                 (manifestFolder: { folderPath: string }) => checkPath && manifestFolder.folderPath.includes(checkPath)
             );
 
-            console.log({ checkPath, manifestFolders, folderIndex });
-            console.log({ parentId });
-
             // If folder does not exist
             if (folderIndex === -1) {
                 if (typeof parentId === 'undefined') {
@@ -90,7 +80,6 @@ const addNewFolders = async (
                         searchTerm: folder.context.name,
                     });
 
-                    console.log(JSON.stringify(parentFolderResponse, null, 2));
 
                     debug('Search for Parent Folder', 'info', parentFolderResponse);
 
@@ -112,7 +101,6 @@ const addNewFolders = async (
                         folderPath: rootContextFolder,
                     };
 
-                    console.log({ parentFolderObject });
                     await updateManifest(folder.context.context, { folders: [parentFolderObject] });
 
                     parentId = parentFolderResponse.Results[0].ID;
@@ -176,7 +164,6 @@ const addNewFolders = async (
                     } while (typeof createFolder !== 'undefined' && updatedFolder === 0);
                 }
             } else {
-                console.log(manifestFolders[folderIndex]);
                 parentId = manifestFolders[folderIndex].id;
             }
         }

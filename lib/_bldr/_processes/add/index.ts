@@ -103,12 +103,10 @@ export class Add {
             // Store all complete file paths for files in CWD and subdirectories
             let contextFiles: string[] = [];
 
-            console.log(isProjectRoot());
             // if dir is root folder
             if (isProjectRoot()) {
                 // iterate all contexts and add files
                 for (const c in contexts) {
-                    console.log(await getFiles(`./${contexts[c]}`));
                     contextFiles.push(...(await getFiles(`./${contexts[c]}`)));
                 }
             } else {
@@ -248,7 +246,6 @@ export class Add {
                         const fileContent = fileContentRaw.toString();
                         debug('new - fileContentRaw', 'info', fileContent || 'nothing here');
 
-                        console.log({ formattedDir });
                         postFiles.push({
                             name: name,
                             path: systemFilePath,

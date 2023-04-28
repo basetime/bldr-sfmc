@@ -103,12 +103,10 @@ class Add {
                     .filter(Boolean);
                 // Store all complete file paths for files in CWD and subdirectories
                 let contextFiles = [];
-                console.log((0, fileSystem_1.isProjectRoot)());
                 // if dir is root folder
                 if ((0, fileSystem_1.isProjectRoot)()) {
                     // iterate all contexts and add files
                     for (const c in contexts) {
-                        console.log(yield getFiles(`./${contexts[c]}`));
                         contextFiles.push(...(yield getFiles(`./${contexts[c]}`)));
                     }
                 }
@@ -222,7 +220,6 @@ class Add {
                             const fileContentRaw = yield (0, promises_1.readFile)(systemFilePath);
                             const fileContent = fileContentRaw.toString();
                             debug('new - fileContentRaw', 'info', fileContent || 'nothing here');
-                            console.log({ formattedDir });
                             postFiles.push({
                                 name: name,
                                 path: systemFilePath,

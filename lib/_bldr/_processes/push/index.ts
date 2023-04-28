@@ -297,14 +297,6 @@ export class Push {
                                 (manifestFolder) => manifestFolder.folderPath === folderPath
                             );
 
-                            console.log(
-                                'find',
-                                manifestContextFolders.find((manifestFolder) => {
-                                    console.log(manifestFolder, folderPath);
-                                    return manifestFolder.folderPath === folderPath;
-                                })
-                            );
-                            console.log({ createdFolders, manifestContextFolders, sfmcUpdateObject });
 
                             // Set Asset Definition Schema
                             sfmcAPIObject = await setContentBuilderDefinition(
