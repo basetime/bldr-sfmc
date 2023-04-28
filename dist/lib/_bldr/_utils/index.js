@@ -55,7 +55,14 @@ exports.sfmc_context = sfmc_context;
 const getFilePathDetails = (systemFilePath) => {
     const contextDetails = sfmc_context(systemFilePath);
     const parsedFilePath = path_1.default.parse(systemFilePath);
-    const parsedOutput = Object.assign(Object.assign({}, parsedFilePath), { formattedDir: isWindows() ? parsedFilePath.dir.replace(new RegExp(/\\/, 'g'), '/') : parsedFilePath.dir, dirName: parsedFilePath.dir.split('/').pop(), context: contextDetails[0] });
+    const parsedOutput = Object.assign(Object.assign({}, parsedFilePath), { formattedDir: isWindows() ? parsedFilePath.dir.replace(new RegExp(/\\/, 'g'), '/') : parsedFilePath.dir, projectDir: (contextDetails &&
+            contextDetails[0] &&
+            (isWindows()
+                ? parsedFilePath.dir
+                    .substring(parsedFilePath.dir.indexOf(contextDetails[0].name))
+                    .replace(new RegExp(/\\/, 'g'), '/')
+                : parsedFilePath.dir.substring(parsedFilePath.dir.indexOf(contextDetails[0].name)))) ||
+            null, dirName: parsedFilePath.dir.split('/').pop(), context: contextDetails[0] || null });
     return parsedOutput;
     // const os = process.platform;
     // const win = os.startsWith('win');

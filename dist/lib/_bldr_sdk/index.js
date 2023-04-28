@@ -253,6 +253,7 @@ const initiateBldrSDK = (authObject, instance, configurationType, account_id) =>
                 }
             }
         }
+        console.log({ sdkConfiguration });
         return new BLDR(sdkConfiguration);
     }
     catch (err) {

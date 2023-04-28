@@ -65,6 +65,7 @@ export class Deploy {
                 return;
             }
 
+            const sdk = !localOnly && (await initiateBldrSDK());
             for (const c in packageContexts) {
                 const context = packageContexts[c];
 
@@ -92,7 +93,7 @@ export class Deploy {
 
                     displayLine(`Creating ${context} folders in sfmc`, 'progress');
                     for (const fp in pkgFolderPaths) {
-                        !localOnly && (await addNewFolders(pkgFolderPaths[fp]));
+                        !localOnly && (await addNewFolders(sdk, pkgFolderPaths[fp]));
                     }
                 }
             }
@@ -104,7 +105,6 @@ export class Deploy {
             const package_automationStudio =
                 packageContexts.includes('automationStudio') && packageJSON['automationStudio']['assets'];
 
-            const sdk = !localOnly && (await initiateBldrSDK());
             !localOnly && sdk && package_dataExtension && (await this.deployDataExtension(sdk, package_dataExtension));
             !localOnly &&
                 sdk &&

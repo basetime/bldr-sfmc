@@ -148,7 +148,7 @@ const readPackageManifest = () => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.readPackageManifest = readPackageManifest;
 const createAllDirectories = (folderPaths) => {
-    const directories = folderPaths.map(({ folderPath }) => folderPath);
+    const directories = folderPaths.map(({ folderPath }) => path_1.default.normalize(folderPath));
     for (const f in directories) {
         const dir = directories[f];
         createDirectory(dir);

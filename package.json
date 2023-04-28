@@ -1,6 +1,6 @@
 {
     "name": "@basetime/bldr-sfmc",
-    "version": "1.8.0-beta.11",
+    "version": "1.8.0-beta.14",
     "description": "CLI application for SFMC Development workflow and package deployment",
     "main": "./dist/bin/index.js",
     "scripts": {

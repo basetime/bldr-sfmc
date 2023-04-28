@@ -173,6 +173,16 @@ class Push {
                     (0, display_1.displayLine)('Unable to initiate BLDR SDK. Please review credentials and retry.', 'error');
                     return;
                 }
+                const stashFoldersArray = (stashFiles &&
+                    stashFiles.length &&
+                    stashFiles.map((file) => {
+                        return { path: file.bldr.folderPath, context: file.bldr.context };
+                    })) ||
+                    [];
+                const stashFolders = yield (0, _utils_1.uniqueArrayByKey)(stashFoldersArray, 'path');
+                for (let f = 0; f < stashFolders.length; f++) {
+                    yield (0, CreateSFMCFolders_1.addNewFolders)(sdk, stashFolders[f]);
+                }
                 for (let f = 0; f < stashFiles.length; f++) {
                     let stashFileObject = stashFiles[f];
                     const bldrId = stashFileObject.bldr.bldrId;
@@ -230,17 +240,18 @@ class Push {
                                 break;
                             case 'contentBuilder':
                             case 'sharedContent':
-                                createdFolders = yield (0, CreateSFMCFolders_1.addNewFolders)(folderPath);
+                                // createdFolders = await addNewFolders(folderPath);
                                 manifestJSON = yield (0, bldrFileSystem_1.readManifest)();
                                 manifestContextFolders =
                                     manifestJSON[stashFileContext === 'contentBuilder' ? 'contentBuilder' : 'sharedContent'] &&
                                         manifestJSON[stashFileContext === 'contentBuilder' ? 'contentBuilder' : 'sharedContent']['folders'];
                                 // Get Category Data
-                                sfmcUpdateObject.category =
-                                    (createdFolders &&
-                                        createdFolders.length &&
-                                        createdFolders[createdFolders.length - 1]) ||
-                                        manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
+                                sfmcUpdateObject.category = manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
+                                console.log('find', manifestContextFolders.find((manifestFolder) => {
+                                    console.log(manifestFolder, folderPath);
+                                    return manifestFolder.folderPath === folderPath;
+                                }));
+                                console.log({ createdFolders, manifestContextFolders, sfmcUpdateObject });
                                 // Set Asset Definition Schema
                                 sfmcAPIObject = yield (0, definitions_2.setContentBuilderDefinition)(sfmcUpdateObject, stashFileObject.fileContent);
                                 debug('Content Builder Payload', 'info', sfmcAPIObject);
@@ -262,18 +273,14 @@ class Push {
                                 }
                                 break;
                             case 'dataExtension':
-                                createdFolders = yield (0, CreateSFMCFolders_1.addNewFolders)(folderPath);
+                                // createdFolders = await addNewFolders(folderPath);
                                 manifestJSON = yield (0, bldrFileSystem_1.readManifest)();
                                 manifestContextFolders =
                                     manifestJSON['dataExtension'] && manifestJSON['dataExtension']['folders'];
                                 sfmcUpdateObject.assetType = {
                                     name: 'dataExtension',
                                 };
-                                sfmcUpdateObject.category =
-                                    (createdFolders &&
-                                        createdFolders.length &&
-                                        createdFolders[createdFolders.length - 1]) ||
-                                        manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
+                                sfmcUpdateObject.category = manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
                                 sfmcAPIObject = JSON.parse(sfmcUpdateObject.fileContent);
                                 sfmcAPIObject.categoryId = sfmcUpdateObject.category.id;
                                 debug('Data Extension Payload', 'info', sfmcAPIObject);
@@ -302,18 +309,14 @@ class Push {
                                 }
                                 break;
                             case 'sharedDataExtension':
-                                createdFolders = yield (0, CreateSFMCFolders_1.addNewFolders)(folderPath);
+                                // createdFolders = await addNewFolders(folderPath);
                                 manifestJSON = yield (0, bldrFileSystem_1.readManifest)();
                                 manifestContextFolders =
                                     manifestJSON['sharedDataExtension'] && manifestJSON['sharedDataExtension']['folders'];
                                 sfmcUpdateObject.assetType = {
                                     name: 'sharedDataExtension',
                                 };
-                                sfmcUpdateObject.category =
-                                    (createdFolders &&
-                                        createdFolders.length &&
-                                        createdFolders[createdFolders.length - 1]) ||
-                                        manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
+                                sfmcUpdateObject.category = manifestContextFolders.find((manifestFolder) => manifestFolder.folderPath === folderPath);
                                 sfmcAPIObject = JSON.parse(sfmcUpdateObject.fileContent);
                                 sfmcAPIObject.categoryId = sfmcUpdateObject.category.id;
                                 debug('Shared Data Extension Payload', 'info', sfmcAPIObject);
@@ -358,6 +361,7 @@ class Push {
             }
             catch (err) {
                 debug('Create/Update Error', 'error', err);
+                console.log(err);
                 if (err.JSON && err.JSON.Results && err.JSON.Results[0] && err.JSON.Results[0].StatusMessage) {
                     (0, display_1.displayLine)(err.JSON.Results[0].StatusMessage, 'error');
                 }

@@ -11,7 +11,7 @@ import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { displayLine } from '../../../_utils/display';
 import { createFile, fileExists, getAllFiles, getRootPath } from '../../../_utils/fileSystem';
 import { incrementMetric } from '../../../_utils/metrics';
-import { isDirEmpty } from '../../_utils';
+import { isDirEmpty, isWindows } from '../../_utils';
 import { State } from '../state';
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder');
 const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension');
@@ -60,6 +60,8 @@ export class Initiate {
     };
 
     initiateContentBuilderProject = async () => {
+        const isWin = await isWindows();
+        const slash = isWin ? '\\' : '/';
         const rootPath = await getRootPath();
         const dirExists = await fileExists(`${rootPath}Content Builder`);
         const dirEmpty = dirExists && (await isDirEmpty(`${rootPath}Content Builder`));

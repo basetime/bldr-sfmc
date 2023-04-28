@@ -37,8 +37,7 @@ const updateManifest = (context, content) => __awaiter(void 0, void 0, void 0, f
         throw new Error('Context is required');
     }
     const rootPath = (yield (0, fileSystem_2.getRootPath)()) || path_1.default.normalize('./');
-    const manifestPath = path_1.default.normalize(`${rootPath}/.local.manifest.json`);
-    console.log({ manifestPath, exists: (0, fileSystem_2.fileExists)(manifestPath) });
+    const manifestPath = path_1.default.normalize(`${rootPath}.local.manifest.json`);
     if (!(0, fileSystem_2.fileExists)(manifestPath)) {
         const init = {};
         const state = (0, _utils_1.assignObject)(store_1.state_conf.get());

@@ -33,7 +33,7 @@ const updateManifest = async (
     }
 
     const rootPath = (await getRootPath()) || path.normalize('./');
-    const manifestPath = path.normalize(`${rootPath}/.local.manifest.json`);
+    const manifestPath = path.normalize(`${rootPath}.local.manifest.json`);
     if (!fileExists(manifestPath)) {
         const init = {};
         const state = assignObject(state_conf.get());

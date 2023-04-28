@@ -103,10 +103,12 @@ export class Add {
             // Store all complete file paths for files in CWD and subdirectories
             let contextFiles: string[] = [];
 
+            console.log(isProjectRoot());
             // if dir is root folder
             if (isProjectRoot()) {
                 // iterate all contexts and add files
                 for (const c in contexts) {
+                    console.log(await getFiles(`./${contexts[c]}`));
                     contextFiles.push(...(await getFiles(`./${contexts[c]}`)));
                 }
             } else {
@@ -239,17 +241,20 @@ export class Add {
                         // Also Build the options for CLI prompt
                         const bldrId = await guid();
 
-                        const { name, dirName, dir } = await getFilePathDetails(systemFilePath);
+                        const { name, dirName, dir, formattedDir, projectDir } = await getFilePathDetails(
+                            systemFilePath
+                        );
                         const fileContentRaw = await readFile(systemFilePath);
                         const fileContent = fileContentRaw.toString();
-                        debug('new - fileContentRaw', 'info', fileContentRaw || 'nothing here');
+                        debug('new - fileContentRaw', 'info', fileContent || 'nothing here');
 
+                        console.log({ formattedDir });
                         postFiles.push({
                             name: name,
                             path: systemFilePath,
                             bldr: {
                                 context: availableContexts[context],
-                                folderPath: dir,
+                                folderPath: projectDir,
                                 bldrId,
                             },
                             fileContent,

@@ -47,14 +47,21 @@ const sfmc_context = (systemFilePath: string) =>
 const getFilePathDetails = (systemFilePath: string) => {
     const contextDetails = sfmc_context(systemFilePath);
     const parsedFilePath = path.parse(systemFilePath);
-
     const parsedOutput = {
         ...parsedFilePath,
         formattedDir: isWindows() ? parsedFilePath.dir.replace(new RegExp(/\\/, 'g'), '/') : parsedFilePath.dir,
+        projectDir:
+            (contextDetails &&
+                contextDetails[0] &&
+                (isWindows()
+                    ? parsedFilePath.dir
+                          .substring(parsedFilePath.dir.indexOf(contextDetails[0].name))
+                          .replace(new RegExp(/\\/, 'g'), '/')
+                    : parsedFilePath.dir.substring(parsedFilePath.dir.indexOf(contextDetails[0].name)))) ||
+            null,
         dirName: parsedFilePath.dir.split('/').pop(),
-        context: contextDetails[0],
+        context: contextDetails[0] || null,
     };
-
     return parsedOutput;
 
     // const os = process.platform;

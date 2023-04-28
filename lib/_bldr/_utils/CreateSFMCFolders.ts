@@ -1,5 +1,5 @@
 import { BLDR_Client } from '@basetime/bldr-sfmc-sdk/lib/cli/types/bldr_client';
-import { getFilePathDetails, uniqueArrayByKey } from '.';
+import { getFilePathDetails, isWindows, uniqueArrayByKey } from '.';
 import { initiateBldrSDK } from '../../_bldr_sdk';
 import { readManifest } from '../../_utils/bldrFileSystem';
 import { updateManifest } from '../../_utils/bldrFileSystem/manifestJSON';
@@ -12,22 +12,36 @@ const { debug } = new State();
  * @param {object} categoryDetails various folder/asset values from the full file path
  * @param {string} dirPath project root folder
  */
-const addNewFolders = async (stashItemFolderPath: string) => {
+const addNewFolders = async (
+    sdk: any,
+    folder: {
+        path: string;
+        context: {
+            name: string;
+            context: string;
+            contentType: string;
+        };
+    }
+) => {
     try {
+        console.log({ folder });
         let createdFolderCount = 0;
-        const sdk = await initiateBldrSDK();
-        const { context } = await getFilePathDetails(stashItemFolderPath);
+        console.log(process.platform.startsWith('win'));
+        const isWin = await isWindows();
+
         // Split path into array to check each individually
-        const stashItemFolderArray = stashItemFolderPath.split('/');
+        const stashItemFolderArray = folder.path.split('/');
         // Grab root folder from path
         const rootContextFolder = stashItemFolderArray.shift();
+        console.log({ rootContextFolder });
+        console.log({ stashItemFolderArray });
 
         // Get .local.manifest.json file
         let manifestJSON = await readManifest();
-        const manifestAssetCategories = manifestJSON[context.context]['assets'].map(
+        const manifestAssetCategories = manifestJSON[folder.context.context]['assets'].map(
             (manifestAsset: { category: { folderPath: string } }) => manifestAsset && manifestAsset.category
         );
-        let manifestFolderCategories = manifestJSON[context.context]['folders'].map(
+        let manifestFolderCategories = manifestJSON[folder.context.context]['folders'].map(
             (manifestFolder: { folderPath: string }) => manifestFolder
         );
         let manifestFolders = await uniqueArrayByKey(
@@ -42,16 +56,18 @@ const addNewFolders = async (stashItemFolderPath: string) => {
         let createFolder;
         // Iterate through all folder names to see where folders need to be created
         for (const stashItemFolder in stashItemFolderArray) {
-            const folder = stashItemFolderArray[stashItemFolder];
+            const folderName = stashItemFolderArray[stashItemFolder];
             let updatedFolder = 0;
 
             // Compile path to check against
-            checkPath = `${checkPath}/${folder}`;
+            checkPath = `${checkPath}${'/'}${folderName}`;
+            console.log({ checkPath });
 
             manifestJSON = await readManifest();
-            manifestFolderCategories = manifestJSON[context.context]['folders'].map(
+            manifestFolderCategories = manifestJSON[folder.context.context]['folders'].map(
                 (manifestFolder: { folderPath: string }) => manifestFolder
             );
+
             manifestFolders = await uniqueArrayByKey(
                 [...manifestAssetCategories, ...manifestFolderCategories],
                 'folderPath'
@@ -62,14 +78,19 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                 (manifestFolder: { folderPath: string }) => checkPath && manifestFolder.folderPath.includes(checkPath)
             );
 
+            console.log({ checkPath, manifestFolders, folderIndex });
+            console.log({ parentId });
+
             // If folder does not exist
             if (folderIndex === -1) {
                 if (typeof parentId === 'undefined') {
                     const parentFolderResponse = await sdk.sfmc.folder.search({
-                        contentType: context.contentType,
+                        contentType: folder.context.contentType,
                         searchKey: 'Name',
-                        searchTerm: context.name,
+                        searchTerm: folder.context.name,
                     });
+
+                    console.log(JSON.stringify(parentFolderResponse, null, 2));
 
                     debug('Search for Parent Folder', 'info', parentFolderResponse);
 
@@ -91,21 +112,22 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                         folderPath: rootContextFolder,
                     };
 
-                    await updateManifest(context.context, { folders: [parentFolderObject] });
+                    console.log({ parentFolderObject });
+                    await updateManifest(folder.context.context, { folders: [parentFolderObject] });
 
                     parentId = parentFolderResponse.Results[0].ID;
                 }
 
                 debug('Create Folder Request', 'info', {
-                    contentType: context.contentType,
-                    name: folder,
+                    contentType: folder.context.contentType,
+                    name: folderName,
                     parentId,
                 });
 
                 // Create folder via SFMC API
                 createFolder = await sdk.sfmc.folder.createFolder({
-                    contentType: context.contentType,
-                    name: folder,
+                    contentType: folder.context.contentType,
+                    name: folderName,
                     parentId,
                 });
 
@@ -116,8 +138,8 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                     (typeof createFolder === 'string' && createFolder.includes('Please select a different Name.'))
                 ) {
                     const existingFolder: any = await addExistingFolderToManifest(sdk, {
-                        context,
-                        folder,
+                        context: folder.context,
+                        folder: folderName,
                         checkPath,
                         parentId,
                     });
@@ -138,12 +160,12 @@ const addNewFolders = async (stashItemFolderPath: string) => {
 
                             const createdFolderObject = {
                                 id: newFolderId,
-                                name: folder,
+                                name: folderName,
                                 parentId,
                                 folderPath: checkPath,
                             };
 
-                            await updateManifest(context.context, { folders: [createdFolderObject] });
+                            await updateManifest(folder.context.context, { folders: [createdFolderObject] });
 
                             parentId = createFolder && createFolder.Results && createFolder.Results[0].NewID;
                             createdFoldersOutput.push(createdFolderObject);
@@ -154,6 +176,7 @@ const addNewFolders = async (stashItemFolderPath: string) => {
                     } while (typeof createFolder !== 'undefined' && updatedFolder === 0);
                 }
             } else {
+                console.log(manifestFolders[folderIndex]);
                 parentId = manifestFolders[folderIndex].id;
             }
         }

@@ -103,10 +103,12 @@ class Add {
                     .filter(Boolean);
                 // Store all complete file paths for files in CWD and subdirectories
                 let contextFiles = [];
+                console.log((0, fileSystem_1.isProjectRoot)());
                 // if dir is root folder
                 if ((0, fileSystem_1.isProjectRoot)()) {
                     // iterate all contexts and add files
                     for (const c in contexts) {
+                        console.log(yield getFiles(`./${contexts[c]}`));
                         contextFiles.push(...(yield getFiles(`./${contexts[c]}`)));
                     }
                 }
@@ -216,16 +218,17 @@ class Add {
                             // If the file does not exist build the stash object for a post request
                             // Also Build the options for CLI prompt
                             const bldrId = yield (0, _utils_1.guid)();
-                            const { name, dirName, dir } = yield (0, _utils_1.getFilePathDetails)(systemFilePath);
+                            const { name, dirName, dir, formattedDir, projectDir } = yield (0, _utils_1.getFilePathDetails)(systemFilePath);
                             const fileContentRaw = yield (0, promises_1.readFile)(systemFilePath);
                             const fileContent = fileContentRaw.toString();
-                            debug('new - fileContentRaw', 'info', fileContentRaw || 'nothing here');
+                            debug('new - fileContentRaw', 'info', fileContent || 'nothing here');
+                            console.log({ formattedDir });
                             postFiles.push({
                                 name: name,
                                 path: systemFilePath,
                                 bldr: {
                                     context: availableContexts[context],
-                                    folderPath: dir,
+                                    folderPath: projectDir,
                                     bldrId,
                                 },
                                 fileContent,

@@ -349,6 +349,7 @@ const initiateBldrSDK = async (
             }
         }
 
+        console.log({ sdkConfiguration });
         return new BLDR(sdkConfiguration);
     } catch (err: any) {
         debug('Initiate sdk Err', 'error', err);

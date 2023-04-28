@@ -65,6 +65,7 @@ class Deploy {
                 if (yield this.deployCheckConfig()) {
                     return;
                 }
+                const sdk = !localOnly && (yield (0, _bldr_sdk_1.initiateBldrSDK)());
                 for (const c in packageContexts) {
                     const context = packageContexts[c];
                     if (context && packageJSON[context]) {
@@ -78,14 +79,13 @@ class Deploy {
                         !sfmcOnly && (yield (0, CreateFilesBasedOnContext_1.createEditableFilesBasedOnContext)(context, pkgAssets));
                         (0, display_1.displayLine)(`Creating ${context} folders in sfmc`, 'progress');
                         for (const fp in pkgFolderPaths) {
-                            !localOnly && (yield (0, CreateSFMCFolders_1.addNewFolders)(pkgFolderPaths[fp]));
+                            !localOnly && (yield (0, CreateSFMCFolders_1.addNewFolders)(sdk, pkgFolderPaths[fp]));
                         }
                     }
                 }
                 const package_dataExtension = packageContexts.includes('dataExtension') && packageJSON['dataExtension']['assets'];
                 const package_contentBuilder = packageContexts.includes('contentBuilder') && packageJSON['contentBuilder']['assets'];
                 const package_automationStudio = packageContexts.includes('automationStudio') && packageJSON['automationStudio']['assets'];
-                const sdk = !localOnly && (yield (0, _bldr_sdk_1.initiateBldrSDK)());
                 !localOnly && sdk && package_dataExtension && (yield this.deployDataExtension(sdk, package_dataExtension));
                 !localOnly &&
                     sdk &&

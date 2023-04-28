@@ -62,6 +62,8 @@ class Initiate {
             return (0, bldrFileSystem_1.createEnv)();
         };
         this.initiateContentBuilderProject = () => __awaiter(this, void 0, void 0, function* () {
+            const isWin = yield (0, _utils_1.isWindows)();
+            const slash = isWin ? '\\' : '/';
             const rootPath = yield (0, fileSystem_1.getRootPath)();
             const dirExists = yield (0, fileSystem_1.fileExists)(`${rootPath}Content Builder`);
             const dirEmpty = dirExists && (yield (0, _utils_1.isDirEmpty)(`${rootPath}Content Builder`));
