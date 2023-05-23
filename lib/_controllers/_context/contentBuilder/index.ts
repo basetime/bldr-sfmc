@@ -146,11 +146,10 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                         debug('Clone Request', 'info', cloneRequest);
 
-                        if(!cloneRequest.assets.length) {
+                        if (!cloneRequest.assets.length) {
                             displayLine('No assets returned, folder is likely empty or does not exist.', 'info');
-                            return
+                            return;
                         }
-
 
                         const isolatedFoldersUnique =
                             cloneRequest &&
@@ -186,10 +185,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                         debug('Clone Request', 'info', cloneRequest);
 
-
-                        if(!cloneRequest.assets || !cloneRequest.assets.length) {
+                        if (!cloneRequest.assets || !cloneRequest.assets.length) {
                             displayLine('No assets returned, folder is likely empty or does not exist.', 'info');
-                            return
+                            return;
                         }
 
                         const isolatedFoldersUnique =

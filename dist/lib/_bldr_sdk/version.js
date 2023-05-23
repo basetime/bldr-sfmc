@@ -1,4 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.version = void 0;
-exports.version = "1.8.0-beta.14";
+exports.version = '1.8.0-beta.14';

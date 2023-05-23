@@ -80,7 +80,6 @@ const addNewFolders = async (
                         searchTerm: folder.context.name,
                     });
 
-
                     debug('Search for Parent Folder', 'info', parentFolderResponse);
 
                     if (parentFolderResponse.OverallStatus !== 'OK') {
