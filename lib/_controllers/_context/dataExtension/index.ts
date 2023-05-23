@@ -285,6 +285,7 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
                             FolderPath: string;
                         }[];
                     } = await emailStudio.gatherAssetById(argv.a);
+
                     debug('Clone Request', 'info', cloneRequest);
                     if (!cloneRequest.folders || !cloneRequest.assets) {
                         displayLine(
@@ -320,7 +321,6 @@ const DataExtensionSwitch = async (req: any, argv: Argv) => {
         return;
     } catch (err) {
         console.log('err', err);
-        displayLine('error', 'error');
     }
 };
 

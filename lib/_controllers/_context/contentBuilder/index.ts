@@ -62,6 +62,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                                         'info'
                                     );
                                 searchRequest &&
+                                    searchRequest.length &&
                                     searchRequest.forEach((obj: any) => {
                                         displayObject(flatten(obj));
                                     });
@@ -83,6 +84,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         searchRequest &&
                             displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
                         searchRequest &&
+                            searchRequest.length &&
                             searchRequest.forEach((obj: any) => {
                                 displayObject(flatten(obj));
                             });
@@ -104,7 +106,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     debug('Search Request', 'info', searchRequest);
 
                     searchRequest && displayLine(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
+
                     searchRequest &&
+                        searchRequest.length &&
                         searchRequest.forEach((obj: any) => {
                             displayObject(flatten(obj));
                         });
@@ -140,7 +144,13 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             shared
                         );
 
-                        debug('Search Request', 'info', cloneRequest);
+                        debug('Clone Request', 'info', cloneRequest);
+
+                        if(!cloneRequest.assets.length) {
+                            displayLine('No assets returned, folder is likely empty or does not exist.', 'info');
+                            return
+                        }
+
 
                         const isolatedFoldersUnique =
                             cloneRequest &&
@@ -158,8 +168,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                                 folders: isolatedFoldersUnique || [],
                             }));
 
-                        !cloneRequest.assets.length &&
-                            displayLine('No assets returned, folder is likely empty.', 'info');
                         allowTracking() && incrementMetric('req_clones_sharedContent_folders');
                     } else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
                         const cloneRequest: {
@@ -177,6 +185,12 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         });
 
                         debug('Clone Request', 'info', cloneRequest);
+
+
+                        if(!cloneRequest.assets || !cloneRequest.assets.length) {
+                            displayLine('No assets returned, folder is likely empty or does not exist.', 'info');
+                            return
+                        }
 
                         const isolatedFoldersUnique =
                             cloneRequest &&
@@ -223,6 +237,11 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             }[];
                         } = await contentBuilder.gatherAssetById(assetId, legacy, shared);
 
+                        if (!cloneRequest || !cloneRequest.assets || !cloneRequest.folders) {
+                            displayLine(`Unable to Clone Request`, 'error');
+                            return;
+                        }
+
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
 
@@ -248,6 +267,11 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         } = await contentBuilder.gatherAssetById(argv.a);
 
                         debug('Clone Request', 'info', cloneRequest);
+
+                        if (!cloneRequest || !cloneRequest.assets || !cloneRequest.folders) {
+                            displayLine(`Unable to Clone Request, asset might not exist`, 'error');
+                            return;
+                        }
 
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');

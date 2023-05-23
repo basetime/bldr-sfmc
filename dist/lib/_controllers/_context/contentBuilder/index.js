@@ -64,6 +64,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                                 searchRequest &&
                                     (0, display_1.displayLine)(`${searchTerm} Search Results | ${searchRequest.length} Results`, 'info');
                                 searchRequest &&
+                                    searchRequest.length &&
                                     searchRequest.forEach((obj) => {
                                         (0, display_1.displayObject)((0, flat_1.default)(obj));
                                     });
@@ -82,6 +83,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                         searchRequest &&
                             (0, display_1.displayLine)(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
                         searchRequest &&
+                            searchRequest.length &&
                             searchRequest.forEach((obj) => {
                                 (0, display_1.displayObject)((0, flat_1.default)(obj));
                             });
@@ -99,6 +101,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                     debug('Search Request', 'info', searchRequest);
                     searchRequest && (0, display_1.displayLine)(`${argv.a} Search Results | ${searchRequest.length} Results`, 'info');
                     searchRequest &&
+                        searchRequest.length &&
                         searchRequest.forEach((obj) => {
                             (0, display_1.displayObject)((0, flat_1.default)(obj));
                         });
@@ -118,7 +121,11 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             contentType: 'asset',
                             categoryId: searchTerm,
                         }, shared);
-                        debug('Search Request', 'info', cloneRequest);
+                        debug('Clone Request', 'info', cloneRequest);
+                        if (!cloneRequest.assets.length) {
+                            (0, display_1.displayLine)('No assets returned, folder is likely empty or does not exist.', 'info');
+                            return;
+                        }
                         const isolatedFoldersUnique = cloneRequest &&
                             cloneRequest.folders &&
                             cloneRequest.folders.length &&
@@ -133,8 +140,6 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                                 assets: cloneRequest.assets,
                                 folders: isolatedFoldersUnique || [],
                             }));
-                        !cloneRequest.assets.length &&
-                            (0, display_1.displayLine)('No assets returned, folder is likely empty.', 'info');
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_folders');
                     }
                     else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
@@ -143,6 +148,10 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             categoryId: argv.f,
                         });
                         debug('Clone Request', 'info', cloneRequest);
+                        if (!cloneRequest.assets || !cloneRequest.assets.length) {
+                            (0, display_1.displayLine)('No assets returned, folder is likely empty or does not exist.', 'info');
+                            return;
+                        }
                         const isolatedFoldersUnique = cloneRequest &&
                             cloneRequest.folders &&
                             cloneRequest.folders.length &&
@@ -171,6 +180,10 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                         const shared = argv.a.split(':')[1] === 'shared' ? true : false;
                         const assetId = argv._ && argv._[1];
                         const cloneRequest = yield contentBuilder.gatherAssetById(assetId, legacy, shared);
+                        if (!cloneRequest || !cloneRequest.assets || !cloneRequest.folders) {
+                            (0, display_1.displayLine)(`Unable to Clone Request`, 'error');
+                            return;
+                        }
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
                         assets && assets.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assets));
@@ -185,6 +198,10 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                     else if ((typeof argv.a === 'string' && !argv.a.includes(':')) || argv.a === 'number') {
                         const cloneRequest = yield contentBuilder.gatherAssetById(argv.a);
                         debug('Clone Request', 'info', cloneRequest);
+                        if (!cloneRequest || !cloneRequest.assets || !cloneRequest.folders) {
+                            (0, display_1.displayLine)(`Unable to Clone Request`, 'error');
+                            return;
+                        }
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
                         assets && assets.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assets));

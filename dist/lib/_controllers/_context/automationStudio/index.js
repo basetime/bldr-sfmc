@@ -64,9 +64,11 @@ const AutomationStudioSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, 
                         searchTerm: searchTerm,
                     });
                     (0, display_1.displayLine)(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj) => {
-                        (0, display_1.displayObject)((0, flat_1.default)(obj));
-                    });
+                    searchRequest &&
+                        searchRequest.length &&
+                        searchRequest.forEach((obj) => {
+                            (0, display_1.displayObject)((0, flat_1.default)(obj));
+                        });
                     allowTracking() && (0, metrics_1.incrementMetric)(`req_searches_automationStudio_${contentType}_folders`);
                 }
                 else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
@@ -76,9 +78,11 @@ const AutomationStudioSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, 
                         searchTerm: argv.f,
                     });
                     (0, display_1.displayLine)(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj) => {
-                        (0, display_1.displayObject)((0, flat_1.default)(obj));
-                    });
+                    searchRequest &&
+                        searchRequest.length &&
+                        searchRequest.forEach((obj) => {
+                            (0, display_1.displayObject)((0, flat_1.default)(obj));
+                        });
                     allowTracking() && (0, metrics_1.incrementMetric)(`req_searches_automationStudio_automations_folders`);
                 }
                 /**
@@ -127,6 +131,10 @@ const AutomationStudioSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, 
                         contentType,
                         categoryId,
                     });
+                    if (!searchRequest || !searchRequest.assets || !searchRequest.folders) {
+                        (0, display_1.displayLine)(`Unable to Clone Request`, 'error');
+                        return;
+                    }
                     const { assets, folders } = searchRequest;
                     const formattedAssetResponse = (yield assets) &&
                         Array.isArray(assets) &&
@@ -163,6 +171,10 @@ const AutomationStudioSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, 
                         contentType: 'automations',
                         categoryId: argv.f,
                     });
+                    if (cloneAutomationRequest.assets.length === 0) {
+                        (0, display_1.displayLine)('No items to clone', 'info');
+                        return;
+                    }
                     yield processAutomationCloneRequest(cloneAutomationRequest);
                 }
                 /**
@@ -187,6 +199,10 @@ const AutomationStudioSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, 
                         contentType,
                         assetId,
                     });
+                    if (!searchRequest || !searchRequest.assets || !searchRequest.folders) {
+                        (0, display_1.displayLine)(`Unable to Clone Request`, 'error');
+                        return;
+                    }
                     const { assets, folders } = searchRequest;
                     const formattedAssetResponse = (yield assets) &&
                         Array.isArray(assets) &&
@@ -219,6 +235,10 @@ const AutomationStudioSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, 
                 }
                 else if (typeof argv.a === 'string' && !argv.a.includes(':')) {
                     const cloneAutomationRequest = yield automationStudio.gatherAssetById(argv.a);
+                    if (cloneAutomationRequest.assets.length === 0) {
+                        (0, display_1.displayLine)('No items to clone', 'info');
+                        return;
+                    }
                     yield processAutomationCloneRequest(cloneAutomationRequest);
                 }
                 break;

@@ -62,9 +62,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     });
 
                     displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj: any) => {
-                        displayObject(flatten(obj));
-                    });
+                    searchRequest &&
+                        searchRequest.length &&
+                        searchRequest.forEach((obj: any) => {
+                            displayObject(flatten(obj));
+                        });
 
                     allowTracking() && incrementMetric(`req_searches_automationStudio_${contentType}_folders`);
                 } else if (typeof argv.f === 'string' && !argv.f.includes(':')) {
@@ -75,9 +77,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                     });
 
                     displayLine(`${argv.f} Search Results | ${searchRequest.length} Results`, 'info');
-                    searchRequest.forEach((obj: any) => {
-                        displayObject(flatten(obj));
-                    });
+                    searchRequest &&
+                        searchRequest.length &&
+                        searchRequest.forEach((obj: any) => {
+                            displayObject(flatten(obj));
+                        });
 
                     allowTracking() && incrementMetric(`req_searches_automationStudio_automations_folders`);
                 }
@@ -141,6 +145,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         categoryId,
                     });
 
+                    if (!searchRequest || !searchRequest.assets || !searchRequest.folders) {
+                        displayLine(`Unable to Clone Request`, 'error');
+                        return;
+                    }
+
                     const { assets, folders } = searchRequest;
 
                     const formattedAssetResponse =
@@ -194,6 +203,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         categoryId: argv.f,
                     });
 
+                    if (cloneAutomationRequest.assets.length === 0) {
+                        displayLine('No items to clone', 'info');
+                        return;
+                    }
+
                     await processAutomationCloneRequest(cloneAutomationRequest);
                 }
 
@@ -221,6 +235,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         contentType,
                         assetId,
                     });
+
+                    if (!searchRequest || !searchRequest.assets || !searchRequest.folders) {
+                        displayLine(`Unable to Clone Request`, 'error');
+                        return;
+                    }
 
                     const { assets, folders } = searchRequest;
 
@@ -269,6 +288,11 @@ const AutomationStudioSwitch = async (req: any, argv: Argv) => {
                         formattedAutomationDefinitions: any[];
                         formattedAutomationDependencies: any[];
                     } = await automationStudio.gatherAssetById(argv.a);
+
+                    if (cloneAutomationRequest.assets.length === 0) {
+                        displayLine('No items to clone', 'info');
+                        return;
+                    }
 
                     await processAutomationCloneRequest(cloneAutomationRequest);
                 }
