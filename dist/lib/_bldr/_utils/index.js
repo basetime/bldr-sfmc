@@ -1,22 +1,13 @@
-'use strict';
-var __importDefault =
-    (this && this.__importDefault) ||
-    function (mod) {
-        return mod && mod.__esModule ? mod : { default: mod };
-    };
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.isDirEmpty =
-    exports.getFilePathDetails =
-    exports.sfmc_context =
-    exports.uniqueArrayByKey =
-    exports.assignObject =
-    exports.guid =
-    exports.isWindows =
-        void 0;
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isDirEmpty = exports.getFilePathDetails = exports.sfmc_context = exports.uniqueArrayByKey = exports.assignObject = exports.guid = exports.isWindows = void 0;
 const { sfmc_context_mapping } = require('@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContextMapping');
 const { v4: uuidv4 } = require('uuid');
-const fs_1 = __importDefault(require('fs'));
-const path_1 = __importDefault(require('path'));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const isWindows = () => process.platform.startsWith('win');
 exports.isWindows = isWindows;
 /**
@@ -54,8 +45,7 @@ exports.uniqueArrayByKey = uniqueArrayByKey;
  * ```
  *
  */
-const sfmc_context = (systemFilePath) =>
-    sfmc_context_mapping.filter((context) => new RegExp(context.name).test(systemFilePath));
+const sfmc_context = (systemFilePath) => sfmc_context_mapping.filter((context) => new RegExp(context.name).test(systemFilePath));
 exports.sfmc_context = sfmc_context;
 /**
  *
@@ -65,20 +55,14 @@ exports.sfmc_context = sfmc_context;
 const getFilePathDetails = (systemFilePath) => {
     const contextDetails = sfmc_context(systemFilePath);
     const parsedFilePath = path_1.default.parse(systemFilePath);
-    const parsedOutput = Object.assign(Object.assign({}, parsedFilePath), {
-        formattedDir: isWindows() ? parsedFilePath.dir.replace(new RegExp(/\\/, 'g'), '/') : parsedFilePath.dir,
-        projectDir:
-            (contextDetails &&
-                contextDetails[0] &&
-                (isWindows()
-                    ? parsedFilePath.dir
-                          .substring(parsedFilePath.dir.indexOf(contextDetails[0].name))
-                          .replace(new RegExp(/\\/, 'g'), '/')
-                    : parsedFilePath.dir.substring(parsedFilePath.dir.indexOf(contextDetails[0].name)))) ||
-            null,
-        dirName: parsedFilePath.dir.split('/').pop(),
-        context: contextDetails[0] || null,
-    });
+    const parsedOutput = Object.assign(Object.assign({}, parsedFilePath), { formattedDir: isWindows() ? parsedFilePath.dir.replace(new RegExp(/\\/, 'g'), '/') : parsedFilePath.dir, projectDir: (contextDetails &&
+            contextDetails[0] &&
+            (isWindows()
+                ? parsedFilePath.dir
+                    .substring(parsedFilePath.dir.indexOf(contextDetails[0].name))
+                    .replace(new RegExp(/\\/, 'g'), '/')
+                : parsedFilePath.dir.substring(parsedFilePath.dir.indexOf(contextDetails[0].name)))) ||
+            null, dirName: parsedFilePath.dir.split('/').pop(), context: contextDetails[0] || null });
     return parsedOutput;
     // const os = process.platform;
     // const win = os.startsWith('win');
