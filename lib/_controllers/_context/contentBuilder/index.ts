@@ -279,7 +279,9 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
 
                         const assetsToCreate = assets && !Array.isArray(assets) ? [assets] : assets;
-                        assetsToCreate && assetsToCreate.length && (await createContentBuilderEditableFiles(assetsToCreate));
+                        assetsToCreate &&
+                            assetsToCreate.length &&
+                            (await createContentBuilderEditableFiles(assetsToCreate));
                         assetsToCreate &&
                             folders &&
                             (await updateManifest('contentBuilder', {

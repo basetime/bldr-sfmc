@@ -143,7 +143,7 @@ const addNewFolders = async (
                             (createFolder && createFolder.Results && createFolder.Results[0].NewID) || null;
 
                         if (newFolderId) {
-                            displayLine(`${folder} has been created; CategoryId: ${newFolderId}`, 'success');
+                            displayLine(`${folderName} has been created; CategoryId: ${newFolderId}`, 'success');
 
                             const createdFolderObject = {
                                 id: newFolderId,

@@ -14,8 +14,8 @@ const { debug } = new State();
 
 const isProjectRoot = () => {
     // Get the current working directory that the [add] command was triggered
-    const cwdPath = process.cwd();
-    return !sfmcContext.sfmc_context_mapping.some(
+    const cwdPath = path.resolve('./');
+    return sfmcContext.sfmc_context_mapping.some(
         (context) => context.name && typeof context.name === 'string' && cwdPath.endsWith(context.name)
     );
 };

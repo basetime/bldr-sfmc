@@ -24,8 +24,8 @@ const _utils_1 = require("../../_bldr/_utils");
 const { debug } = new state_1.State();
 const isProjectRoot = () => {
     // Get the current working directory that the [add] command was triggered
-    const cwdPath = process.cwd();
-    return !sfmcContext.sfmc_context_mapping.some((context) => context.name && typeof context.name === 'string' && cwdPath.endsWith(context.name));
+    const cwdPath = path_1.default.resolve('./');
+    return sfmcContext.sfmc_context_mapping.some((context) => context.name && typeof context.name === 'string' && cwdPath.endsWith(context.name));
 };
 exports.isProjectRoot = isProjectRoot;
 /**

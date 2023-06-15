@@ -106,7 +106,7 @@ const addNewFolders = (sdk, folder) => __awaiter(void 0, void 0, void 0, functio
                     do {
                         const newFolderId = (createFolder && createFolder.Results && createFolder.Results[0].NewID) || null;
                         if (newFolderId) {
-                            (0, display_1.displayLine)(`${folder} has been created; CategoryId: ${newFolderId}`, 'success');
+                            (0, display_1.displayLine)(`${folderName} has been created; CategoryId: ${newFolderId}`, 'success');
                             const createdFolderObject = {
                                 id: newFolderId,
                                 name: folderName,

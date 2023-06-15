@@ -93,32 +93,26 @@ class Add {
                 const cwdPath = process.cwd();
                 debug('Folder Path', 'info', { cwdPath, rootPath });
                 // Identify the context for request
-                const contextsArray = sfmcContext.sfmc_context_mapping
-                    .map((context) => (0, fileSystem_1.fileExists)(path_1.default.join(path_1.default.resolve('./'), context.name)) && context.name)
-                    .filter(Boolean);
-                debug('contextsArray', 'info', contextsArray);
-                // Isolate context from Array
-                const contexts = contextsArray
-                    .filter((ctx) => ctx && !['Automation Studio'].includes(ctx) && ctx)
-                    .filter(Boolean);
+                const contextsArray = sfmcContext.sfmc_context_mapping.map((context) => context.name);
                 // Store all complete file paths for files in CWD and subdirectories
                 let contextFiles = [];
-                // if dir is root folder
-                if ((0, fileSystem_1.isProjectRoot)()) {
-                    // iterate all contexts and add files
-                    for (const c in contexts) {
-                        contextFiles.push(...(yield getFiles(`./${contexts[c]}`)));
-                    }
-                }
-                else {
-                    // get files from current working directory and subdirectories
-                    contextFiles.push(...(yield getFiles(`${cwdPath}`)));
-                }
+                const isRoot = yield (0, fileSystem_1.isProjectRoot)();
+                const files = yield getFiles(path_1.default.resolve('./'));
+                // get files from current working directory and subdirectories
+                contextFiles.push(...(yield getFiles(path_1.default.resolve('./'))));
+                const filteredContextFiles = contextFiles
+                    .map((filePath) => {
+                    const isContextFilePath = contextsArray.some((context) => {
+                        return filePath.includes(context);
+                    });
+                    return (isContextFilePath && filePath) || '';
+                })
+                    .filter(Boolean);
                 // Gather all file content/details for each file path
                 // Separate out existing files and newly created files
                 // Add existing files to the Stash with the updated file content
                 if (!packageManifestJSON) {
-                    const organizedFiles = yield this.gatherAllFiles(contextFiles, rootPath);
+                    const organizedFiles = yield this.gatherAllFiles(filteredContextFiles, rootPath);
                     debug('organizedFiles', 'info', organizedFiles);
                     const { putFiles, postFiles, postFileOptions } = organizedFiles;
                     putFiles && putFiles.length && (yield saveStash(putFiles));

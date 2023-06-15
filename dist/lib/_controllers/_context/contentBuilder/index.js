@@ -207,7 +207,9 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
                         const assetsToCreate = assets && !Array.isArray(assets) ? [assets] : assets;
-                        assetsToCreate && assetsToCreate.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assetsToCreate));
+                        assetsToCreate &&
+                            assetsToCreate.length &&
+                            (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assetsToCreate));
                         assetsToCreate &&
                             folders &&
                             (yield (0, manifestJSON_1.updateManifest)('contentBuilder', {
