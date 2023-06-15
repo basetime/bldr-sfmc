@@ -96,8 +96,6 @@ class Add {
                 const contextsArray = sfmcContext.sfmc_context_mapping.map((context) => context.name);
                 // Store all complete file paths for files in CWD and subdirectories
                 let contextFiles = [];
-                const isRoot = yield (0, fileSystem_1.isProjectRoot)();
-                const files = yield getFiles(path_1.default.resolve('./'));
                 // get files from current working directory and subdirectories
                 contextFiles.push(...(yield getFiles(path_1.default.resolve('./'))));
                 const filteredContextFiles = contextFiles

@@ -105,9 +105,9 @@ export class Add {
                         return filePath.includes(context);
                     });
 
-                    return (isContextFilePath && filePath || '');
-                }).filter(Boolean)
-
+                    return (isContextFilePath && filePath) || '';
+                })
+                .filter(Boolean);
 
             // Gather all file content/details for each file path
             // Separate out existing files and newly created files
