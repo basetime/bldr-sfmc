@@ -143,6 +143,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_folders');
                     }
                     else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
+                        (0, display_1.displayLine)(`Clone folder`, 'info');
                         const cloneRequest = yield contentBuilder.gatherAssetsByCategoryId({
                             contentType: 'asset',
                             categoryId: argv.f,
@@ -175,6 +176,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                  * Search for Content Builder Assets
                  */
                 if (argv.a) {
+                    (0, display_1.displayLine)(`Clone asset`, 'info');
                     if (typeof argv.a === 'string' && argv.a.includes(':')) {
                         const legacy = false;
                         const shared = argv.a.split(':')[1] === 'shared' ? true : false;
@@ -195,7 +197,7 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                             }));
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_sharedContent_assets');
                     }
-                    else if ((typeof argv.a === 'string' && !argv.a.includes(':')) || argv.a === 'number') {
+                    else if ((typeof argv.a === 'string' && !argv.a.includes(':')) || typeof argv.a === 'number') {
                         const cloneRequest = yield contentBuilder.gatherAssetById(argv.a);
                         debug('Clone Request', 'info', cloneRequest);
                         if (!cloneRequest || !cloneRequest.assets || !cloneRequest.folders) {
@@ -204,11 +206,12 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                         }
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && (0, _utils_1.uniqueArrayByKey)(folders, 'id');
-                        assets && assets.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assets));
-                        assets &&
+                        const assetsToCreate = assets && !Array.isArray(assets) ? [assets] : assets;
+                        assetsToCreate && assetsToCreate.length && (yield (0, CreateLocalFiles_1.createContentBuilderEditableFiles)(assetsToCreate));
+                        assetsToCreate &&
                             folders &&
                             (yield (0, manifestJSON_1.updateManifest)('contentBuilder', {
-                                assets: assets,
+                                assets: assetsToCreate,
                                 folders: isolatedFoldersUnique,
                             }));
                         allowTracking() && (0, metrics_1.incrementMetric)('req_clones_contentBuilder_assets');

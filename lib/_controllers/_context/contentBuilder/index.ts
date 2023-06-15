@@ -169,6 +169,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                         allowTracking() && incrementMetric('req_clones_sharedContent_folders');
                     } else if ((typeof argv.f === 'string' && !argv.f.includes(':')) || typeof argv.f === 'number') {
+                        displayLine(`Clone folder`, 'info');
+
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
                             folders: {
@@ -219,6 +221,8 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                  * Search for Content Builder Assets
                  */
                 if (argv.a) {
+                    displayLine(`Clone asset`, 'info');
+
                     if (typeof argv.a === 'string' && argv.a.includes(':')) {
                         const legacy = false;
                         const shared = argv.a.split(':')[1] === 'shared' ? true : false;
@@ -252,7 +256,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             }));
 
                         allowTracking() && incrementMetric('req_clones_sharedContent_assets');
-                    } else if ((typeof argv.a === 'string' && !argv.a.includes(':')) || argv.a === 'number') {
+                    } else if ((typeof argv.a === 'string' && !argv.a.includes(':')) || typeof argv.a === 'number') {
                         const cloneRequest: {
                             assets: SFMC_Content_Builder_Asset[];
                             folders: {
@@ -274,11 +278,12 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         const { assets, folders } = cloneRequest;
                         const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
 
-                        assets && assets.length && (await createContentBuilderEditableFiles(assets));
-                        assets &&
+                        const assetsToCreate = assets && !Array.isArray(assets) ? [assets] : assets;
+                        assetsToCreate && assetsToCreate.length && (await createContentBuilderEditableFiles(assetsToCreate));
+                        assetsToCreate &&
                             folders &&
                             (await updateManifest('contentBuilder', {
-                                assets: assets,
+                                assets: assetsToCreate,
                                 folders: isolatedFoldersUnique,
                             }));
 
