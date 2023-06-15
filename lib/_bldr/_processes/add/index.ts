@@ -95,8 +95,6 @@ export class Add {
 
             // Store all complete file paths for files in CWD and subdirectories
             let contextFiles: string[] = [];
-            const isRoot = await isProjectRoot();
-            const files = await getFiles(path.resolve('./'));
 
             // get files from current working directory and subdirectories
             contextFiles.push(...(await getFiles(path.resolve('./'))));
@@ -107,9 +105,9 @@ export class Add {
                         return filePath.includes(context);
                     });
 
-                    return (isContextFilePath && filePath) || '';
-                })
-                .filter(Boolean);
+                    return (isContextFilePath && filePath || '');
+                }).filter(Boolean)
+
 
             // Gather all file content/details for each file path
             // Separate out existing files and newly created files
