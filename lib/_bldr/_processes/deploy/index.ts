@@ -47,6 +47,8 @@ export class Deploy {
             const packageJSON = await readPackageManifest();
             const availableContexts: string[] = sfmcContext.sfmc_context_mapping.map((ctx) => ctx.context);
 
+            console.log({availableContexts: sfmcContext.sfmc_context_mapping})
+
             const packageContexts = Object.keys(packageJSON).map((key) => {
                 return availableContexts.includes(key) && typeof key === 'string' && key;
             });
@@ -82,18 +84,30 @@ export class Deploy {
                                 category: {
                                     folderPath: string;
                                 };
-                            }) => !packageDeployIgnore.includes(asset.assetType.name) && asset.category.folderPath
+                            }) => (asset.assetType && asset.assetType.name && !packageDeployIgnore.includes(asset.assetType.name)) && asset.category.folderPath
                         )
                         .filter(Boolean);
 
-                    pkgFolderPaths = [...new Set(pkgFolderPaths)];
+                        pkgFolderPaths = [...new Set(pkgFolderPaths)];
+                        console.log({pkgFolderPaths})
 
                     !sfmcOnly && displayLine(`Creating ${context} Local Files`, 'progress');
                     !sfmcOnly && (await createEditableFilesBasedOnContext(context, pkgAssets));
 
                     displayLine(`Creating ${context} folders in sfmc`, 'progress');
                     for (const fp in pkgFolderPaths) {
-                        !localOnly && (await addNewFolders(sdk, pkgFolderPaths[fp]));
+                        const ctxDetails = sfmcContext.sfmc_context_mapping.find((ctx) => ctx.context === context) as {
+                            name: string;
+                            contentType: string;
+                            context: string;
+                        };
+
+                        const folder = ctxDetails && {
+                            path: pkgFolderPaths[fp],
+                            context: ctxDetails
+                        }
+
+                        !localOnly && (await addNewFolders(sdk, folder));
                     }
                 }
             }

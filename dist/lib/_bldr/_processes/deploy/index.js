@@ -51,6 +51,7 @@ class Deploy {
                 allowTracking() && (0, metrics_1.incrementMetric)('req_command_deploy');
                 const packageJSON = yield (0, bldrFileSystem_1.readPackageManifest)();
                 const availableContexts = sfmcContext.sfmc_context_mapping.map((ctx) => ctx.context);
+                console.log({ availableContexts: sfmcContext.sfmc_context_mapping });
                 const packageContexts = Object.keys(packageJSON).map((key) => {
                     return availableContexts.includes(key) && typeof key === 'string' && key;
                 });
@@ -72,14 +73,20 @@ class Deploy {
                         yield (0, manifestJSON_1.updateManifest)(context, { assets: [], folders: [] });
                         const pkgAssets = packageJSON[context]['assets'];
                         let pkgFolderPaths = pkgAssets
-                            .map((asset) => !packageDeployIgnore_1.packageDeployIgnore.includes(asset.assetType.name) && asset.category.folderPath)
+                            .map((asset) => (asset.assetType && asset.assetType.name && !packageDeployIgnore_1.packageDeployIgnore.includes(asset.assetType.name)) && asset.category.folderPath)
                             .filter(Boolean);
                         pkgFolderPaths = [...new Set(pkgFolderPaths)];
+                        console.log({ pkgFolderPaths });
                         !sfmcOnly && (0, display_1.displayLine)(`Creating ${context} Local Files`, 'progress');
                         !sfmcOnly && (yield (0, CreateFilesBasedOnContext_1.createEditableFilesBasedOnContext)(context, pkgAssets));
                         (0, display_1.displayLine)(`Creating ${context} folders in sfmc`, 'progress');
                         for (const fp in pkgFolderPaths) {
-                            !localOnly && (yield (0, CreateSFMCFolders_1.addNewFolders)(sdk, pkgFolderPaths[fp]));
+                            const ctxDetails = sfmcContext.sfmc_context_mapping.find((ctx) => ctx.context === context);
+                            const folder = ctxDetails && {
+                                path: pkgFolderPaths[fp],
+                                context: ctxDetails
+                            };
+                            !localOnly && (yield (0, CreateSFMCFolders_1.addNewFolders)(sdk, folder));
                         }
                     }
                 }
