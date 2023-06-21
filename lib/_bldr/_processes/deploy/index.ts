@@ -93,7 +93,6 @@ export class Deploy {
                         .filter(Boolean);
 
                     pkgFolderPaths = [...new Set(pkgFolderPaths)];
-                    console.log({ pkgFolderPaths });
 
                     !sfmcOnly && displayLine(`Creating ${context} Local Files`, 'progress');
                     !sfmcOnly && (await createEditableFilesBasedOnContext(context, pkgAssets));

@@ -79,7 +79,6 @@ class Deploy {
                             asset.category.folderPath)
                             .filter(Boolean);
                         pkgFolderPaths = [...new Set(pkgFolderPaths)];
-                        console.log({ pkgFolderPaths });
                         !sfmcOnly && (0, display_1.displayLine)(`Creating ${context} Local Files`, 'progress');
                         !sfmcOnly && (yield (0, CreateFilesBasedOnContext_1.createEditableFilesBasedOnContext)(context, pkgAssets));
                         (0, display_1.displayLine)(`Creating ${context} folders in sfmc`, 'progress');

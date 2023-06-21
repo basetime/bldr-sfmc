@@ -14,12 +14,13 @@ import { fileExists, getRootPath, isProjectRoot } from '../../../_utils/fileSyst
 import { getFilePathDetails, guid, isWindows } from '../../_utils';
 import { Stash } from '../stash';
 import { State } from '../state';
+import { Initiate } from '../initiate';
 import path from 'path';
-import { normalizedRoot, resolvedRoot } from '../../../_utils/bldrFileSystem';
+import { normalizedRoot, resolvedRoot, scrubBldrSfmcEnv } from '../../../_utils/bldrFileSystem';
 
 const { getState, debug } = new State();
-
 const { saveStash, displayStashStatus } = new Stash();
+const { updateKeys } = new Initiate();
 
 /**
  * Handles all Configuration commands
@@ -146,11 +147,11 @@ export class Add {
         const putFiles: any[] = [];
         // Store all complete objects for Stash
         const postFiles = [];
-        const rootPath = (await getRootPath()) || path.normalize('./');
+        const rootPath = await getRootPath();
         // Get manifest JSON file
-        const manifestPath = path.join(rootPath, '.local.manifest.json');
+        const manifestPath = rootPath && path.join(rootPath, '.local.manifest.json');
         // Read ManifestJSON file from root dir
-        const manifestFile: any = await readFile(manifestPath);
+        const manifestFile: any = manifestPath && (await readFile(manifestPath));
         const manifestJSON = JSON.parse(manifestFile);
         // Initiate configuration for new file prompts
         let postFileOptions: {
@@ -170,6 +171,8 @@ export class Add {
         });
 
         debug('availableContexts', 'info', availableContexts);
+
+        await updateKeys();
 
         for (const context in availableContexts) {
             const folderNameRegex = new RegExp('[\\\\/]+' + availableContexts[context].name + '[\\\\/]+', 'i');
@@ -203,7 +206,7 @@ export class Add {
 
                     if (existingAsset) {
                         const fileContentRaw = await readFile(systemFilePath);
-                        const fileContent = fileContentRaw.toString();
+                        let fileContent = fileContentRaw.toString();
                         debug('existing - fileContentRaw', 'info', fileContentRaw || 'nothing here');
 
                         const objectIdKey = existingAsset.assetType?.objectIdKey;
@@ -238,9 +241,10 @@ export class Add {
                             systemFilePath
                         );
                         const fileContentRaw = await readFile(systemFilePath);
-                        const fileContent = fileContentRaw.toString();
+                        let fileContent = fileContentRaw.toString();
                         debug('new - fileContentRaw', 'info', fileContent || 'nothing here');
 
+                        fileContent = await scrubBldrSfmcEnv(fileContent);
                         postFiles.push({
                             name: name,
                             path: systemFilePath,

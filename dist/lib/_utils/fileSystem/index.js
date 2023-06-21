@@ -21,7 +21,7 @@ const path_1 = __importDefault(require("path"));
 const state_1 = require("../../_bldr/_processes/state");
 const bldrFileSystem_1 = require("../bldrFileSystem");
 const _utils_1 = require("../../_bldr/_utils");
-const { debug } = new state_1.State();
+const { getState, debug } = new state_1.State();
 const isProjectRoot = () => {
     // Get the current working directory that the [add] command was triggered
     const cwdPath = path_1.default.resolve('./');
@@ -40,9 +40,14 @@ exports.fileExists = fileExists;
  * @returns
  */
 const getRootPath = () => {
-    const root = path_1.default.resolve('./');
+    let root = path_1.default.resolve('./');
+    let rootFolder = root.split(path_1.default.normalize('/')).pop();
     const rootArr = sfmcContext.sfmc_context_mapping.map(({ name }) => {
-        if (root.includes(name)) {
+        if (rootFolder === name) {
+            return root.split(name)[0];
+        }
+        const slash = path_1.default.normalize('/');
+        if (root.includes(`${slash}${name}${slash}`)) {
             return root.split(name)[0];
         }
         return null;
@@ -111,27 +116,47 @@ const getBldrVersion = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getBldrVersion = getBldrVersion;
 const getAllFiles = () => __awaiter(void 0, void 0, void 0, function* () {
+    // // Get the root directory for the project being worked on
+    // const dirPath = await getRootPath();
+    // // Get the current working directory that the [add] command was triggered
+    // const cwdPath = process.cwd();
+    // // Identify the context for request
+    // const contexts = sfmcContext.sfmc_context_mapping
+    //     .map((ctx) => fileExists(path.join(resolvedRoot, ctx.rootName)) && ctx.rootName)
+    //     .filter(Boolean);
+    // // Store all complete file paths for files in CWD and subdirectories
+    // let ctxFiles = new Array();
+    // // // if dir is root folder
+    // // if (isProjectRoot()) {
+    // //     // iterate all contexts and add files
+    // //     for (const c in contexts) {
+    // //         ctxFiles.push(...(await getFiles(`./${contexts[c]}`)));
+    // //     }
+    // // } else {
+    //       // get files from current working directory and subdirectories
+    //       ctxFiles.push(...(await getFiles(path.resolve('./'))));
+    // // }
+    const stateObject = getState();
+    const instance = stateObject && stateObject.instance;
     // Get the root directory for the project being worked on
-    const dirPath = yield getRootPath();
+    const rootPath = bldrFileSystem_1.normalizedRoot;
     // Get the current working directory that the [add] command was triggered
     const cwdPath = process.cwd();
+    debug('Folder Path', 'info', { cwdPath, rootPath });
     // Identify the context for request
-    const contexts = sfmcContext.sfmc_context_mapping
-        .map((ctx) => fileExists(path_1.default.join(bldrFileSystem_1.resolvedRoot, ctx.rootName)) && ctx.rootName)
-        .filter(Boolean);
+    const contextsArray = sfmcContext.sfmc_context_mapping.map((context) => context.name);
     // Store all complete file paths for files in CWD and subdirectories
-    let ctxFiles = new Array();
-    // if dir is root folder
-    if (isProjectRoot()) {
-        // iterate all contexts and add files
-        for (const c in contexts) {
-            ctxFiles.push(...(yield getFiles(`./${contexts[c]}`)));
-        }
-    }
-    else {
-        // get files from current working directory and subdirectories
-        ctxFiles.push(...(yield getFiles(`${cwdPath}`)));
-    }
-    return ctxFiles;
+    let contextFiles = [];
+    // get files from current working directory and subdirectories
+    contextFiles.push(...(yield getFiles(path_1.default.resolve('./'))));
+    const filteredContextFiles = contextFiles
+        .map((filePath) => {
+        const isContextFilePath = contextsArray.some((context) => {
+            return filePath.includes(context);
+        });
+        return (isContextFilePath && filePath) || '';
+    })
+        .filter(Boolean);
+    return filteredContextFiles;
 });
 exports.getAllFiles = getAllFiles;

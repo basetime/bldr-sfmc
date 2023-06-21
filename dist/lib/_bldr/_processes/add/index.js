@@ -24,10 +24,12 @@ const fileSystem_1 = require("../../../_utils/fileSystem");
 const _utils_1 = require("../../_utils");
 const stash_1 = require("../stash");
 const state_1 = require("../state");
+const initiate_1 = require("../initiate");
 const path_1 = __importDefault(require("path"));
 const bldrFileSystem_1 = require("../../../_utils/bldrFileSystem");
 const { getState, debug } = new state_1.State();
 const { saveStash, displayStashStatus } = new stash_1.Stash();
+const { updateKeys } = new initiate_1.Initiate();
 /**
  * Handles all Configuration commands
  * @property {object} coreConfiguration
@@ -143,11 +145,11 @@ class Add {
             const putFiles = [];
             // Store all complete objects for Stash
             const postFiles = [];
-            const rootPath = (yield (0, fileSystem_1.getRootPath)()) || path_1.default.normalize('./');
+            const rootPath = yield (0, fileSystem_1.getRootPath)();
             // Get manifest JSON file
-            const manifestPath = path_1.default.join(rootPath, '.local.manifest.json');
+            const manifestPath = rootPath && path_1.default.join(rootPath, '.local.manifest.json');
             // Read ManifestJSON file from root dir
-            const manifestFile = yield (0, promises_1.readFile)(manifestPath);
+            const manifestFile = manifestPath && (yield (0, promises_1.readFile)(manifestPath));
             const manifestJSON = JSON.parse(manifestFile);
             // Initiate configuration for new file prompts
             let postFileOptions = {};
@@ -157,6 +159,7 @@ class Add {
                 return filePath.includes(context.name) && context;
             });
             debug('availableContexts', 'info', availableContexts);
+            yield updateKeys();
             for (const context in availableContexts) {
                 const folderNameRegex = new RegExp('[\\\\/]+' + availableContexts[context].name + '[\\\\/]+', 'i');
                 const contextPaths = contextFiles.filter((file) => folderNameRegex.test(file));
@@ -181,7 +184,7 @@ class Add {
                         });
                         if (existingAsset) {
                             const fileContentRaw = yield (0, promises_1.readFile)(systemFilePath);
-                            const fileContent = fileContentRaw.toString();
+                            let fileContent = fileContentRaw.toString();
                             debug('existing - fileContentRaw', 'info', fileContentRaw || 'nothing here');
                             const objectIdKey = (_a = existingAsset.assetType) === null || _a === void 0 ? void 0 : _a.objectIdKey;
                             const existingSchema = {
@@ -210,8 +213,9 @@ class Add {
                             const bldrId = yield (0, _utils_1.guid)();
                             const { name, dirName, dir, formattedDir, projectDir } = yield (0, _utils_1.getFilePathDetails)(systemFilePath);
                             const fileContentRaw = yield (0, promises_1.readFile)(systemFilePath);
-                            const fileContent = fileContentRaw.toString();
+                            let fileContent = fileContentRaw.toString();
                             debug('new - fileContentRaw', 'info', fileContent || 'nothing here');
+                            fileContent = yield (0, bldrFileSystem_1.scrubBldrSfmcEnv)(fileContent);
                             postFiles.push({
                                 name: name,
                                 path: systemFilePath,

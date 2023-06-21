@@ -22,6 +22,7 @@ const fileSystem_1 = require("../../../_utils/fileSystem");
 const metrics_1 = require("../../../_utils/metrics");
 const _utils_1 = require("../../_utils");
 const state_1 = require("../state");
+const path_1 = __importDefault(require("path"));
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder');
 const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension');
 const { isVerbose, allowTracking, debug } = new state_1.State();
@@ -35,7 +36,7 @@ class Initiate {
     constructor() {
         this.updateKeys = () => __awaiter(this, void 0, void 0, function* () {
             try {
-                const rootPath = yield fileSystem_1.getRootPath;
+                const rootPath = yield (0, fileSystem_1.getRootPath)();
                 const ctxFiles = yield (0, fileSystem_1.getAllFiles)();
                 for (const c in ctxFiles) {
                     const filePath = ctxFiles[c];
@@ -46,7 +47,7 @@ class Initiate {
                 const manifestJSON = yield (0, bldrFileSystem_1.readManifest)();
                 let manifestStr = JSON.stringify(manifestJSON);
                 let updatedManifest = JSON.parse(yield (0, bldrFileSystem_1.scrubBldrSfmcEnv)(manifestStr));
-                fs_1.default.writeFileSync(`./.local.manifest.json`, JSON.stringify(updatedManifest, null, 2));
+                fs_1.default.writeFileSync(path_1.default.join(`${rootPath}.local.manifest.json`), JSON.stringify(updatedManifest, null, 2));
                 if (yield (0, fileSystem_1.fileExists)(`${rootPath}package.manifest.json`)) {
                     const pkgJSON = (0, bldrFileSystem_1.readPackageManifest)();
                     let pkgStr = JSON.stringify(pkgJSON);
