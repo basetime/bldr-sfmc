@@ -73,7 +73,10 @@ class Deploy {
                         yield (0, manifestJSON_1.updateManifest)(context, { assets: [], folders: [] });
                         const pkgAssets = packageJSON[context]['assets'];
                         let pkgFolderPaths = pkgAssets
-                            .map((asset) => (asset.assetType && asset.assetType.name && !packageDeployIgnore_1.packageDeployIgnore.includes(asset.assetType.name)) && asset.category.folderPath)
+                            .map((asset) => asset.assetType &&
+                            asset.assetType.name &&
+                            !packageDeployIgnore_1.packageDeployIgnore.includes(asset.assetType.name) &&
+                            asset.category.folderPath)
                             .filter(Boolean);
                         pkgFolderPaths = [...new Set(pkgFolderPaths)];
                         console.log({ pkgFolderPaths });
@@ -84,7 +87,7 @@ class Deploy {
                             const ctxDetails = sfmcContext.sfmc_context_mapping.find((ctx) => ctx.context === context);
                             const folder = ctxDetails && {
                                 path: pkgFolderPaths[fp],
-                                context: ctxDetails
+                                context: ctxDetails,
                             };
                             !localOnly && (yield (0, CreateSFMCFolders_1.addNewFolders)(sdk, folder));
                         }
