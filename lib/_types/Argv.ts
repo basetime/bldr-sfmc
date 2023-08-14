@@ -37,5 +37,6 @@ export interface Argv {
     'local-only'?: Boolean;
     'update-env-keys'?: Boolean;
     'env-only'?: Boolean;
+    'ignore-root'?: Boolean;
     force?: Boolean;
 }

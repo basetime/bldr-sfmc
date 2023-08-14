@@ -27,6 +27,7 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
         //@ts-ignore //TODO figure out why contentBuilder is throwing TS error
         const { contentBuilder } = bldr.cli;
 
+
         if (!bldr) {
             throw new Error('unable to load sdk');
         }
@@ -300,11 +301,10 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                     const deleteRequest: {
                         assets: SFMC_Content_Builder_Asset[];
                         folders: {
-                            ID: number;
-                            Name: string;
-                            ContentType: string;
-                            ParentFolder: any;
-                            FolderPath: string;
+                            id: number;
+                            name: string;
+                            parentId: any;
+                            folderPath: string;
                         }[];
                     } = await contentBuilder.gatherAssetsByCategoryId({
                         contentType: 'asset',
@@ -313,8 +313,17 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                     const { assets, folders } = deleteRequest;
                     const assetIds = assets && assets.length && assets.map((asset) => asset.id);
-                    let folderIds = folders && folders.length && folders.map((folder) => folder.ID);
-                    //folderIds = folderIds && folderIds.sort((a, b) => b.ID - a.ID)
+                    let folderIds = folders && folders.length && folders.map((folder) => folder.id).sort((a: any,b:any) => b.id - a.id) || [];
+
+                    folderIds && folderIds.shift()
+                    argv && argv['ignore-root'] && folderIds && folderIds.shift()
+
+                    for (let f = folderIds.length - 1; f >= 0; f--){
+                        const deleteFolderRequest = folderIds &&  folderIds.length && await bldr.sfmc.client.soap.delete('DataFolder', {
+                            ID: folderIds[f]
+                        })
+
+                    }
 
                     if (assetIds && assetIds.length) {
                         for (const a in assetIds) {

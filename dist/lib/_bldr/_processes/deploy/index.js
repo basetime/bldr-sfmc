@@ -51,7 +51,6 @@ class Deploy {
                 allowTracking() && (0, metrics_1.incrementMetric)('req_command_deploy');
                 const packageJSON = yield (0, bldrFileSystem_1.readPackageManifest)();
                 const availableContexts = sfmcContext.sfmc_context_mapping.map((ctx) => ctx.context);
-                console.log({ availableContexts: sfmcContext.sfmc_context_mapping });
                 const packageContexts = Object.keys(packageJSON).map((key) => {
                     return availableContexts.includes(key) && typeof key === 'string' && key;
                 });

@@ -47,8 +47,6 @@ export class Deploy {
             const packageJSON = await readPackageManifest();
             const availableContexts: string[] = sfmcContext.sfmc_context_mapping.map((ctx) => ctx.context);
 
-            console.log({ availableContexts: sfmcContext.sfmc_context_mapping });
-
             const packageContexts = Object.keys(packageJSON).map((key) => {
                 return availableContexts.includes(key) && typeof key === 'string' && key;
             });
