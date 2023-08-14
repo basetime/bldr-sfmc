@@ -232,17 +232,11 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                     let folderIds = folders && folders.length && folders.map((folder) => folder.id).sort((a, b) => b.id - a.id) || [];
                     folderIds && folderIds.shift();
                     argv && argv['ignore-root'] && folderIds && folderIds.shift();
-                    console.log(argv);
                     for (let f = folderIds.length - 1; f >= 0; f--) {
-                        console.log('f index', f);
-                        console.log(folderIds[f]);
                         const deleteFolderRequest = folderIds && folderIds.length && (yield bldr.sfmc.client.soap.delete('DataFolder', {
                             ID: folderIds[f]
                         }));
-                        console.log(`index ${f}`, JSON.stringify(deleteFolderRequest, null, 2));
                     }
-                    console.log('FOLDERS', { folders });
-                    console.log({ folderIds });
                     if (assetIds && assetIds.length) {
                         for (const a in assetIds) {
                             const assetId = assetIds[a];
