@@ -35,6 +35,7 @@ const addNewFolders = (sdk, folder) => __awaiter(void 0, void 0, void 0, functio
         let manifestFolderCategories = manifestJSON[folder.context.context]['folders'].map((manifestFolder) => manifestFolder);
         let manifestFolders = yield (0, _1.uniqueArrayByKey)([...manifestAssetCategories, ...manifestFolderCategories], 'folderPath');
         const createdFoldersOutput = [];
+        console.log('to be created', folder);
         let checkPath = rootContextFolder;
         let parentId;
         let createFolder;
@@ -48,7 +49,7 @@ const addNewFolders = (sdk, folder) => __awaiter(void 0, void 0, void 0, functio
             manifestFolderCategories = manifestJSON[folder.context.context]['folders'].map((manifestFolder) => manifestFolder);
             manifestFolders = yield (0, _1.uniqueArrayByKey)([...manifestAssetCategories, ...manifestFolderCategories], 'folderPath');
             // Check if folder path exists in .local.manifest.json
-            const folderIndex = manifestFolders.findIndex((manifestFolder) => checkPath && manifestFolder.folderPath.includes(checkPath));
+            const folderIndex = manifestFolders.findIndex((manifestFolder) => checkPath && manifestFolder.folderPath === checkPath);
             // If folder does not exist
             if (folderIndex === -1) {
                 if (typeof parentId === 'undefined') {
