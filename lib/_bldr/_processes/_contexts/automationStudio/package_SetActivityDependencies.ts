@@ -92,14 +92,14 @@ export const setAutomationActivityDependencies = async (asset: any, manifestJSON
             delete asset.filterDefinition.id;
             delete asset.filterDefinition.key;
             delete asset.filterDefinition.categoryId;
-            delete asset.filterDefinition.createdDate;
-            delete asset.filterDefinition.modifiedDate;
             delete asset.filterDefinition.createdBy;
+            delete asset.filterDefinition.createdDate;
+            delete asset.filterDefinition.createdByName;
             delete asset.filterDefinition.modifiedBy;
+            delete asset.filterDefinition.modifiedDate;
             delete asset.filterDefinition.lastUpdatedBy;
             delete asset.filterDefinition.lastUpdated;
             delete asset.filterDefinition.lastUpdatedByName;
-            delete asset.filterDefinition.createdByName;
             break;
         case 'dataextractactivity':
             break;
