@@ -24,6 +24,8 @@ const display_1 = require("../../../_utils/display");
 const _utils_1 = require("../../_utils");
 const state_1 = require("../state");
 const metrics_1 = require("../../../_utils/metrics");
+const package_BuildAutomationSteps_1 = require("../_contexts/automationStudio/package_BuildAutomationSteps");
+const package_SetActivityDependencies_1 = require("../_contexts/automationStudio/package_SetActivityDependencies");
 const { allowTracking } = new state_1.State();
 /**
  */
@@ -64,6 +66,7 @@ class Package {
                             let contextAssets = manifestJSON[context]['assets'];
                             contextAssets = yield (0, bldrFileSystem_1.replaceBldrSfmcEnv)(JSON.stringify(contextAssets));
                             contextAssets = JSON.parse(contextAssets);
+                            let automationStudioPKGAssets;
                             switch (context) {
                                 case 'contentBuilder':
                                     (0, display_1.displayLine)(`Gathering Dependencies for ${contextAssets.length} Assets`, 'info');
@@ -100,6 +103,39 @@ class Package {
                                     packageOut.dataExtension = {
                                         assets: dataExtensionPkgAssets,
                                     };
+                                    break;
+                                case 'automationStudio':
+                                    console.log('AS START');
+                                    contextAssets &&
+                                        contextAssets.forEach((asset) => __awaiter(this, void 0, void 0, function* () {
+                                            if (!packageOut['automationStudio'] ||
+                                                !packageOut['automationStudio']['assets']) {
+                                                packageOut['automationStudio'] = {
+                                                    assets: [],
+                                                };
+                                            }
+                                            let assetObject;
+                                            if (asset.assetType.name === 'automation') {
+                                                assetObject = {
+                                                    name: asset.name,
+                                                    description: asset.description,
+                                                    key: asset.name,
+                                                    categoryId: null,
+                                                    typeId: 1,
+                                                    type: 'scheduled',
+                                                    statusId: 2,
+                                                    status: 'Ready',
+                                                    steps: (0, package_BuildAutomationSteps_1.buildAutomationSteps)(asset, contextAssets),
+                                                };
+                                            }
+                                            else {
+                                                assetObject = yield (0, package_SetActivityDependencies_1.setAutomationActivityDependencies)(asset, manifestJSON);
+                                            }
+                                            console.log({ assetObject });
+                                            packageOut['automationStudio']['assets'].push(assetObject);
+                                        }));
+                                    // console.log('automationAssets', automationAssets);
+                                    // console.log('activityAssets', activityAssets);
                                     break;
                             }
                         }

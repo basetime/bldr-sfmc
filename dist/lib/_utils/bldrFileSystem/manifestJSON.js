@@ -36,6 +36,11 @@ const updateManifest = (context, content) => __awaiter(void 0, void 0, void 0, f
     if (!context) {
         throw new Error('Context is required');
     }
+    // data extensions from the sdk are referenced as emailStudio
+    // bldr labels them as dataExtensions
+    if (context === 'emailStudio') {
+        context = 'dataExtension';
+    }
     const rootPath = (yield (0, fileSystem_2.getRootPath)()) || path_1.default.normalize('./');
     const manifestPath = path_1.default.normalize(`${rootPath}.local.manifest.json`);
     if (!(0, fileSystem_2.fileExists)(manifestPath)) {

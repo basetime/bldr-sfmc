@@ -32,6 +32,12 @@ const updateManifest = async (
         throw new Error('Context is required');
     }
 
+    // data extensions from the sdk are referenced as emailStudio
+    // bldr labels them as dataExtensions
+    if(context === 'emailStudio'){
+        context = 'dataExtension'
+    }
+
     const rootPath = (await getRootPath()) || path.normalize('./');
     const manifestPath = path.normalize(`${rootPath}.local.manifest.json`);
     if (!fileExists(manifestPath)) {
@@ -162,6 +168,7 @@ const updateManifest = async (
                         }
                     }
                 }
+
 
                 manifestJSON[context][assetType] = manifestContextItems;
             }

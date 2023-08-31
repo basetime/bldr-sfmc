@@ -22,6 +22,8 @@ import { assignObject, uniqueArrayByKey } from '../../_utils';
 
 import { State } from '../state';
 import { incrementMetric } from '../../../_utils/metrics';
+import { buildAutomationSteps } from '../_contexts/automationStudio/package_BuildAutomationSteps';
+import { setAutomationActivityDependencies } from '../_contexts/automationStudio/package_SetActivityDependencies';
 const { allowTracking } = new State();
 
 /**
@@ -88,6 +90,7 @@ export class Package {
                                 contextAssets = await replaceBldrSfmcEnv(JSON.stringify(contextAssets));
                                 contextAssets = JSON.parse(contextAssets);
 
+                                let automationStudioPKGAssets: { [key: string]: any[] };
                                 switch (context) {
                                     case 'contentBuilder':
                                         displayLine(
@@ -108,6 +111,7 @@ export class Package {
                                                 gatherDependencies.newDependencies &&
                                                 Object.keys(gatherDependencies.newDependencies)) ||
                                             [];
+
                                         const newContextKeys = (newDependencies && Object.keys(newDependencies)) || [];
 
                                         newContextKeys &&
@@ -156,6 +160,45 @@ export class Package {
                                         packageOut.dataExtension = {
                                             assets: dataExtensionPkgAssets,
                                         };
+                                        break;
+                                    case 'automationStudio':
+                                        console.log('AS START');
+
+                                        contextAssets &&
+                                            contextAssets.forEach(async (asset: any) => {
+                                                if (
+                                                    !packageOut['automationStudio'] ||
+                                                    !packageOut['automationStudio']['assets']
+                                                ) {
+                                                    packageOut['automationStudio'] = {
+                                                        assets: [],
+                                                    };
+                                                }
+
+                                                let assetObject;
+                                                if (asset.assetType.name === 'automation') {
+                                                    assetObject = {
+                                                        name: asset.name,
+                                                        description: asset.description,
+                                                        key: asset.name,
+                                                        categoryId: null,
+                                                        typeId: 1,
+                                                        type: 'scheduled',
+                                                        statusId: 2,
+                                                        status: 'Ready',
+                                                        steps: buildAutomationSteps(asset, contextAssets),
+                                                    };
+                                                } else {
+                                                    assetObject = await setAutomationActivityDependencies(asset, manifestJSON)
+                                                }
+
+                                                console.log({assetObject})
+                                                packageOut['automationStudio']['assets'].push(assetObject);
+                                            });
+
+                                        // console.log('automationAssets', automationAssets);
+                                        // console.log('activityAssets', activityAssets);
+
                                         break;
                                 }
                             }
