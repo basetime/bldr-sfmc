@@ -103,8 +103,10 @@ const scrubBldrSfmcEnv = (content) => __awaiter(void 0, void 0, void 0, function
 });
 exports.scrubBldrSfmcEnv = scrubBldrSfmcEnv;
 const replaceBldrSfmcEnv = (content) => __awaiter(void 0, void 0, void 0, function* () {
-    const dirPath = yield (0, fileSystem_1.getRootPath)();
-    if ((0, fileSystem_1.fileExists)(normalizedENVPath)) {
+    const rootPath = (yield (0, fileSystem_1.getRootPath)()) || path_1.default.normalize('./');
+    // Get manifest JSON file
+    const envPath = path_1.default.join(rootPath, '.sfmc.env.json');
+    if ((0, fileSystem_1.fileExists)(envPath)) {
         const config = yield readBldrSfmcEnv();
         for (const c in config) {
             const key = c;

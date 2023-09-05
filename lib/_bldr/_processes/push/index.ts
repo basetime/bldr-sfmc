@@ -1,7 +1,7 @@
 import { initiateBldrSDK } from '../../../_bldr_sdk';
 import { ManifestAsset, ManifestFolder } from '../../../_types/ManifestAsset';
 import { StashItem } from '../../../_types/StashItem';
-import { readManifest } from '../../../_utils/bldrFileSystem';
+import { readManifest, replaceBldrSfmcEnv } from '../../../_utils/bldrFileSystem';
 import { updateManifest } from '../../../_utils/bldrFileSystem/manifestJSON';
 import { displayLine } from '../../../_utils/display';
 import { createFile } from '../../../_utils/fileSystem';
@@ -242,6 +242,8 @@ export class Push {
                 if (sfmcUpdateObject) {
                     let createdFolders;
                     let manifestContextFolders: ManifestFolder[];
+                    const stashFileObjectReplaced = await replaceBldrSfmcEnv(JSON.stringify(stashFileObject));
+                    stashFileObject = JSON.parse(stashFileObjectReplaced);
 
                     switch (stashFileContext) {
                         case 'automationStudio':

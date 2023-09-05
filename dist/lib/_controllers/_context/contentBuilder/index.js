@@ -229,8 +229,14 @@ const ContentBuilderSwitch = (req, argv) => __awaiter(void 0, void 0, void 0, fu
                     });
                     const { assets, folders } = deleteRequest;
                     const assetIds = assets && assets.length && assets.map((asset) => asset.id);
-                    let folderIds = folders && folders.length && folders.map((folder) => folder.ID);
-                    //folderIds = folderIds && folderIds.sort((a, b) => b.ID - a.ID)
+                    let folderIds = folders && folders.length && folders.map((folder) => folder.id).sort((a, b) => b.id - a.id) || [];
+                    folderIds && folderIds.shift();
+                    argv && argv['ignore-root'] && folderIds && folderIds.shift();
+                    for (let f = folderIds.length - 1; f >= 0; f--) {
+                        const deleteFolderRequest = folderIds && folderIds.length && (yield bldr.sfmc.client.soap.delete('DataFolder', {
+                            ID: folderIds[f]
+                        }));
+                    }
                     if (assetIds && assetIds.length) {
                         for (const a in assetIds) {
                             const assetId = assetIds[a];

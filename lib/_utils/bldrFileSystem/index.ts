@@ -74,7 +74,6 @@ const scrubBldrSfmcEnv = async (content: string) => {
 
     if (fileExists(envPath)) {
         const config = await readBldrSfmcEnv();
-
         for (const c in config) {
             const key = c;
             const value = config[c];
@@ -88,10 +87,11 @@ const scrubBldrSfmcEnv = async (content: string) => {
 };
 
 const replaceBldrSfmcEnv = async (content: string) => {
-    const dirPath = await getRootPath();
-    if (fileExists(normalizedENVPath)) {
+    const rootPath = (await getRootPath()) || path.normalize('./');
+    // Get manifest JSON file
+    const envPath = path.join(rootPath, '.sfmc.env.json');
+    if (fileExists(envPath)) {
         const config = await readBldrSfmcEnv();
-
         for (const c in config) {
             const key = c;
             const value = config[c];

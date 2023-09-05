@@ -13,6 +13,7 @@ import { createFile, fileExists, getAllFiles, getRootPath } from '../../../_util
 import { incrementMetric } from '../../../_utils/metrics';
 import { isDirEmpty, isWindows } from '../../_utils';
 import { State } from '../state';
+import path from 'path';
 const contentBuilderInitiate = require('../../../_utils/options/projectInitiate_contentBuilder');
 const dataExtensionInitiate = require('../../../_utils/options/projectInitiate_dataExtension');
 const { isVerbose, allowTracking, debug } = new State();
@@ -28,7 +29,7 @@ export class Initiate {
 
     updateKeys = async () => {
         try {
-            const rootPath = await getRootPath;
+            const rootPath = await getRootPath();
             const ctxFiles = await getAllFiles();
 
             for (const c in ctxFiles) {
@@ -42,7 +43,7 @@ export class Initiate {
             let manifestStr = JSON.stringify(manifestJSON);
             let updatedManifest = JSON.parse(await scrubBldrSfmcEnv(manifestStr));
 
-            fs.writeFileSync(`./.local.manifest.json`, JSON.stringify(updatedManifest, null, 2));
+            fs.writeFileSync(path.join(`${rootPath}.local.manifest.json`), JSON.stringify(updatedManifest, null, 2));
 
             if (await fileExists(`${rootPath}package.manifest.json`)) {
                 const pkgJSON = readPackageManifest();

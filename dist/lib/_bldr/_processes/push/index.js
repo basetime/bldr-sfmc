@@ -207,6 +207,8 @@ class Push {
                     if (sfmcUpdateObject) {
                         let createdFolders;
                         let manifestContextFolders;
+                        const stashFileObjectReplaced = yield (0, bldrFileSystem_1.replaceBldrSfmcEnv)(JSON.stringify(stashFileObject));
+                        stashFileObject = JSON.parse(stashFileObjectReplaced);
                         switch (stashFileContext) {
                             case 'automationStudio':
                                 if (method === 'put') {
