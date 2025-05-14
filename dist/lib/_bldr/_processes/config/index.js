@@ -74,23 +74,32 @@ class Config {
                         return;
                     }
                     (0, display_1.displayLine)('Gathering Business Unit Details...');
+                    const businessUnitDetails = yield sdk.sfmc.account.getBusinessUnitDetails(configured.parentMID);
+                    console.log('businessUnitDetails', businessUnitDetails);
+                    debug('Business Unit Return (provided)', 'info', businessUnitDetails);
                     // Get All Business Unit Details from provided credentials
                     const getAllBusinessUnitDetails = yield sdk.sfmc.account.getAllBusinessUnitDetails();
                     debug('Business Unit Return', 'info', getAllBusinessUnitDetails);
+                    let instanceBusinessUnits = [];
                     // Throw Error if there are issues with getting Business Unit Details
                     if (!Array.isArray(getAllBusinessUnitDetails) ||
                         (Array.isArray(getAllBusinessUnitDetails) && !getAllBusinessUnitDetails.length)) {
-                        throw new Error('Unable to get Instance Details. Please review credentials.');
+                        (0, display_1.displayLine)('Unable to get Instance Details. Please review credentials.', 'info');
+                        return;
                     }
-                    // Isolate each Business Unit Name and MID for stored configuration
-                    const instanceBusinessUnits = Array.isArray(getAllBusinessUnitDetails) &&
-                        getAllBusinessUnitDetails.length &&
-                        getAllBusinessUnitDetails.map((bu) => {
-                            return {
-                                name: bu.Name,
-                                mid: bu.ID,
-                            };
-                        });
+                    else {
+                        // Isolate each Business Unit Name and MID for stored configuration
+                        instanceBusinessUnits =
+                            (Array.isArray(getAllBusinessUnitDetails) &&
+                                getAllBusinessUnitDetails.length &&
+                                getAllBusinessUnitDetails.map((bu) => {
+                                    return {
+                                        name: bu.Name,
+                                        mid: bu.ID,
+                                    };
+                                })) ||
+                                [];
+                    }
                     // Encrypt Configuration object
                     const encryptedConfiguration = Object.assign(Object.assign({}, configured), { mids: instanceBusinessUnits, apiClientId: yield encrypt(configResults.apiClientId), apiClientSecret: yield encrypt(configResults.apiClientSecret) });
                     debug('Encrypted Configuration', 'info', encryptedConfiguration);
@@ -111,6 +120,7 @@ class Config {
                 }));
             }
             catch (err) {
+                console.log(err);
                 err.message && (0, display_1.displayLine)(err.message, 'error');
                 return err;
             }

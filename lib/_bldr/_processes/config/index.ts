@@ -84,29 +84,40 @@ export class Config {
                     }
 
                     displayLine('Gathering Business Unit Details...');
+                    const businessUnitDetails = await sdk.sfmc.account.getBusinessUnitDetails(configured.parentMID);
+
+                    console.log('businessUnitDetails', businessUnitDetails);
+                    debug('Business Unit Return (provided)', 'info', businessUnitDetails);
 
                     // Get All Business Unit Details from provided credentials
                     const getAllBusinessUnitDetails = await sdk.sfmc.account.getAllBusinessUnitDetails();
                     debug('Business Unit Return', 'info', getAllBusinessUnitDetails);
+
+                    let instanceBusinessUnits: {
+                        name: string;
+                        mid: number;
+                    }[] = [];
 
                     // Throw Error if there are issues with getting Business Unit Details
                     if (
                         !Array.isArray(getAllBusinessUnitDetails) ||
                         (Array.isArray(getAllBusinessUnitDetails) && !getAllBusinessUnitDetails.length)
                     ) {
-                        throw new Error('Unable to get Instance Details. Please review credentials.');
+                        displayLine('Unable to get Instance Details. Please review credentials.', 'info');
+                        return
+                    } else {
+                        // Isolate each Business Unit Name and MID for stored configuration
+                        instanceBusinessUnits =
+                            (Array.isArray(getAllBusinessUnitDetails) &&
+                                getAllBusinessUnitDetails.length &&
+                                getAllBusinessUnitDetails.map((bu: { Name: string; ID: number }) => {
+                                    return {
+                                        name: bu.Name,
+                                        mid: bu.ID,
+                                    };
+                                })) ||
+                            [];
                     }
-
-                    // Isolate each Business Unit Name and MID for stored configuration
-                    const instanceBusinessUnits =
-                        Array.isArray(getAllBusinessUnitDetails) &&
-                        getAllBusinessUnitDetails.length &&
-                        getAllBusinessUnitDetails.map((bu: { Name: string; ID: number }) => {
-                            return {
-                                name: bu.Name,
-                                mid: bu.ID,
-                            };
-                        });
 
                     // Encrypt Configuration object
                     const encryptedConfiguration = {
@@ -137,6 +148,7 @@ export class Config {
                     allowTracking() && incrementMetric('req_command_config');
                 });
         } catch (err: any) {
+            console.log(err);
             err.message && displayLine(err.message, 'error');
             return err;
         }
