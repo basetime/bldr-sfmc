@@ -23,7 +23,7 @@ const createContentBuilderEditableFiles = (assets) => __awaiter(void 0, void 0, 
         for (const a in assets) {
             const asset = assets[a];
             const assetType = (asset.assetType && asset.assetType.name) || null;
-            const folderPath = (asset && asset.category && asset.category.folderPath) || null;
+            const folderPath = (asset && asset.category && asset.category.folderPath) || (asset.category && asset.category.name) || null;
             const id = asset.id;
             const fileName = asset.name;
             let content;

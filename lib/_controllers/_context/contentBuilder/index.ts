@@ -27,7 +27,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
         //@ts-ignore //TODO figure out why contentBuilder is throwing TS error
         const { contentBuilder } = bldr.cli;
 
-
         if (!bldr) {
             throw new Error('unable to load sdk');
         }
@@ -228,17 +227,34 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         const legacy = false;
                         const shared = argv.a.split(':')[1] === 'shared' ? true : false;
                         const assetId = argv._ && argv._[1];
+                        let cloneRequest;
+                        if (typeof assetId === 'string' && assetId?.includes(',')) {
+                            displayLine(`Multiple asset IDs detected.`, 'info');
+                            const assetIds = assetId.split(',').map((id) => id.trim());
+                            cloneRequest = await Promise.all(
+                                assetIds.map(async (id) => {
+                                    if (id) {
+                                        const request = await contentBuilder.gatherAssetById(id, legacy, shared)
 
-                        const cloneRequest: {
-                            assets: SFMC_Content_Builder_Asset[];
-                            folders: {
-                                ID: number;
-                                Name: string;
-                                ContentType: string;
-                                ParentFolder: any;
-                                FolderPath: string;
-                            }[];
-                        } = await contentBuilder.gatherAssetById(assetId, legacy, shared);
+                                        if (!request || !request.assets || !request.folders) {
+                                            displayLine(`Unable to Clone Request for Asset ID: ${id}`, 'error');
+                                            return;
+                                        }
+
+                                        return request;
+                                    }
+                                })
+                            );
+
+                            cloneRequest = {
+                                assets: cloneRequest.flatMap((req) => req.assets).filter(Boolean),
+                                folders: cloneRequest.flatMap((req) => req.folders).filter(Boolean),
+                            };
+
+
+                        } else {
+                            cloneRequest = await contentBuilder.gatherAssetById(assetId, legacy, shared);
+                        }
 
                         if (!cloneRequest || !cloneRequest.assets || !cloneRequest.folders) {
                             displayLine(`Unable to Clone Request`, 'error');
@@ -269,8 +285,6 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                             }[];
                         } = await contentBuilder.gatherAssetById(argv.a);
 
-                        debug('Clone Request', 'info', cloneRequest);
-
                         if (!cloneRequest || !cloneRequest.assets || !cloneRequest.folders) {
                             displayLine(`Unable to Clone Request, asset might not exist`, 'error');
                             return;
@@ -280,9 +294,11 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
                         const isolatedFoldersUnique = folders && uniqueArrayByKey(folders, 'id');
 
                         const assetsToCreate = assets && !Array.isArray(assets) ? [assets] : assets;
+
                         assetsToCreate &&
                             assetsToCreate.length &&
                             (await createContentBuilderEditableFiles(assetsToCreate));
+
                         assetsToCreate &&
                             folders &&
                             (await updateManifest('contentBuilder', {
@@ -313,16 +329,22 @@ const ContentBuilderSwitch = async (req: any, argv: Argv) => {
 
                     const { assets, folders } = deleteRequest;
                     const assetIds = assets && assets.length && assets.map((asset) => asset.id);
-                    let folderIds = folders && folders.length && folders.map((folder) => folder.id).sort((a: any,b:any) => b.id - a.id) || [];
+                    let folderIds =
+                        (folders &&
+                            folders.length &&
+                            folders.map((folder) => folder.id).sort((a: any, b: any) => b.id - a.id)) ||
+                        [];
 
-                    folderIds && folderIds.shift()
-                    argv && argv['ignore-root'] && folderIds && folderIds.shift()
+                    folderIds && folderIds.shift();
+                    argv && argv['ignore-root'] && folderIds && folderIds.shift();
 
-                    for (let f = folderIds.length - 1; f >= 0; f--){
-                        const deleteFolderRequest = folderIds &&  folderIds.length && await bldr.sfmc.client.soap.delete('DataFolder', {
-                            ID: folderIds[f]
-                        })
-
+                    for (let f = folderIds.length - 1; f >= 0; f--) {
+                        const deleteFolderRequest =
+                            folderIds &&
+                            folderIds.length &&
+                            (await bldr.sfmc.client.soap.delete('DataFolder', {
+                                ID: folderIds[f],
+                            }));
                     }
 
                     if (assetIds && assetIds.length) {

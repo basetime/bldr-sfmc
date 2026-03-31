@@ -41,14 +41,46 @@ class Audit {
          */
         this.initiateAudit = (argv) => __awaiter(this, void 0, void 0, function* () {
             try {
+                // const auditOptions = auditSelection() as { [key: string]: any };
+                // yargsInteractive()
+                //     .usage('$bldr audit [args]')
+                //     .interactive(auditOptions)
+                //     .then(async (configResults) => {
+                //         const sdk = await initiateBldrSDK();
+                //         createDirectory(`${rawResponsesBasePath}`);
+                //         const selectionMap = [
+                //             { name: 'Content Builder', value: 'contentBuilder' },
+                //             { name: 'Data Extensions', value: 'dataExtensions' },
+                //             { name: 'Automation Studio', value: 'automationStudio' },
+                //             { name: 'Journey Builder', value: 'REST_interaction/v1/interactions' },
+                //             { name: 'Email Send Definitions', value: 'SOAP_emailSendDefinition' },
+                //             { name: 'Extract Definitions', value: 'SOAP_extractDefinition' },
+                //             { name: 'File Triggers', value: 'SOAP_fileTrigger' },
+                //             { name: 'Filter Definitions', value: 'SOAP_filterDefinition' },
+                //             { name: 'Import Definitions', value: 'SOAP_importDefinition' },
+                //             { name: 'Query Definitions', value: 'SOAP_queryDefinition' },
+                //             { name: 'Triggered Send Definitions', value: 'SOAP_triggeredSendDefinition' },
+                //             { name: 'Event Definitions', value: 'REST_interaction/v1/eventDefinitions' },
+                //             { name: 'Attribute Set Definitions', value: 'REST_contacts/v1/attributeSetDefinitions' },
+                //         ];
+                //         const selectedKeys = selectionMap
+                //             .map((item) => {
+                //                 if (configResults.auditSelection.includes(item.name)) {
+                //                     return item.value;
+                //                 }
+                //                 return null;
+                //             })
+                //             .filter(Boolean) as string[];
+                //         this.auditAutomations(sdk, selectedKeys).then(() => {});
+                //     });
                 const sdk = yield (0, _bldr_sdk_1.initiateBldrSDK)();
                 (0, fileSystem_1.createDirectory)(`${rawResponsesBasePath}`);
                 const runAudit = () => __awaiter(this, void 0, void 0, function* () {
                     // await this.auditDataExtensions(sdk);
                     // await this.auditAutomations(sdk);
                     // await this.auditBulkSoap(sdk);
-                    // await this.auditBulkRest(sdk);
-                    yield this.auditContentBuilder(sdk);
+                    yield this.auditBulkRest(sdk);
+                    // await this.auditContentBuilder(sdk);
                 });
                 yield runAudit().then(() => __awaiter(this, void 0, void 0, function* () {
                     // setTimeout(() => this.auditJSON(), 2000);
@@ -222,19 +254,35 @@ class Audit {
         });
         this.auditBulkRest = (sdk) => __awaiter(this, void 0, void 0, function* () {
             const requestParams = [
-                'interaction/v1/interactions',
+                'interaction/v1/interactions?extras=activities&status=published',
                 // 'asset/v1/content/assets',
                 // 'interaction/v1/eventDefinitions',
                 // 'contacts/v1/attributeSetDefinitions',
             ];
             for (const r in requestParams) {
                 const param = requestParams[r];
-                const paramId = param.split('/')[param.split('/').length - 1].toLowerCase();
+                let paramId = param.split('/')[param.split('/').length - 1].toLowerCase();
+                paramId = (paramId.includes('?') && paramId.split('?')[0]) || paramId;
                 (0, display_1.displayLine)(`Fetching ${param}...`, 'progress');
                 const request = yield sdk.sfmc.client.rest.getBulk(param);
                 // request.object = param;
                 if (request && request.items) {
-                    this.writeLocalFiles(request.items, paramId);
+                    // this.writeLocalFiles(request.items, paramId);
+                }
+                console.log(`Fetched ${request.items.length} items from ${param}`);
+                // request.items.map((item: any) => console.log(JSON.stringify(item, null, 2)));
+                const journeyInformation = [];
+                for (const item of request.items) {
+                    console.log(`Processing item: ${item.name} (${item.id})`);
+                    // Flatten the item object
+                    const activities = item.activities || [];
+                    const emailActivities = activities.filter((activity) => activity.type === 'EMAILV2');
+                    const emails = yield emailActivities.map((activity) => __awaiter(this, void 0, void 0, function* () {
+                        const legacyId = activity.configurationArguments.triggeredSend.emailId;
+                        const emailRequest = yield sdk.sfmc.client.rest.get(`/asset/v1/content/assets?$filter=data.email.legacy.legacyId%20eq%20"${legacyId}"&scope=Ours,Shared`);
+                        // this.writeLocalFiles(emailRequest.items[0], `email_${emailRequest.items[0].name}.json`);
+                        console.log([item.name, item.version, activity.name, emailRequest.items[0].name].join(','));
+                    }));
                 }
             }
         });
@@ -268,7 +316,10 @@ class Audit {
                 }
             }
         });
-        this.auditAutomations = (sdk) => __awaiter(this, void 0, void 0, function* () {
+        this.auditAutomations = (sdk, auditSelection) => __awaiter(this, void 0, void 0, function* () {
+            if (!auditSelection.includes('automationStudio')) {
+                return;
+            }
             const RootResp = yield sdk.sfmc.folder.search({
                 contentType: 'automations',
                 searchKey: 'Name',
@@ -375,8 +426,12 @@ class Audit {
         });
         this.auditContentBuilder = (sdk) => __awaiter(this, void 0, void 0, function* () {
             try {
-                const folderRequest = yield sdk.sfmc.client.rest.getBulk('/asset/v1/content/categories');
-                const folderIds = folderRequest.items.map((folder) => folder.id);
+                const ContentType = 'shared';
+                const folderRequest = yield sdk.sfmc.client.rest.getBulk('/asset/v1/content/categories?scope=Shared');
+                const folderIds = folderRequest.items.map((folder) => {
+                    console.log(folder.name);
+                    return folder.id;
+                });
                 const chunks = (0, _utils_1.splitArrayIntoChunks)(folderIds, 5);
                 (0, display_1.displayLine)('Fetching Content Builder Assets...', 'progress');
                 (0, display_1.displayLine)(`Total Content Builder Folders: ${folderIds.length}`, 'info');
@@ -443,7 +498,7 @@ class Audit {
                     requestResponses.push(...webStudioRequest.items);
                 requestResponses && (0, display_1.displayLine)(`Total Content Builder Assets: ${requestResponses.length}`, 'info');
                 const responseChunks = (0, _utils_1.splitArrayIntoChunks)(requestResponses, 600);
-                responseChunks.map((chunk, index) => this.writeLocalFiles(chunk, `assets_${index}`));
+                responseChunks.map((chunk, index) => this.writeLocalFiles(chunk, `assets_${ContentType}_${index}`));
             }
             catch (err) {
                 err.message && (0, display_1.displayLine)(err.message, 'error');

@@ -12,10 +12,10 @@ import sfmc_context_map from '@basetime/bldr-sfmc-sdk/dist/sfmc/utils/sfmcContex
 import pMap from 'p-map';
 import { getProperties } from 'sfmc-soap-object-reference';
 import { jsonquery } from '@jsonquerylang/jsonquery';
-
 import fs from 'fs';
 import path from 'path';
-import { request } from 'http';
+import yargsInteractive from 'yargs-interactive';
+import { auditSelection } from '../../../_utils/options/audit_selection';
 
 type IGenericObject = { [key: string]: any };
 
@@ -40,15 +40,51 @@ export class Audit {
      */
     initiateAudit = async (argv: Argv) => {
         try {
+            // const auditOptions = auditSelection() as { [key: string]: any };
+
+            // yargsInteractive()
+            //     .usage('$bldr audit [args]')
+            //     .interactive(auditOptions)
+            //     .then(async (configResults) => {
+            //         const sdk = await initiateBldrSDK();
+            //         createDirectory(`${rawResponsesBasePath}`);
+            //         const selectionMap = [
+            //             { name: 'Content Builder', value: 'contentBuilder' },
+            //             { name: 'Data Extensions', value: 'dataExtensions' },
+            //             { name: 'Automation Studio', value: 'automationStudio' },
+            //             { name: 'Journey Builder', value: 'REST_interaction/v1/interactions' },
+            //             { name: 'Email Send Definitions', value: 'SOAP_emailSendDefinition' },
+            //             { name: 'Extract Definitions', value: 'SOAP_extractDefinition' },
+            //             { name: 'File Triggers', value: 'SOAP_fileTrigger' },
+            //             { name: 'Filter Definitions', value: 'SOAP_filterDefinition' },
+            //             { name: 'Import Definitions', value: 'SOAP_importDefinition' },
+            //             { name: 'Query Definitions', value: 'SOAP_queryDefinition' },
+            //             { name: 'Triggered Send Definitions', value: 'SOAP_triggeredSendDefinition' },
+            //             { name: 'Event Definitions', value: 'REST_interaction/v1/eventDefinitions' },
+            //             { name: 'Attribute Set Definitions', value: 'REST_contacts/v1/attributeSetDefinitions' },
+            //         ];
+
+            //         const selectedKeys = selectionMap
+            //             .map((item) => {
+            //                 if (configResults.auditSelection.includes(item.name)) {
+            //                     return item.value;
+            //                 }
+
+            //                 return null;
+            //             })
+            //             .filter(Boolean) as string[];
+
+            //         this.auditAutomations(sdk, selectedKeys).then(() => {});
+            //     });
+
             const sdk = await initiateBldrSDK();
             createDirectory(`${rawResponsesBasePath}`);
-
             const runAudit = async () => {
                 // await this.auditDataExtensions(sdk);
                 // await this.auditAutomations(sdk);
                 // await this.auditBulkSoap(sdk);
-                // await this.auditBulkRest(sdk);
-                await this.auditContentBuilder(sdk);
+                await this.auditBulkRest(sdk);
+                // await this.auditContentBuilder(sdk);
             };
 
             await runAudit().then(async () => {
@@ -252,7 +288,7 @@ export class Audit {
 
     private auditBulkRest = async (sdk: BLDR_Client) => {
         const requestParams = [
-            'interaction/v1/interactions',
+            'interaction/v1/interactions?extras=activities&status=published',
             // 'asset/v1/content/assets',
             // 'interaction/v1/eventDefinitions',
             // 'contacts/v1/attributeSetDefinitions',
@@ -260,13 +296,38 @@ export class Audit {
 
         for (const r in requestParams) {
             const param = requestParams[r];
-            const paramId = param.split('/')[param.split('/').length - 1].toLowerCase();
+            let paramId = param.split('/')[param.split('/').length - 1].toLowerCase();
+            paramId = (paramId.includes('?') && paramId.split('?')[0]) || paramId;
             displayLine(`Fetching ${param}...`, 'progress');
             const request = await sdk.sfmc.client.rest.getBulk(param);
             // request.object = param;
 
             if (request && request.items) {
-                this.writeLocalFiles(request.items, paramId);
+                // this.writeLocalFiles(request.items, paramId);
+            }
+
+            console.log(`Fetched ${request.items.length} items from ${param}`);
+            // request.items.map((item: any) => console.log(JSON.stringify(item, null, 2)));
+
+            const journeyInformation = [];
+
+            for (const item of request.items) {
+                console.log(`Processing item: ${item.name} (${item.id})`);
+
+                // Flatten the item object
+                const activities = item.activities || [];
+                const emailActivities = activities.filter((activity: any) => activity.type === 'EMAILV2');
+
+                const emails = await emailActivities.map(async (activity: any) => {
+                    const legacyId = activity.configurationArguments.triggeredSend.emailId;
+
+                    const emailRequest = await sdk.sfmc.client.rest.get(
+                        `/asset/v1/content/assets?$filter=data.email.legacy.legacyId%20eq%20"${legacyId}"&scope=Ours,Shared`
+                    );
+
+                    // this.writeLocalFiles(emailRequest.items[0], `email_${emailRequest.items[0].name}.json`);
+                    console.log([item.name, item.version, activity.name, emailRequest.items[0].name].join(','));
+                });
             }
         }
     };
@@ -308,7 +369,11 @@ export class Audit {
         }
     };
 
-    private auditAutomations = async (sdk: BLDR_Client) => {
+    private auditAutomations = async (sdk: BLDR_Client, auditSelection: string[]) => {
+        if (!auditSelection.includes('automationStudio')) {
+            return;
+        }
+
         const RootResp = await sdk.sfmc.folder.search({
             contentType: 'automations',
             searchKey: 'Name',
@@ -444,8 +509,13 @@ export class Audit {
 
     auditContentBuilder = async (sdk: BLDR_Client) => {
         try {
-            const folderRequest = await sdk.sfmc.client.rest.getBulk('/asset/v1/content/categories');
-            const folderIds = folderRequest.items.map((folder: { [key: string]: any }) => folder.id);
+            const ContentType = 'shared';
+            const folderRequest = await sdk.sfmc.client.rest.getBulk('/asset/v1/content/categories?scope=Shared');
+            const folderIds = folderRequest.items.map((folder: { [key: string]: any }) => {
+                console.log(folder.name);
+
+                return folder.id;
+            });
 
             const chunks = splitArrayIntoChunks(folderIds, 5);
             displayLine('Fetching Content Builder Assets...', 'progress');
@@ -526,7 +596,7 @@ export class Audit {
             requestResponses && displayLine(`Total Content Builder Assets: ${requestResponses.length}`, 'info');
 
             const responseChunks = splitArrayIntoChunks(requestResponses, 600);
-            responseChunks.map((chunk, index) => this.writeLocalFiles(chunk, `assets_${index}`));
+            responseChunks.map((chunk, index) => this.writeLocalFiles(chunk, `assets_${ContentType}_${index}`));
         } catch (err: any) {
             err.message && displayLine(err.message, 'error');
             return err;
